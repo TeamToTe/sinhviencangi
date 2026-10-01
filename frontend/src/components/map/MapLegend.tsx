@@ -10,12 +10,12 @@ export const MapLegend: React.FC = () => {
   const { category, setCategory } = useFilterStore();
 
   return (
-    <div className="absolute bottom-6 left-4 z-20 select-none">
+    <div className="absolute bottom-6 left-4 z-[1000] select-none">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 overflow-hidden max-w-[240px] transition-all duration-300">
         {/* Toggle Bar */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 bg-emerald-900 text-white text-xs font-black tracking-wider uppercase"
+          className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 bg-emerald-900 text-white text-xs font-black tracking-wider uppercase cursor-pointer"
         >
           <div className="flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-lime-400" />
@@ -34,7 +34,7 @@ export const MapLegend: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setCategory(isSelected ? 'all' : (cat.id as PlaceCategory))}
-                    className={`w-full flex items-center gap-2 p-1.5 rounded-xl transition-all text-left font-medium ${
+                    className={`w-full flex items-center gap-2 p-1.5 rounded-xl transition-all text-left font-medium cursor-pointer ${
                       isSelected
                         ? 'bg-emerald-100 text-emerald-950 font-bold'
                         : 'hover:bg-gray-50 text-gray-700'

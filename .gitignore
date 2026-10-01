@@ -1,28 +1,76 @@
+# ==========================================
 # Dependencies
+# ==========================================
 node_modules/
 */node_modules/
+.pnp
+.pnp.js
 
-# Production builds
+# ==========================================
+# Production Builds & Outputs
+# ==========================================
 dist/
 */dist/
 build/
+out/
+.next/
+*.tsbuildinfo
 
-# Local Environment Variables
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.*.local
-frontend/.env.local
+*.env
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+!.env.example
 
-# Logs
+# ==========================================
+# Logs & Temporary Files
+# ==========================================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# IDE & OS
+# ==========================================
+# IDE & Code Editors
+# ==========================================
 .vscode/
+!.vscode/extensions.json
 .idea/
-.DS_Store
-Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Agent/Local configs
+# ==========================================
+# Operating System Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Local AI Agents & Supabase
+# ==========================================
 .agents/
 .gemini/
+.claude/
+.cursor/
+.supabase/

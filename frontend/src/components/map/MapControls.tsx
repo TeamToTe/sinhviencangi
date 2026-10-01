@@ -15,12 +15,12 @@ export const MapControls: React.FC<MapControlsProps> = ({
   onResetView,
 }) => {
   return (
-    <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 select-none">
+    <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 select-none">
       {/* Zoom and Locate Group */}
       <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 p-1 flex flex-col gap-1">
         <button
           onClick={onZoomIn}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
           title="Phóng to"
         >
           <Plus className="w-5 h-5" />
@@ -30,7 +30,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
 
         <button
           onClick={onZoomOut}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
           title="Thu nhỏ"
         >
           <Minus className="w-5 h-5" />
@@ -40,7 +40,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
       {/* Locate Me */}
       <button
         onClick={onLocateMe}
-        className="w-11 h-11 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 flex items-center justify-center text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all group"
+        className="w-11 h-11 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 flex items-center justify-center text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all group cursor-pointer"
         title="Vị trí của tôi"
       >
         <LocateFixed className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -49,7 +49,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
       {/* Reset to FPT Campus Center */}
       <button
         onClick={onResetView}
-        className="w-11 h-11 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 flex items-center justify-center text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all group"
+        className="w-11 h-11 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 flex items-center justify-center text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all group cursor-pointer"
         title="Về ĐH FPT Hòa Lạc"
       >
         <Compass className="w-5 h-5 group-hover:rotate-45 transition-transform" />
