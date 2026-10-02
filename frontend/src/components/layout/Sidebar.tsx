@@ -30,8 +30,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ places, isLoading }) => {
 
   return (
     <aside
-      className={`relative z-[1000] bg-emerald-50/50 backdrop-blur-xs border-r border-emerald-200/80 flex flex-col transition-all duration-300 ease-in-out ${
-        isSidebarOpen ? 'w-full md:w-[380px] lg:w-[420px]' : 'w-0 border-r-0 md:w-0'
+      className={`hidden md:flex relative z-[1000] bg-emerald-50/50 backdrop-blur-xs border-r border-emerald-200/80 flex-col transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'w-[380px] lg:w-[420px]' : 'w-0 border-r-0'
       }`}
     >
       {/* Sidebar Toggle Handle for Desktop - High z-index above all Leaflet map panes */}

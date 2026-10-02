@@ -5,6 +5,8 @@ import { IconRenderer } from '../common/IconRenderer';
 import type { PlaceCategory } from '../../types/place';
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Check,
   RotateCcw,
   Sparkles,
@@ -70,7 +72,74 @@ export const CategoryBar: React.FC = () => {
   } = useFilterStore();
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMouseDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const hasMovedRef = useRef(false);
+
+  const checkScroll = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      setCanScrollLeft(scrollLeft > 4);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 4);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = containerRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll, { passive: true });
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [category, area, minPrice, maxPrice, tags, onlyAvailable, sortBy]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    isMouseDownRef.current = true;
+    hasMovedRef.current = false;
+    startXRef.current = e.pageX - containerRef.current.offsetLeft;
+    scrollLeftRef.current = containerRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMouseDownRef.current || !containerRef.current) return;
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = (x - startXRef.current);
+    if (Math.abs(walk) > 4) {
+      hasMovedRef.current = true;
+      setIsDragging(true);
+      containerRef.current.scrollLeft = scrollLeftRef.current - walk;
+    }
+  };
+
+  const handleMouseUp = () => {
+    isMouseDownRef.current = false;
+    setTimeout(() => {
+      hasMovedRef.current = false;
+      setIsDragging(false);
+    }, 50);
+  };
+
+  const handleScrollBy = (offset: number) => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
+
+  const handlePillClick = (action: () => void) => {
+    if (hasMovedRef.current) return;
+    action();
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -116,283 +185,496 @@ export const CategoryBar: React.FC = () => {
     sortBy !== 'rating';
 
   return (
-    <div
-      ref={containerRef}
-      className="bg-white/90 backdrop-blur-md border border-white/80 shadow-lg shadow-emerald-950/10 rounded-2xl p-1.5 flex items-center gap-1.5 relative z-[1010] select-none overflow-visible max-w-full"
-    >
-      {/* 1. Category Dropdown */}
-      <div className="relative shrink-0">
-        <button
-          onClick={() => toggleDropdown('category')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs ${
-            category !== 'all'
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
-              : 'bg-white/90 hover:bg-white text-emerald-950 border-emerald-200/80 hover:border-emerald-300'
+    <>
+      {/* Outer Wrapper with Left/Right Arrows */}
+      <div className="relative flex items-center max-w-full group/bar">
+        {/* Left Scroll Button */}
+        {canScrollLeft && (
+          <button
+            onClick={() => handleScrollBy(-140)}
+            className="hidden sm:flex absolute -left-3 z-[1020] w-7 h-7 rounded-full bg-white text-emerald-900 shadow-md border border-emerald-200 items-center justify-center hover:bg-emerald-50 hover:scale-105 transition-all cursor-pointer"
+            title="Cuộn sang trái"
+            aria-label="Cuộn sang trái"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Scrollable Pill Container */}
+        <div
+          ref={containerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          className={`bg-white/95 backdrop-blur-md border border-white/80 shadow-lg shadow-emerald-950/10 rounded-2xl p-1.5 flex items-center gap-1.5 relative z-[1010] select-none max-w-full overflow-x-auto no-scrollbar scroll-smooth touch-pan-x ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab sm:cursor-default'
           }`}
         >
-          {category !== 'all' && currentCategory ? (
-            <IconRenderer name={currentCategory.icon} size={14} />
-          ) : (
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          )}
-          <span>{categoryLabel}</span>
-          <ChevronDown
-            className={`w-3.5 h-3.5 transition-transform duration-200 ${
-              activeDropdown === 'category' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-
-        {activeDropdown === 'category' && (
-          <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
+          {/* 1. Category Dropdown */}
+          <div className="relative shrink-0">
             <button
-              onClick={() => {
-                setCategory('all');
-                setActiveDropdown(null);
-              }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-medium hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
-                category === 'all' ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
+              onClick={() => handlePillClick(() => toggleDropdown('category'))}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs whitespace-nowrap ${
+                category !== 'all'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
+                  : 'bg-white/90 hover:bg-white text-emerald-950 border-emerald-200/80 hover:border-emerald-300'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Tất cả danh mục</span>
-              </div>
-              {category === 'all' && <Check className="w-4 h-4 text-emerald-600" />}
+              {category !== 'all' && currentCategory ? (
+                <IconRenderer name={currentCategory.icon} size={14} />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              )}
+              <span>{categoryLabel}</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  activeDropdown === 'category' ? 'rotate-180' : ''
+                }`}
+              />
             </button>
 
-            <div className="h-px bg-gray-100 my-1" />
-
-            {CATEGORIES.map((cat) => (
+          {/* Desktop Popover */}
+          {activeDropdown === 'category' && (
+            <div className="hidden sm:block absolute left-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
               <button
-                key={cat.id}
                 onClick={() => {
-                  setCategory(cat.id as PlaceCategory);
+                  setCategory('all');
                   setActiveDropdown(null);
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
-                  category === cat.id ? 'text-emerald-800 font-bold bg-emerald-50/60' : 'text-gray-700'
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-medium hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
+                  category === 'all' ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className="w-5 h-5 rounded-lg flex items-center justify-center text-white shrink-0"
-                    style={{ backgroundColor: cat.color }}
-                  >
-                    <IconRenderer name={cat.icon} size={12} />
-                  </div>
-                  <span>{cat.label}</span>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span>Tất cả danh mục</span>
                 </div>
-                {category === cat.id && <Check className="w-4 h-4 text-emerald-600" />}
+                {category === 'all' && <Check className="w-4 h-4 text-emerald-600" />}
               </button>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* 2. Area Dropdown */}
-      <div className="relative shrink-0">
-        <button
-          onClick={() => toggleDropdown('area')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs ${
-            area !== 'all'
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
-              : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
-          }`}
-        >
-          <MapPin className={`w-3.5 h-3.5 ${area !== 'all' ? 'text-white' : 'text-emerald-600'}`} />
-          <span>{areaLabel}</span>
-          <ChevronDown
-            className={`w-3.5 h-3.5 transition-transform duration-200 ${
-              activeDropdown === 'area' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
+              <div className="h-px bg-gray-100 my-1" />
 
-        {activeDropdown === 'area' && (
-          <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
-            {AREAS.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => {
-                  setArea(a.id);
-                  setActiveDropdown(null);
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
-                  area === a.id ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
-                }`}
-              >
-                <span>{a.label}</span>
-                {area === a.id && <Check className="w-4 h-4 text-emerald-600" />}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 3. Price Dropdown */}
-      <div className="relative shrink-0">
-        <button
-          onClick={() => toggleDropdown('price')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs ${
-            minPrice !== undefined || maxPrice !== undefined
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
-              : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
-          }`}
-        >
-          <CircleDollarSign
-            className={`w-3.5 h-3.5 ${
-              minPrice !== undefined || maxPrice !== undefined ? 'text-white' : 'text-emerald-600'
-            }`}
-          />
-          <span>{priceLabel}</span>
-          <ChevronDown
-            className={`w-3.5 h-3.5 transition-transform duration-200 ${
-              activeDropdown === 'price' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-
-        {activeDropdown === 'price' && (
-          <div className="absolute left-0 top-full mt-2 w-60 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
-            {PRICE_RANGES.map((pr) => {
-              const isSelected = minPrice === pr.min && maxPrice === pr.max;
-              return (
+              {CATEGORIES.map((cat) => (
                 <button
-                  key={pr.id}
+                  key={cat.id}
                   onClick={() => {
-                    setPriceRange(pr.min, pr.max);
+                    setCategory(cat.id as PlaceCategory);
+                    setActiveDropdown(null);
+                  }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
+                    category === cat.id ? 'text-emerald-800 font-bold bg-emerald-50/60' : 'text-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="w-5 h-5 rounded-lg flex items-center justify-center text-white shrink-0"
+                      style={{ backgroundColor: cat.color }}
+                    >
+                      <IconRenderer name={cat.icon} size={12} />
+                    </div>
+                    <span>{cat.label}</span>
+                  </div>
+                  {category === cat.id && <Check className="w-4 h-4 text-emerald-600" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 2. Area Dropdown */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => handlePillClick(() => toggleDropdown('area'))}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs whitespace-nowrap ${
+              area !== 'all'
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
+                : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
+            }`}
+          >
+            <MapPin className={`w-3.5 h-3.5 ${area !== 'all' ? 'text-white' : 'text-emerald-600'}`} />
+            <span>{areaLabel}</span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                activeDropdown === 'area' ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Desktop Popover */}
+          {activeDropdown === 'area' && (
+            <div className="hidden sm:block absolute left-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
+              {AREAS.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => {
+                    setArea(a.id);
                     setActiveDropdown(null);
                   }}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
-                    isSelected ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
+                    area === a.id ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
                   }`}
                 >
-                  <span>{pr.label}</span>
-                  {isSelected && <Check className="w-4 h-4 text-emerald-600" />}
+                  <span>{a.label}</span>
+                  {area === a.id && <Check className="w-4 h-4 text-emerald-600" />}
                 </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* 4. Amenities / Tags Dropdown */}
-      <div className="relative shrink-0">
-        <button
-          onClick={() => toggleDropdown('tags')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs ${
-            tags && tags.length > 0
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
-              : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
-          }`}
-        >
-          <Layers className={`w-3.5 h-3.5 ${tags && tags.length > 0 ? 'text-white' : 'text-emerald-600'}`} />
-          <span>{tagsLabel}</span>
-          <ChevronDown
-            className={`w-3.5 h-3.5 transition-transform duration-200 ${
-              activeDropdown === 'tags' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-
-        {activeDropdown === 'tags' && (
-          <div className="absolute left-0 top-full mt-2 w-68 bg-white rounded-2xl shadow-2xl border border-emerald-100 p-2 z-[1050] max-h-72 overflow-y-auto custom-scrollbar space-y-1 animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-2 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-              Chọn tiện ích phòng trọ
+              ))}
             </div>
-            {AMENITY_TAGS.map((t) => {
-              const isSelected = tags?.includes(t);
-              return (
-                <button
-                  key={t}
-                  onClick={() => toggleTag(t)}
-                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
-                    isSelected ? 'text-emerald-800 font-bold bg-emerald-50' : 'text-gray-700'
-                  }`}
-                >
-                  <span>{t}</span>
-                  <div
-                    className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                      isSelected ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-gray-300 bg-white'
+          )}
+        </div>
+
+        {/* 3. Price Dropdown */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => handlePillClick(() => toggleDropdown('price'))}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs whitespace-nowrap ${
+              minPrice !== undefined || maxPrice !== undefined
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
+                : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
+            }`}
+          >
+            <CircleDollarSign
+              className={`w-3.5 h-3.5 ${
+                minPrice !== undefined || maxPrice !== undefined ? 'text-white' : 'text-emerald-600'
+              }`}
+            />
+            <span>{priceLabel}</span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                activeDropdown === 'price' ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Desktop Popover */}
+          {activeDropdown === 'price' && (
+            <div className="hidden sm:block absolute left-0 top-full mt-2 w-60 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
+              {PRICE_RANGES.map((pr) => {
+                const isSelected = minPrice === pr.min && maxPrice === pr.max;
+                return (
+                  <button
+                    key={pr.id}
+                    onClick={() => {
+                      setPriceRange(pr.min, pr.max);
+                      setActiveDropdown(null);
+                    }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
+                      isSelected ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
                     }`}
                   >
-                    {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                    <span>{pr.label}</span>
+                    {isSelected && <Check className="w-4 h-4 text-emerald-600" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-      {/* 5. Sort By Dropdown */}
-      <div className="relative shrink-0">
+        {/* 4. Amenities / Tags Dropdown */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => handlePillClick(() => toggleDropdown('tags'))}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs whitespace-nowrap ${
+              tags && tags.length > 0
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
+                : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
+            }`}
+          >
+            <Layers className={`w-3.5 h-3.5 ${tags && tags.length > 0 ? 'text-white' : 'text-emerald-600'}`} />
+            <span>{tagsLabel}</span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                activeDropdown === 'tags' ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Desktop Popover */}
+          {activeDropdown === 'tags' && (
+            <div className="hidden sm:block absolute left-0 top-full mt-2 w-68 bg-white rounded-2xl shadow-2xl border border-emerald-100 p-2 z-[1050] max-h-72 overflow-y-auto custom-scrollbar space-y-1 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-2 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                Chọn tiện ích phòng trọ
+              </div>
+              {AMENITY_TAGS.map((t) => {
+                const isSelected = tags?.includes(t);
+                return (
+                  <button
+                    key={t}
+                    onClick={() => toggleTag(t)}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
+                      isSelected ? 'text-emerald-800 font-bold bg-emerald-50' : 'text-gray-700'
+                    }`}
+                  >
+                    <span>{t}</span>
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                        isSelected ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-gray-300 bg-white'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 5. Sort By Dropdown */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => handlePillClick(() => toggleDropdown('sort'))}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs whitespace-nowrap ${
+              sortBy !== 'rating'
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
+                : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
+            }`}
+          >
+            <ArrowUpDown className={`w-3.5 h-3.5 ${sortBy !== 'rating' ? 'text-white' : 'text-emerald-600'}`} />
+            <span>{sortLabel}</span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                activeDropdown === 'sort' ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Desktop Popover */}
+          {activeDropdown === 'sort' && (
+            <div className="hidden sm:block absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
+              {SORT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => {
+                    setSortBy(opt.id);
+                    setActiveDropdown(null);
+                  }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
+                    sortBy === opt.id ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {sortBy === opt.id && <Check className="w-4 h-4 text-emerald-600" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 6. Only Available Toggle Pill */}
         <button
-          onClick={() => toggleDropdown('sort')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shadow-xs ${
-            sortBy !== 'rating'
+          onClick={() => handlePillClick(() => setOnlyAvailable(!onlyAvailable))}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all border cursor-pointer shadow-xs whitespace-nowrap ${
+            onlyAvailable
               ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
               : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
           }`}
         >
-          <ArrowUpDown className={`w-3.5 h-3.5 ${sortBy !== 'rating' ? 'text-white' : 'text-emerald-600'}`} />
-          <span>{sortLabel}</span>
-          <ChevronDown
-            className={`w-3.5 h-3.5 transition-transform duration-200 ${
-              activeDropdown === 'sort' ? 'rotate-180' : ''
-            }`}
-          />
+          <Home className="w-3.5 h-3.5" />
+          <span>Còn phòng</span>
         </button>
 
-        {activeDropdown === 'sort' && (
-          <div className="absolute right-0 sm:left-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-emerald-100 py-1.5 z-[1050] animate-in fade-in zoom-in-95 duration-150">
-            {SORT_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => {
-                  setSortBy(opt.id);
-                  setActiveDropdown(null);
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs hover:bg-emerald-50 transition-colors text-left cursor-pointer ${
-                  sortBy === opt.id ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-gray-700'
-                }`}
-              >
-                <span>{opt.label}</span>
-                {sortBy === opt.id && <Check className="w-4 h-4 text-emerald-600" />}
-              </button>
-            ))}
-          </div>
+        {/* 7. Reset Filters Button */}
+        {hasActiveFilters && (
+          <button
+            onClick={() => {
+              resetFilters();
+              setActiveDropdown(null);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors shrink-0 cursor-pointer shadow-xs whitespace-nowrap"
+            title="Đặt lại toàn bộ bộ lọc"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Xóa lọc</span>
+          </button>
         )}
       </div>
 
-      {/* 6. Only Available Toggle Pill */}
-      <button
-        onClick={() => setOnlyAvailable(!onlyAvailable)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all border cursor-pointer shadow-xs ${
-          onlyAvailable
-            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
-            : 'bg-white/90 hover:bg-white text-gray-700 border-gray-200/80 hover:border-gray-300'
-        }`}
-      >
-        <Home className="w-3.5 h-3.5" />
-        <span>Còn phòng</span>
-      </button>
-
-      {/* 7. Reset Filters Button */}
-      {hasActiveFilters && (
+      {/* Right Scroll Button */}
+      {canScrollRight && (
         <button
-          onClick={() => {
-            resetFilters();
-            setActiveDropdown(null);
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors shrink-0 cursor-pointer shadow-xs"
-          title="Đặt lại toàn bộ bộ lọc"
+          onClick={() => handleScrollBy(140)}
+          className="hidden sm:flex absolute -right-3 z-[1020] w-7 h-7 rounded-full bg-white text-emerald-900 shadow-md border border-emerald-200 items-center justify-center hover:bg-emerald-50 hover:scale-105 transition-all cursor-pointer"
+          title="Cuộn sang phải"
+          aria-label="Cuộn sang phải"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Xóa lọc</span>
+          <ChevronRight className="w-4 h-4" />
         </button>
       )}
     </div>
+
+      {/* Mobile Bottom Sheet Modal for Active Filter */}
+      {activeDropdown && (
+        <div className="sm:hidden fixed inset-0 z-[2000] flex items-end">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+            onClick={() => setActiveDropdown(null)}
+          />
+
+          {/* Bottom Sheet Modal */}
+          <div className="relative w-full max-h-[75vh] bg-white rounded-t-3xl shadow-2xl border-t border-emerald-200 p-4 space-y-3 overflow-y-auto custom-scrollbar animate-in slide-in-from-bottom duration-250">
+            {/* Drag Handle */}
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto" />
+
+            {/* Modal Title */}
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
+              <h3 className="font-black text-sm text-emerald-950">
+                {activeDropdown === 'category' && 'Chọn danh mục địa điểm'}
+                {activeDropdown === 'area' && 'Chọn khu vực'}
+                {activeDropdown === 'price' && 'Chọn khoảng giá'}
+                {activeDropdown === 'tags' && 'Chọn tiện ích'}
+                {activeDropdown === 'sort' && 'Sắp xếp theo'}
+              </h3>
+              <button
+                onClick={() => setActiveDropdown(null)}
+                className="text-xs font-bold text-emerald-700 px-2 py-1 bg-emerald-50 rounded-lg cursor-pointer"
+              >
+                Xong
+              </button>
+            </div>
+
+            {/* Category Options */}
+            {activeDropdown === 'category' && (
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    setCategory('all');
+                    setActiveDropdown(null);
+                  }}
+                  className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold text-left transition-colors cursor-pointer ${
+                    category === 'all' ? 'bg-emerald-100 text-emerald-950' : 'bg-gray-50 text-gray-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>Tất cả danh mục</span>
+                  </div>
+                  {category === 'all' && <Check className="w-4 h-4 text-emerald-700" />}
+                </button>
+
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setCategory(cat.id as PlaceCategory);
+                      setActiveDropdown(null);
+                    }}
+                    className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold text-left transition-colors cursor-pointer ${
+                      category === cat.id ? 'bg-emerald-100 text-emerald-950' : 'bg-gray-50 text-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="w-6 h-6 rounded-xl flex items-center justify-center text-white shrink-0"
+                        style={{ backgroundColor: cat.color }}
+                      >
+                        <IconRenderer name={cat.icon} size={14} />
+                      </div>
+                      <span>{cat.label}</span>
+                    </div>
+                    {category === cat.id && <Check className="w-4 h-4 text-emerald-700" />}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Area Options */}
+            {activeDropdown === 'area' && (
+              <div className="space-y-1">
+                {AREAS.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => {
+                      setArea(a.id);
+                      setActiveDropdown(null);
+                    }}
+                    className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold text-left transition-colors cursor-pointer ${
+                      area === a.id ? 'bg-emerald-100 text-emerald-950' : 'bg-gray-50 text-gray-800'
+                    }`}
+                  >
+                    <span>{a.label}</span>
+                    {area === a.id && <Check className="w-4 h-4 text-emerald-700" />}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Price Options */}
+            {activeDropdown === 'price' && (
+              <div className="space-y-1">
+                {PRICE_RANGES.map((pr) => {
+                  const isSelected = minPrice === pr.min && maxPrice === pr.max;
+                  return (
+                    <button
+                      key={pr.id}
+                      onClick={() => {
+                        setPriceRange(pr.min, pr.max);
+                        setActiveDropdown(null);
+                      }}
+                      className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold text-left transition-colors cursor-pointer ${
+                        isSelected ? 'bg-emerald-100 text-emerald-950' : 'bg-gray-50 text-gray-800'
+                      }`}
+                    >
+                      <span>{pr.label}</span>
+                      {isSelected && <Check className="w-4 h-4 text-emerald-700" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Tags Options */}
+            {activeDropdown === 'tags' && (
+              <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar">
+                {AMENITY_TAGS.map((t) => {
+                  const isSelected = tags?.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => toggleTag(t)}
+                      className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold text-left transition-colors cursor-pointer ${
+                        isSelected ? 'bg-emerald-100 text-emerald-950' : 'bg-gray-50 text-gray-800'
+                      }`}
+                    >
+                      <span>{t}</span>
+                      <div
+                        className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
+                          isSelected ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-gray-300 bg-white'
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Sort Options */}
+            {activeDropdown === 'sort' && (
+              <div className="space-y-1">
+                {SORT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => {
+                      setSortBy(opt.id);
+                      setActiveDropdown(null);
+                    }}
+                    className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold text-left transition-colors cursor-pointer ${
+                      sortBy === opt.id ? 'bg-emerald-100 text-emerald-950' : 'bg-gray-50 text-gray-800'
+                    }`}
+                  >
+                    <span>{opt.label}</span>
+                    {sortBy === opt.id && <Check className="w-4 h-4 text-emerald-700" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 };

@@ -15,7 +15,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
   onResetView,
 }) => {
   return (
-    <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 select-none">
+    <div className="absolute top-16 sm:top-4 right-3 sm:right-4 z-[950] flex flex-col gap-2 select-none">
       {/* Zoom and Locate Group */}
       <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 p-1 flex flex-col gap-1">
         <button

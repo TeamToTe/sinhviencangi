@@ -95,13 +95,18 @@ export const PlaceDetailDrawer: React.FC = () => {
       {/* Mobile Backdrop */}
       <div
         onClick={() => setSelectedPlace(null)}
-        className="fixed inset-0 bg-black/40 backdrop-blur-xs z-30 md:hidden animate-in fade-in"
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[1040] md:hidden animate-in fade-in duration-200"
       />
 
-      {/* Right Column Detail Panel (Cột bên phải cố định dưới thanh Header, không đè lấn) */}
-      <div className="fixed inset-x-0 bottom-0 top-[110px] md:relative md:inset-auto md:top-auto md:bottom-auto w-full md:w-[380px] lg:w-[430px] h-full bg-white border-l border-emerald-200/80 flex flex-col shrink-0 z-30 shadow-2xl md:shadow-none animate-in slide-in-from-right duration-300">
+      {/* Detail Panel: Bottom Sheet on Mobile, Right Panel on Desktop */}
+      <div className="fixed inset-x-0 bottom-0 top-[15%] sm:top-[10%] md:relative md:inset-auto md:top-auto md:bottom-auto w-full md:w-[380px] lg:w-[430px] h-[85%] sm:h-[90%] md:h-full bg-white rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-emerald-200/80 flex flex-col shrink-0 z-[1050] shadow-2xl md:shadow-none animate-in slide-in-from-bottom md:slide-in-from-right duration-300 overflow-hidden">
+        {/* Mobile Drag Indicator */}
+        <div className="pt-2 pb-1 bg-emerald-50/70 flex justify-center md:hidden shrink-0">
+          <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+        </div>
+
         {/* Panel Header */}
-        <div className="p-3.5 border-b border-gray-100 flex items-center justify-between bg-emerald-50/70 shrink-0">
+        <div className="p-3 sm:p-3.5 border-b border-gray-100 flex items-center justify-between bg-emerald-50/70 shrink-0">
           <div className="flex items-center gap-2">
             <span
               className="w-3 h-3 rounded-full"
@@ -120,14 +125,14 @@ export const PlaceDetailDrawer: React.FC = () => {
           <div className="flex items-center gap-1">
             <button
               onClick={handleShare}
-              className="p-1.5 rounded-xl hover:bg-white text-gray-500 hover:text-gray-800 transition-colors border border-transparent hover:border-gray-200"
+              className="p-1.5 rounded-xl hover:bg-white text-gray-500 hover:text-gray-800 transition-colors border border-transparent hover:border-gray-200 cursor-pointer"
               title="Chia sẻ"
             >
               <Share2 className="w-4 h-4" />
             </button>
             <button
               onClick={handleFavorite}
-              className="p-1.5 rounded-xl hover:bg-rose-50 text-gray-400 hover:text-rose-500 transition-colors border border-transparent hover:border-rose-200"
+              className="p-1.5 rounded-xl hover:bg-rose-50 text-gray-400 hover:text-rose-500 transition-colors border border-transparent hover:border-rose-200 cursor-pointer"
               title="Lưu yêu thích"
             >
               <Heart
@@ -138,7 +143,7 @@ export const PlaceDetailDrawer: React.FC = () => {
             </button>
             <button
               onClick={() => setSelectedPlace(null)}
-              className="p-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors ml-1"
+              className="p-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors ml-1 cursor-pointer"
               title="Đóng bảng chi tiết"
             >
               <X className="w-5 h-5" />
