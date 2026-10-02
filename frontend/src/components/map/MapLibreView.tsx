@@ -156,11 +156,12 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     const isMicroZoom = zoom < 14.5;
 
     // Create or update markers
-    places.forEach((place) => {
+    places.forEach((place, index) => {
       const isSelected = selectedPlace?.id === place.id;
       const isHovered = hoveredPlaceId === place.id;
       const isExpanded = isSelected || isHovered || isDetailedZoom;
       const isMicro = !isExpanded && isMicroZoom;
+      const staggerDelay = Math.min(index * 30, 360);
 
       const priceLabel = place.priceInfo
         ? formatPriceText(place.priceInfo)
@@ -171,19 +172,19 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       if (isExpanded) {
         // Mode 1: Full Speech Bubble
         markerInnerHtml = `
-          <div class="relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-transform duration-200 ${
+          <div class="marker-appear relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-300 ease-out ${
             isSelected
               ? 'scale-115 drop-shadow-2xl'
               : isHovered
               ? 'scale-110 drop-shadow-xl'
               : 'scale-100 drop-shadow-md'
-          }" id="marker-${place.id}">
+          }" id="marker-${place.id}" style="animation-delay: ${staggerDelay}ms;">
             <!-- Bubble Box -->
-            <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px]"
+            <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px] transition-all duration-300"
                  style="border-color: ${place.categoryColor}">
               
               <!-- Vector SVG Icon badge -->
-              <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs transition-transform duration-300"
                    style="background-color: ${place.categoryColor}">
                 ${getCategorySvg(place.category)}
               </div>
@@ -222,9 +223,9 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       } else if (isMicro) {
         // Mode 2: Micro Pin (When zoomed out far)
         markerInnerHtml = `
-          <div class="relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 hover:scale-125"
-               id="marker-${place.id}">
-            <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md border-2"
+          <div class="marker-appear relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-300 ease-out hover:scale-125"
+               id="marker-${place.id}" style="animation-delay: ${staggerDelay}ms;">
+            <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md border-2 transition-transform duration-300"
                  style="border-color: ${place.categoryColor}">
               <div class="w-5 h-5 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
                    style="background-color: ${place.categoryColor}">
@@ -239,9 +240,9 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       } else {
         // Mode 3: Compact Pill (Medium zoom)
         markerInnerHtml = `
-          <div class="relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 hover:scale-115"
-               id="marker-${place.id}">
-            <div class="flex items-center gap-1.5 px-2 py-0.5 bg-white/95 backdrop-blur-xs text-gray-900 rounded-full shadow-md border-2 hover:shadow-lg transition-all"
+          <div class="marker-appear relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-300 ease-out hover:scale-115"
+               id="marker-${place.id}" style="animation-delay: ${staggerDelay}ms;">
+            <div class="flex items-center gap-1.5 px-2 py-0.5 bg-white/95 backdrop-blur-xs text-gray-900 rounded-full shadow-md border-2 hover:shadow-lg transition-all duration-300"
                  style="border-color: ${place.categoryColor}">
               <div class="w-4 h-4 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
                    style="background-color: ${place.categoryColor}">
