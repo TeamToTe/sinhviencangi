@@ -52,18 +52,16 @@ function getCategorySvg(category: string): string {
 }
 
 interface MarkerState {
-  isExpanded: boolean;
-  isMicro: boolean;
+  isDetailedZoom: boolean;
+  isMicroZoom: boolean;
   isSelected: boolean;
-  isHovered: boolean;
 }
 
 function getMarkerHtml(
   place: Place,
-  isExpanded: boolean,
-  isMicro: boolean,
+  isDetailedZoom: boolean,
+  isMicroZoom: boolean,
   isSelected: boolean,
-  isHovered: boolean,
   isFirstMount: boolean,
   staggerDelay: number
 ): string {
@@ -74,26 +72,19 @@ function getMarkerHtml(
   const appearClass = isFirstMount ? 'marker-appear' : '';
   const appearStyle = isFirstMount ? `animation-delay: ${staggerDelay}ms;` : '';
 
-  if (isExpanded) {
+  // 1. Detailed Zoom or Selected -> Always Expanded Bubble
+  if (isDetailedZoom || isSelected) {
     return `
-      <div class="${appearClass} relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 ease-out ${
-        isSelected
-          ? 'scale-115 drop-shadow-2xl'
-          : isHovered
-          ? 'scale-110 drop-shadow-xl'
-          : 'scale-100 drop-shadow-md'
+      <div class="${appearClass} marker-wrapper relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-150 ease-out group ${
+        isSelected ? 'scale-115 drop-shadow-2xl z-[2000]' : 'scale-100 drop-shadow-md hover:scale-110 hover:drop-shadow-xl'
       }" id="marker-${place.id}" style="${appearStyle}">
         <!-- Bubble Box -->
-        <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px] transition-all duration-200"
+        <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px] transition-all duration-150"
              style="border-color: ${place.categoryColor}">
-          
-          <!-- Vector SVG Icon badge -->
-          <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs transition-transform duration-200"
+          <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
                style="background-color: ${place.categoryColor}">
             ${getCategorySvg(place.category)}
           </div>
-
-          <!-- Name & Subtext -->
           <div class="flex flex-col overflow-hidden text-left font-serif leading-tight">
             <span class="font-bold text-[11px] tracking-tight truncate text-gray-900 max-w-[140px]">
               ${place.name}
@@ -102,8 +93,6 @@ function getMarkerHtml(
               ${priceLabel}
             </span>
           </div>
-
-          <!-- Top/Right Mini Badge -->
           ${
             place.badgeText
               ? `<div class="absolute -top-2 -right-1 bg-amber-400 text-amber-950 text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-xs ring-1 ring-white font-serif">
@@ -112,13 +101,9 @@ function getMarkerHtml(
               : ''
           }
         </div>
-
-        <!-- Tail Pointer -->
         <div class="w-0 h-0 mx-auto border-x-[6px] border-x-transparent border-t-[7px] -mt-[1px]"
              style="border-top-color: ${place.categoryColor}">
         </div>
-        
-        <!-- Ground Dot -->
         <div class="w-2.5 h-2.5 rounded-full mx-auto -mt-0.5 shadow-sm ring-2 ring-white"
              style="background-color: ${place.categoryColor}">
         </div>
@@ -126,39 +111,111 @@ function getMarkerHtml(
     `;
   }
 
-  if (isMicro) {
+  // 2. Micro Zoom (Zoom < 14.5) -> Micro Pin, Expands Instantly on Hover
+  if (isMicroZoom) {
     return `
-      <div class="${appearClass} relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 ease-out hover:scale-125"
+      <div class="${appearClass} marker-wrapper relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-150 ease-out group hover:z-[1500]"
            id="marker-${place.id}" style="${appearStyle}">
-        <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md border-2 transition-transform duration-200"
-             style="border-color: ${place.categoryColor}">
-          <div class="w-5 h-5 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+        <!-- Compact Micro Pin (Hidden on Hover or is-hovered) -->
+        <div class="micro-pin group-hover:hidden group-[.is-hovered]:hidden flex flex-col items-center">
+          <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md border-2"
+               style="border-color: ${place.categoryColor}">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+                 style="background-color: ${place.categoryColor}">
+              ${getCategorySvg(place.category)}
+            </div>
+          </div>
+          <div class="w-2 h-2 rounded-full mx-auto mt-0.5 shadow-xs ring-1 ring-white"
                style="background-color: ${place.categoryColor}">
-            ${getCategorySvg(place.category)}
           </div>
         </div>
-        <div class="w-2 h-2 rounded-full mx-auto mt-0.5 shadow-xs ring-1 ring-white"
-             style="background-color: ${place.categoryColor}">
+
+        <!-- Expanded Bubble on Hover (Instant CSS 0ms toggle) -->
+        <div class="expanded-bubble hidden group-hover:flex group-[.is-hovered]:flex flex-col items-center animate-in fade-in zoom-in-95 duration-100">
+          <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-2xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px]"
+               style="border-color: ${place.categoryColor}">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
+                 style="background-color: ${place.categoryColor}">
+              ${getCategorySvg(place.category)}
+            </div>
+            <div class="flex flex-col overflow-hidden text-left font-serif leading-tight">
+              <span class="font-bold text-[11px] tracking-tight truncate text-gray-900 max-w-[140px]">
+                ${place.name}
+              </span>
+              <span class="text-[10px] font-medium ${place.priceInfo ? 'text-amber-700' : 'text-emerald-700'}">
+                ${priceLabel}
+              </span>
+            </div>
+            ${
+              place.badgeText
+                ? `<div class="absolute -top-2 -right-1 bg-amber-400 text-amber-950 text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-xs ring-1 ring-white font-serif">
+                    ${place.badgeText.slice(0, 12)}
+                  </div>`
+                : ''
+            }
+          </div>
+          <div class="w-0 h-0 mx-auto border-x-[6px] border-x-transparent border-t-[7px] -mt-[1px]"
+               style="border-top-color: ${place.categoryColor}">
+          </div>
+          <div class="w-2.5 h-2.5 rounded-full mx-auto -mt-0.5 shadow-sm ring-2 ring-white"
+               style="background-color: ${place.categoryColor}">
+          </div>
         </div>
       </div>
     `;
   }
 
+  // 3. Compact Pill Mode (14.5 <= Zoom < 16.5) -> Compact Pill, Expands Instantly on Hover
   return `
-    <div class="${appearClass} relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 ease-out hover:scale-115"
+    <div class="${appearClass} marker-wrapper relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-150 ease-out group hover:z-[1500]"
          id="marker-${place.id}" style="${appearStyle}">
-      <div class="flex items-center gap-1.5 px-2 py-0.5 bg-white/95 backdrop-blur-xs text-gray-900 rounded-full shadow-md border-2 hover:shadow-lg transition-all duration-200"
-           style="border-color: ${place.categoryColor}">
-        <div class="w-4 h-4 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
-             style="background-color: ${place.categoryColor}">
-          ${getCategorySvg(place.category)}
+      <!-- Compact Pill (Hidden on Hover or is-hovered) -->
+      <div class="compact-pill group-hover:hidden group-[.is-hovered]:hidden flex flex-col items-center">
+        <div class="flex items-center gap-1.5 px-2 py-0.5 bg-white/95 backdrop-blur-xs text-gray-900 rounded-full shadow-md border-2 hover:shadow-lg transition-all"
+             style="border-color: ${place.categoryColor}">
+          <div class="w-4 h-4 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+               style="background-color: ${place.categoryColor}">
+            ${getCategorySvg(place.category)}
+          </div>
+          <span class="font-bold text-[10px] font-serif tracking-tight text-gray-800 max-w-[85px] truncate leading-tight">
+            ${place.name}
+          </span>
         </div>
-        <span class="font-bold text-[10px] font-serif tracking-tight text-gray-800 max-w-[85px] truncate leading-tight">
-          ${place.name}
-        </span>
+        <div class="w-2 h-2 rounded-full mx-auto mt-0.5 shadow-xs ring-1 ring-white"
+             style="background-color: ${place.categoryColor}">
+        </div>
       </div>
-      <div class="w-2 h-2 rounded-full mx-auto mt-0.5 shadow-xs ring-1 ring-white"
-           style="background-color: ${place.categoryColor}">
+
+      <!-- Expanded Bubble on Hover (Instant CSS 0ms toggle) -->
+      <div class="expanded-bubble hidden group-hover:flex group-[.is-hovered]:flex flex-col items-center animate-in fade-in zoom-in-95 duration-100">
+        <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-2xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px]"
+             style="border-color: ${place.categoryColor}">
+          <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
+               style="background-color: ${place.categoryColor}">
+            ${getCategorySvg(place.category)}
+          </div>
+          <div class="flex flex-col overflow-hidden text-left font-serif leading-tight">
+            <span class="font-bold text-[11px] tracking-tight truncate text-gray-900 max-w-[140px]">
+              ${place.name}
+            </span>
+            <span class="text-[10px] font-medium ${place.priceInfo ? 'text-amber-700' : 'text-emerald-700'}">
+              ${priceLabel}
+            </span>
+          </div>
+          ${
+            place.badgeText
+              ? `<div class="absolute -top-2 -right-1 bg-amber-400 text-amber-950 text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-xs ring-1 ring-white font-serif">
+                  ${place.badgeText.slice(0, 12)}
+                </div>`
+              : ''
+          }
+        </div>
+        <div class="w-0 h-0 mx-auto border-x-[6px] border-x-transparent border-t-[7px] -mt-[1px]"
+             style="border-top-color: ${place.categoryColor}">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-full mx-auto -mt-0.5 shadow-sm ring-2 ring-white"
+             style="background-color: ${place.categoryColor}">
+        </div>
       </div>
     </div>
   `;
@@ -170,6 +227,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const animatedMarkerIdsRef = useRef<Set<string>>(new Set());
   const markerStatesRef = useRef<{ [id: string]: MarkerState }>({});
+  const prevHoveredIdRef = useRef<string | null>(null);
 
   const {
     center,
@@ -208,6 +266,17 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
 
     tileLayer.addTo(map);
 
+    // 3.5km Radius Coverage Area centered at FPT University
+    const radiusCircle = L.circle([21.0135, 105.5252], {
+      radius: 3500,
+      color: '#059669',
+      weight: 1.5,
+      dashArray: '6, 6',
+      fillColor: '#10b981',
+      fillOpacity: 0.04,
+      interactive: false,
+    }).addTo(map);
+
     map.on('moveend', () => {
       const c = map.getCenter();
       setCenter([c.lng, c.lat]);
@@ -221,6 +290,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     mapRef.current = map;
 
     return () => {
+      radiusCircle.remove();
       map.remove();
       mapRef.current = null;
     };
@@ -253,7 +323,32 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     }
   }, [center, zoom]);
 
-  // Render & Update Custom Adaptive LOD Markers
+  // Handle Hovered Place styling with zero DOM reconstruction
+  useEffect(() => {
+    const prevId = prevHoveredIdRef.current;
+    const currId = hoveredPlaceId;
+    if (prevId === currId) return;
+
+    if (prevId) {
+      const el = document.getElementById(`marker-${prevId}`);
+      if (el) el.classList.remove('is-hovered');
+      if (markersRef.current[prevId]) {
+        markersRef.current[prevId].setZIndexOffset(selectedPlace?.id === prevId ? 2500 : 10);
+      }
+    }
+
+    if (currId) {
+      const el = document.getElementById(`marker-${currId}`);
+      if (el) el.classList.add('is-hovered');
+      if (markersRef.current[currId]) {
+        markersRef.current[currId].setZIndexOffset(2500);
+      }
+    }
+
+    prevHoveredIdRef.current = currId;
+  }, [hoveredPlaceId, selectedPlace]);
+
+  // Render & Update Custom Adaptive LOD Markers (Only runs on places/selected/zoom changes)
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
@@ -272,23 +367,19 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     const isDetailedZoom = zoom >= 16.5;
     const isMicroZoom = zoom < 14.5;
 
-    // Create or update markers ONLY when their individual state changes
+    // Create or update markers ONLY when their individual LOD/selected state changes
     places.forEach((place, index) => {
       const isSelected = selectedPlace?.id === place.id;
-      const isHovered = hoveredPlaceId === place.id;
-      const isExpanded = isSelected || isHovered || isDetailedZoom;
-      const isMicro = !isExpanded && isMicroZoom;
       const staggerDelay = Math.min(index * 30, 360);
 
       const prevState = markerStatesRef.current[place.id];
-      const newState: MarkerState = { isExpanded, isMicro, isSelected, isHovered };
+      const newState: MarkerState = { isDetailedZoom, isMicroZoom, isSelected };
 
       const stateChanged =
         !prevState ||
-        prevState.isExpanded !== isExpanded ||
-        prevState.isMicro !== isMicro ||
-        prevState.isSelected !== isSelected ||
-        prevState.isHovered !== isHovered;
+        prevState.isDetailedZoom !== isDetailedZoom ||
+        prevState.isMicroZoom !== isMicroZoom ||
+        prevState.isSelected !== isSelected;
 
       if (stateChanged) {
         markerStatesRef.current[place.id] = newState;
@@ -304,10 +395,9 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
           iconAnchor: [0, 0],
           html: getMarkerHtml(
             place,
-            isExpanded,
-            isMicro,
+            isDetailedZoom,
+            isMicroZoom,
             isSelected,
-            isHovered,
             isFirstMount,
             staggerDelay
           ),
@@ -316,7 +406,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
         if (!markersRef.current[place.id]) {
           const marker = L.marker([place.coordinates.lat, place.coordinates.lng], {
             icon: customIcon,
-            zIndexOffset: isSelected ? 2500 : isHovered ? 1500 : 10,
+            zIndexOffset: isSelected ? 2500 : 10,
           }).addTo(map);
 
           marker.on('click', () => {
@@ -324,10 +414,12 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
           });
 
           marker.on('mouseover', () => {
+            marker.setZIndexOffset(2500);
             setHoveredPlaceId(place.id);
           });
 
           marker.on('mouseout', () => {
+            marker.setZIndexOffset(selectedPlace?.id === place.id ? 2500 : 10);
             setHoveredPlaceId(null);
           });
 
@@ -335,11 +427,11 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
         } else {
           const marker = markersRef.current[place.id];
           marker.setIcon(customIcon);
-          marker.setZIndexOffset(isSelected ? 2500 : isHovered ? 1500 : 10);
+          marker.setZIndexOffset(isSelected ? 2500 : 10);
         }
       }
     });
-  }, [places, selectedPlace, hoveredPlaceId, zoom, activeTab]);
+  }, [places, selectedPlace, zoom, activeTab]);
 
   // Controls Handlers
   const handleZoomIn = () => {
@@ -369,7 +461,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
   };
 
   const handleResetView = () => {
-    mapRef.current?.flyTo([21.0135, 105.5252], 15.5);
+    mapRef.current?.flyTo([21.0135, 105.5252], 15, { duration: 0.8 });
   };
 
   return (
