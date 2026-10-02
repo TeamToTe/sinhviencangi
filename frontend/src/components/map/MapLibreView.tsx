@@ -99,6 +99,10 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       setZoom(map.getZoom());
     });
 
+    map.on('zoomend', () => {
+      setZoom(map.getZoom());
+    });
+
     mapRef.current = map;
 
     return () => {
@@ -134,7 +138,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     }
   }, [center, zoom]);
 
-  // Render & Update Custom Festival-Style Speech Bubble Markers
+  // Render & Update Custom Adaptive LOD Markers
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
@@ -148,69 +152,123 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       }
     });
 
+    const isDetailedZoom = zoom >= 16.5;
+    const isMicroZoom = zoom < 14.5;
+
     // Create or update markers
     places.forEach((place) => {
       const isSelected = selectedPlace?.id === place.id;
       const isHovered = hoveredPlaceId === place.id;
+      const isExpanded = isSelected || isHovered || isDetailedZoom;
+      const isMicro = !isExpanded && isMicroZoom;
 
-      if (!markersRef.current[place.id]) {
-        // Create custom divIcon with vector SVG icon and serif typography
-        const priceLabel = place.priceInfo
-          ? formatPriceText(place.priceInfo)
-          : `${place.rating}★ (${place.reviewCount})`;
+      const priceLabel = place.priceInfo
+        ? formatPriceText(place.priceInfo)
+        : `${place.rating}★ (${place.reviewCount})`;
 
-        const customIcon = L.divIcon({
-          className: 'leaflet-custom-marker-wrapper',
-          iconSize: [160, 56],
-          iconAnchor: [80, 56],
-          html: `
-            <div class="speech-bubble-pin group transition-all duration-200 transform origin-bottom select-none cursor-pointer"
-                 id="marker-${place.id}">
-              <!-- Bubble Box -->
-              <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[110px] max-w-[220px]"
-                   style="border-color: ${place.categoryColor}">
-                
-                <!-- Vector SVG Icon badge inside marker -->
-                <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
-                     style="background-color: ${place.categoryColor}">
-                  ${getCategorySvg(place.category)}
-                </div>
+      let markerInnerHtml = '';
 
-                <!-- Name & Subtext -->
-                <div class="flex flex-col overflow-hidden text-left font-serif leading-tight">
-                  <span class="font-bold text-[11px] tracking-tight truncate text-gray-900 max-w-[130px]">
-                    ${place.name}
-                  </span>
-                  <span class="text-[10px] font-medium ${place.priceInfo ? 'text-amber-700' : 'text-emerald-700'}">
-                    ${priceLabel}
-                  </span>
-                </div>
-
-                <!-- Top/Right Mini Badge -->
-                ${
-                  place.badgeText
-                    ? `<div class="absolute -top-2 -right-1 bg-amber-400 text-amber-950 text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-xs ring-1 ring-white font-serif">
-                        ${place.badgeText.slice(0, 10)}
-                      </div>`
-                    : ''
-                }
-              </div>
-
-              <!-- Tail Pointer -->
-              <div class="w-0 h-0 mx-auto border-x-[6px] border-x-transparent border-t-[8px] -mt-[1px]"
-                   style="border-top-color: ${place.categoryColor}">
-              </div>
+      if (isExpanded) {
+        // Mode 1: Full Speech Bubble
+        markerInnerHtml = `
+          <div class="relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-transform duration-200 ${
+            isSelected
+              ? 'scale-115 drop-shadow-2xl'
+              : isHovered
+              ? 'scale-110 drop-shadow-xl'
+              : 'scale-100 drop-shadow-md'
+          }" id="marker-${place.id}">
+            <!-- Bubble Box -->
+            <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px]"
+                 style="border-color: ${place.categoryColor}">
               
-              <!-- Ground Dot -->
-              <div class="w-2.5 h-2.5 rounded-full mx-auto -mt-0.5 shadow-sm ring-2 ring-white"
+              <!-- Vector SVG Icon badge -->
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs"
+                   style="background-color: ${place.categoryColor}">
+                ${getCategorySvg(place.category)}
+              </div>
+
+              <!-- Name & Subtext -->
+              <div class="flex flex-col overflow-hidden text-left font-serif leading-tight">
+                <span class="font-bold text-[11px] tracking-tight truncate text-gray-900 max-w-[140px]">
+                  ${place.name}
+                </span>
+                <span class="text-[10px] font-medium ${place.priceInfo ? 'text-amber-700' : 'text-emerald-700'}">
+                  ${priceLabel}
+                </span>
+              </div>
+
+              <!-- Top/Right Mini Badge -->
+              ${
+                place.badgeText
+                  ? `<div class="absolute -top-2 -right-1 bg-amber-400 text-amber-950 text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-xs ring-1 ring-white font-serif">
+                      ${place.badgeText.slice(0, 12)}
+                    </div>`
+                  : ''
+              }
+            </div>
+
+            <!-- Tail Pointer -->
+            <div class="w-0 h-0 mx-auto border-x-[6px] border-x-transparent border-t-[7px] -mt-[1px]"
+                 style="border-top-color: ${place.categoryColor}">
+            </div>
+            
+            <!-- Ground Dot -->
+            <div class="w-2.5 h-2.5 rounded-full mx-auto -mt-0.5 shadow-sm ring-2 ring-white"
                  style="background-color: ${place.categoryColor}">
+            </div>
+          </div>
+        `;
+      } else if (isMicro) {
+        // Mode 2: Micro Pin (When zoomed out far)
+        markerInnerHtml = `
+          <div class="relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 hover:scale-125"
+               id="marker-${place.id}">
+            <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md border-2"
+                 style="border-color: ${place.categoryColor}">
+              <div class="w-5 h-5 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+                   style="background-color: ${place.categoryColor}">
+                ${getCategorySvg(place.category)}
               </div>
             </div>
-          `,
-        });
+            <div class="w-2 h-2 rounded-full mx-auto mt-0.5 shadow-xs ring-1 ring-white"
+                 style="background-color: ${place.categoryColor}">
+            </div>
+          </div>
+        `;
+      } else {
+        // Mode 3: Compact Pill (Medium zoom)
+        markerInnerHtml = `
+          <div class="relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-200 hover:scale-115"
+               id="marker-${place.id}">
+            <div class="flex items-center gap-1.5 px-2 py-0.5 bg-white/95 backdrop-blur-xs text-gray-900 rounded-full shadow-md border-2 hover:shadow-lg transition-all"
+                 style="border-color: ${place.categoryColor}">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center text-white shrink-0 shadow-xs"
+                   style="background-color: ${place.categoryColor}">
+                ${getCategorySvg(place.category)}
+              </div>
+              <span class="font-bold text-[10px] font-serif tracking-tight text-gray-800 max-w-[85px] truncate leading-tight">
+                ${place.name}
+              </span>
+            </div>
+            <div class="w-2 h-2 rounded-full mx-auto mt-0.5 shadow-xs ring-1 ring-white"
+                 style="background-color: ${place.categoryColor}">
+            </div>
+          </div>
+        `;
+      }
 
+      const customIcon = L.divIcon({
+        className: 'leaflet-custom-marker-wrapper',
+        iconSize: [0, 0],
+        iconAnchor: [0, 0],
+        html: markerInnerHtml,
+      });
+
+      if (!markersRef.current[place.id]) {
         const marker = L.marker([place.coordinates.lat, place.coordinates.lng], {
           icon: customIcon,
+          zIndexOffset: isSelected ? 2500 : isHovered ? 1500 : 10,
         }).addTo(map);
 
         marker.on('click', () => {
@@ -226,24 +284,13 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
         });
 
         markersRef.current[place.id] = marker;
-      }
-
-      // Update styling based on selected or hovered state
-      const markerDom = document.getElementById(`marker-${place.id}`);
-      if (markerDom) {
-        if (isSelected) {
-          markerDom.className =
-            'speech-bubble-pin transition-all duration-200 transform scale-125 -translate-y-2 z-30 drop-shadow-2xl';
-        } else if (isHovered) {
-          markerDom.className =
-            'speech-bubble-pin transition-all duration-200 transform scale-115 -translate-y-1 z-20 drop-shadow-lg';
-        } else {
-          markerDom.className =
-            'speech-bubble-pin transition-all duration-200 transform scale-100 hover:scale-110 z-10';
-        }
+      } else {
+        const marker = markersRef.current[place.id];
+        marker.setIcon(customIcon);
+        marker.setZIndexOffset(isSelected ? 2500 : isHovered ? 1500 : 10);
       }
     });
-  }, [places, selectedPlace, hoveredPlaceId, activeTab]);
+  }, [places, selectedPlace, hoveredPlaceId, zoom, activeTab]);
 
   // Controls Handlers
   const handleZoomIn = () => {

@@ -11,6 +11,21 @@ import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
 import { useFavoritesStore } from '../../stores/useFavoritesStore';
 
+const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg
+    className={className}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      fillRule="evenodd"
+      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
 export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery } = useFilterStore();
   const { activeTab, setActiveTab } = useMapStore();
@@ -37,48 +52,62 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Tab Switcher */}
-          <div className="flex md:hidden items-center bg-gray-100 p-1 rounded-xl">
-            <button
-              onClick={() => setActiveTab('map')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'map'
-                  ? 'bg-white text-emerald-700 shadow-xs'
-                  : 'text-gray-700 hover:text-gray-900'
-              }`}
+          {/* Mobile Right Controls */}
+          <div className="flex md:hidden items-center gap-2">
+            {/* Mobile Tab Switcher */}
+            <div className="flex items-center bg-gray-100 p-1 rounded-xl">
+              <button
+                onClick={() => setActiveTab('map')}
+                className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'map'
+                    ? 'bg-white text-emerald-700 shadow-xs'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                <MapIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setActiveTab('list')}
+                className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'list'
+                    ? 'bg-white text-emerald-700 shadow-xs'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setActiveTab('favorites')}
+                className={`p-1.5 rounded-lg text-xs font-bold relative transition-all cursor-pointer ${
+                  activeTab === 'favorites'
+                    ? 'bg-white text-rose-600 shadow-xs'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                <Heart className="w-4 h-4" />
+                {favoriteIds.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
+                    {favoriteIds.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Mobile Facebook Link */}
+            <a
+              href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-xl bg-blue-50 text-[#1877F2] border border-blue-200 hover:bg-blue-100 transition-all cursor-pointer flex items-center justify-center shadow-xs"
+              title="Theo dõi chúng mình trên Facebook"
             >
-              <MapIcon className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setActiveTab('list')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'list'
-                  ? 'bg-white text-emerald-700 shadow-xs'
-                  : 'text-gray-700 hover:text-gray-900'
-              }`}
-            >
-              <List className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setActiveTab('favorites')}
-              className={`p-1.5 rounded-lg text-xs font-bold relative transition-all cursor-pointer ${
-                activeTab === 'favorites'
-                  ? 'bg-white text-rose-600 shadow-xs'
-                  : 'text-gray-700 hover:text-gray-900'
-              }`}
-            >
-              <Heart className="w-4 h-4" />
-              {favoriteIds.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
-                  {favoriteIds.length}
-                </span>
-              )}
-            </button>
+              <FacebookIcon className="w-4 h-4" />
+            </a>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div className="flex-1 w-full max-w-2xl flex items-center">
+        <div className="flex-1 w-full max-w-xl lg:max-w-2xl flex items-center">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
             <input
@@ -99,46 +128,61 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop View Mode Switcher */}
-        <div className="hidden md:flex items-center gap-1.5 bg-gray-100 p-1 rounded-2xl border border-gray-200">
-          <button
-            onClick={() => setActiveTab('map')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'map'
-                ? 'bg-white text-emerald-800 shadow-xs'
-                : 'text-gray-700 hover:text-gray-900'
-            }`}
+        {/* Desktop View Mode Switcher & Facebook Link */}
+        <div className="hidden md:flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-2xl border border-gray-200">
+            <button
+              onClick={() => setActiveTab('map')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'map'
+                  ? 'bg-white text-emerald-800 shadow-xs'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Bản đồ</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('list')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'list'
+                  ? 'bg-white text-emerald-800 shadow-xs'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              <List className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Danh sách</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('favorites')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold relative transition-all cursor-pointer ${
+                activeTab === 'favorites'
+                  ? 'bg-white text-rose-600 shadow-xs'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" />
+              <span>Đã lưu</span>
+              {favoriteIds.length > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">
+                  {favoriteIds.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <a
+            href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-blue-50/90 hover:bg-blue-100 text-blue-700 hover:text-blue-800 border border-blue-200/90 text-xs font-semibold transition-all hover:shadow-sm shrink-0 group cursor-pointer"
+            title="Theo dõi chúng mình trên Facebook"
           >
-            <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Bản đồ</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('list')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'list'
-                ? 'bg-white text-emerald-800 shadow-xs'
-                : 'text-gray-700 hover:text-gray-900'
-            }`}
-          >
-            <List className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Danh sách</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('favorites')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold relative transition-all cursor-pointer ${
-              activeTab === 'favorites'
-                ? 'bg-white text-rose-600 shadow-xs'
-                : 'text-gray-700 hover:text-gray-900'
-            }`}
-          >
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" />
-            <span>Đã lưu</span>
-            {favoriteIds.length > 0 && (
-              <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">
-                {favoriteIds.length}
-              </span>
-            )}
-          </button>
+            <div className="w-5 h-5 rounded-full bg-[#1877F2] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-110 transition-transform">
+              <FacebookIcon className="w-3 h-3 fill-current" />
+            </div>
+            <span className="whitespace-nowrap font-medium">Theo dõi chúng mình trên Facebook</span>
+          </a>
         </div>
       </div>
     </header>
