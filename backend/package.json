@@ -1,0 +1,37 @@
+{
+  "name": "connecthub-backend",
+  "version": "1.0.0",
+  "description": "Backend REST API for Sinh Vien Can Gi (ConnectHub Hoa Lac Map)",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "seed": "tsx src/db/seed.ts",
+    "test": "tsx test/api.test.ts"
+  },
+  "keywords": [
+    "connecthub",
+    "fptu",
+    "hola-map",
+    "backend",
+    "api"
+  ],
+  "author": "ConnectHub TeamToTe",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
