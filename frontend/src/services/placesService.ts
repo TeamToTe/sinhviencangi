@@ -8,7 +8,7 @@ import type {
   PlaceCategory,
   Review,
 } from '../types/place';
-import { USE_MOCK_DATA } from './apiClient';
+import { request, USE_MOCK_DATA } from './apiClient';
 import { supabase } from './supabaseClient';
 
 const CATEGORY_MAP: Record<string, { id: PlaceCategory; label: string; color: string; icon: string }> = {
@@ -76,7 +76,7 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
 
 /**
  * Places Service Layer
- * Supabase integration with fallback to Mock Data
+ * Supports REST API backend, direct Supabase, and instant Mock Data fallback
  */
 export const placesService = {
   /**
@@ -84,6 +84,31 @@ export const placesService = {
    */
   async getPlaces(filters: FilterParams = {}): Promise<Place[]> {
     if (!USE_MOCK_DATA) {
+      // 1. Try REST Backend API
+      try {
+        const params = new URLSearchParams();
+        if (filters.category && filters.category !== 'all') params.append('category', filters.category);
+        if (filters.searchQuery) params.append('q', filters.searchQuery);
+        if (filters.area && filters.area !== 'all') params.append('area', filters.area);
+        if (filters.minPrice) params.append('minPrice', filters.minPrice.toString());
+        if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+        if (filters.sortBy) params.append('sortBy', filters.sortBy);
+        if (filters.bbox) {
+          params.append('minLng', filters.bbox.minLng.toString());
+          params.append('minLat', filters.bbox.minLat.toString());
+          params.append('maxLng', filters.bbox.maxLng.toString());
+          params.append('maxLat', filters.bbox.maxLat.toString());
+        }
+
+        const data = await request<Place[]>(`/places?${params.toString()}`);
+        if (Array.isArray(data) && data.length > 0) {
+          return data;
+        }
+      } catch (backendErr) {
+        console.warn('[PlacesService] Backend API request failed, trying Supabase fallback:', backendErr);
+      }
+
+      // 2. Try Supabase direct fallback
       try {
         let query = supabase.from('places').select('*, categories(name), reviews(*)');
 
@@ -110,7 +135,7 @@ export const placesService = {
         const { data, error } = await query;
 
         if (!error && data && data.length > 0) {
-          let places = data.map((item: any) => {
+          let places: Place[] = data.map((item: any) => {
             const catName = item.categories?.name;
             const revs: Review[] = (item.reviews || []).map((r: any) => ({
               id: String(r.id),
@@ -122,40 +147,37 @@ export const placesService = {
             return mapDbRowToPlace(item, catName, revs);
           });
 
-          // Filter by category
           if (filters.category && filters.category !== 'all') {
-            places = places.filter((p) => p.category === filters.category);
+            places = places.filter((p: Place) => p.category === filters.category);
           }
 
-          // Search query
           if (filters.searchQuery && filters.searchQuery.trim()) {
             const q = filters.searchQuery.toLowerCase().trim();
             places = places.filter(
-              (p) =>
+              (p: Place) =>
                 p.name.toLowerCase().includes(q) ||
                 p.address.toLowerCase().includes(q) ||
                 p.shortDescription.toLowerCase().includes(q) ||
-                p.tags.some((t) => t.toLowerCase().includes(q))
+                p.tags.some((t: string) => t.toLowerCase().includes(q))
             );
           }
 
-          // Sort
           if (filters.sortBy === 'rating') {
-            places.sort((a, b) => b.rating - a.rating);
+            places.sort((a: Place, b: Place) => b.rating - a.rating);
           } else if (filters.sortBy === 'price_asc') {
-            places.sort((a, b) => (a.priceInfo?.amount || 0) - (b.priceInfo?.amount || 0));
+            places.sort((a: Place, b: Place) => (a.priceInfo?.amount || 0) - (b.priceInfo?.amount || 0));
           } else if (filters.sortBy === 'price_desc') {
-            places.sort((a, b) => (b.priceInfo?.amount || 0) - (a.priceInfo?.amount || 0));
+            places.sort((a: Place, b: Place) => (b.priceInfo?.amount || 0) - (a.priceInfo?.amount || 0));
           }
 
           return places;
         }
       } catch (err) {
-        console.warn('[Supabase] Falling back to mock places due to query error:', err);
+        console.warn('[PlacesService] Supabase fallback failed, returning mock data:', err);
       }
     }
 
-    // Default Mock Data logic
+    // 3. Default Mock Data logic
     await new Promise((resolve) => setTimeout(resolve, 50));
     let result = [...MOCK_PLACES];
 
@@ -216,6 +238,13 @@ export const placesService = {
   async getPlaceById(id: string): Promise<Place | null> {
     if (!USE_MOCK_DATA) {
       try {
+        const place = await request<Place>(`/places/${id}`);
+        if (place) return place;
+      } catch (err) {
+        console.warn('[PlacesService] Backend getPlaceById error, falling back:', err);
+      }
+
+      try {
         const { data, error } = await supabase
           .from('places')
           .select('*, categories(name), reviews(*)')
@@ -234,7 +263,7 @@ export const placesService = {
           return mapDbRowToPlace(data, catName, revs);
         }
       } catch (err) {
-        console.warn('[Supabase] Failed to fetch place by ID from Supabase:', err);
+        console.warn('[PlacesService] Supabase getPlaceById error:', err);
       }
     }
 
@@ -243,20 +272,80 @@ export const placesService = {
   },
 
   /**
+   * Create a new place (Supports "Chấm vào bản đồ" - Map Pinning!)
+   */
+  async createPlace(placeData: any): Promise<Place> {
+    if (!USE_MOCK_DATA) {
+      try {
+        return await request<Place>('/places', {
+          method: 'POST',
+          body: JSON.stringify(placeData),
+        });
+      } catch (err) {
+        console.warn('[PlacesService] Backend createPlace error, falling back to local mock:', err);
+      }
+    }
+
+    // Mock local creation
+    const newId = `pin-${Date.now()}`;
+    const newPlace: Place = {
+      id: newId,
+      name: placeData.name || 'Địa điểm mới',
+      slug: `pin-${Date.now()}`,
+      category: placeData.category || 'food_drink',
+      categoryLabel: CATEGORY_MAP[placeData.category]?.label || 'Ẩm thực',
+      categoryColor: CATEGORY_MAP[placeData.category]?.color || '#ea580c',
+      iconName: CATEGORY_MAP[placeData.category]?.icon || 'MapPin',
+      shortDescription: placeData.address || 'Địa điểm vừa được chấm trên bản đồ',
+      fullDescription: placeData.reviewContent || 'Thông tin vừa được thêm.',
+      address: placeData.address || 'Hòa Lạc, Thạch Thất, Hà Nội',
+      areaName: placeData.areaName || 'Hòa Lạc',
+      coordinates: {
+        lat: placeData.coordinates?.lat || placeData.latitude || 21.0185,
+        lng: placeData.coordinates?.lng || placeData.longitude || 105.5345,
+      },
+      distanceToFPT: 'Gần FPTU',
+      distanceToVNU: 'Gần VNU',
+      priceInfo: placeData.priceInfo,
+      phone: placeData.phone,
+      photos: placeData.photos || ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'],
+      tags: placeData.amenities || [],
+      amenities: (placeData.amenities || []).map((label: string) => ({
+        icon: 'Check',
+        label,
+        available: true,
+      })),
+      rating: placeData.rating || 5,
+      reviewCount: 1,
+      reviews: placeData.reviewContent
+        ? [
+            {
+              id: `rev-${Date.now()}`,
+              authorName: placeData.contributorName || 'Sinh viên khảo sát',
+              rating: placeData.rating || 5,
+              comment: placeData.reviewContent,
+              createdAt: new Date().toISOString().split('T')[0],
+            },
+          ]
+        : [],
+      isVerified: true,
+      isAvailable: true,
+    };
+
+    MOCK_PLACES.unshift(newPlace);
+    return newPlace;
+  },
+
+  /**
    * Get categories metadata with counts
    */
   async getCategories(): Promise<CategoryMeta[]> {
     if (!USE_MOCK_DATA) {
       try {
-        const { data } = await supabase.from('categories').select('*');
-        if (data && data.length > 0) {
-          return CATEGORIES.map((cat) => ({
-            ...cat,
-            count: 0,
-          }));
-        }
+        const cats = await request<CategoryMeta[]>('/categories');
+        if (Array.isArray(cats) && cats.length > 0) return cats;
       } catch (err) {
-        console.warn('[Supabase] Failed to get categories from Supabase:', err);
+        console.warn('[PlacesService] Backend getCategories error:', err);
       }
     }
 
@@ -272,11 +361,12 @@ export const placesService = {
   async reportPlace(dto: CreateReportDto): Promise<{ success: boolean; message: string }> {
     if (!USE_MOCK_DATA) {
       try {
-        await supabase.from('contributions').insert([
-          { contributor_name: dto.contactEmail || 'Anonymous Student' },
-        ]);
+        return await request<{ success: boolean; message: string }>('/reports', {
+          method: 'POST',
+          body: JSON.stringify(dto),
+        });
       } catch (err) {
-        console.error('[Supabase] Error saving contribution:', err);
+        console.warn('[PlacesService] Backend reportPlace error:', err);
       }
     }
     return { success: true, message: 'Cảm ơn bạn! Báo cáo đã được ghi nhận.' };
@@ -297,18 +387,12 @@ export const placesService = {
 
     if (!USE_MOCK_DATA) {
       try {
-        const numericId = parseInt(dto.placeId, 10);
-        if (!isNaN(numericId)) {
-          await supabase.from('reviews').insert([
-            {
-              place_id: numericId,
-              rating: dto.rating,
-              content: dto.comment,
-            },
-          ]);
-        }
+        return await request<Review>(`/places/${dto.placeId}/reviews`, {
+          method: 'POST',
+          body: JSON.stringify(dto),
+        });
       } catch (err) {
-        console.error('[Supabase] Error saving review to Supabase:', err);
+        console.warn('[PlacesService] Backend addReview error:', err);
       }
     }
 

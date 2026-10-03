@@ -41,6 +41,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+data/*.sqlite
 
 # ==========================================
 # IDE & Code Editors
