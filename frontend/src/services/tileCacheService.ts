@@ -3,7 +3,7 @@
  * Caches map tiles covering the 3.5km radius around FPT University (Hoa Lac).
  */
 
-const CACHE_NAME = 'holamap-tiles-v1';
+const CACHE_NAME = 'holamap-tiles-v3';
 const FPTU_COORDS = { lat: 21.0135, lng: 105.5252 };
 const RADIUS_KM = 3.5;
 
@@ -28,7 +28,7 @@ function getBoundingBox(lat: number, lng: number, radiusKm: number) {
   };
 }
 
-// Generate tile URLs for the 5km area across zoom levels 13 to 16
+// Generate tile URLs for the 3.5km area across zoom levels 13 to 16
 export function getFPTUTileUrls(zoomLevels: number[] = [13, 14, 15, 16]): string[] {
   const bounds = getBoundingBox(FPTU_COORDS.lat, FPTU_COORDS.lng, RADIUS_KM);
   const urls: string[] = [];
@@ -48,7 +48,7 @@ export function getFPTUTileUrls(zoomLevels: number[] = [13, 14, 15, 16]): string
       for (let y = minY; y <= maxY; y++) {
         const s = subdomains[subIndex % subdomains.length];
         subIndex++;
-        // OSM Hot tiles
+        // OSM Hot tiles (100% Free, no API key required)
         urls.push(`https://${s}.tile.openstreetmap.fr/hot/${zoom}/${x}/${y}.png`);
       }
     }
@@ -65,32 +65,34 @@ export function registerServiceWorker(): void {
         .register('/sw.js')
         .then((reg) => {
           console.log('[SW] Service Worker registered with scope:', reg.scope);
-          // Pre-warm map tiles in background after service worker is active
-          prewarmMapTiles();
+          reg.update();
+          // Defer pre-warming to idle time (after initial UI and visible tiles load)
+          if ('requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(() => prewarmMapTiles(), { timeout: 4000 });
+          } else {
+            setTimeout(() => prewarmMapTiles(), 3500);
+          }
         })
         .catch((err) => {
           console.warn('[SW] Service Worker registration failed:', err);
-          // Fallback to direct Cache API pre-warm if SW registration is delayed
-          prewarmMapTiles();
+          setTimeout(() => prewarmMapTiles(), 4000);
         });
     });
-  } else {
-    // If not using SW (e.g. non-supported environment), still prewarm via Cache API if available
-    prewarmMapTiles();
   }
 }
 
-// Pre-warm / Cache all tiles for 5km around FPT University
+// Pre-warm / Cache initial tiles for landing zoom around FPT University
 export async function prewarmMapTiles(): Promise<number> {
   if (!('caches' in window)) return 0;
 
   try {
     const cache = await caches.open(CACHE_NAME);
-    const urls = getFPTUTileUrls([13, 14, 15, 16]);
+    // Pre-warm only landing zoom 15 to keep network light and eliminate lag
+    const urls = getFPTUTileUrls([15]);
     let cachedCount = 0;
 
-    // Batch download with concurrency limit of 4 to keep network smooth
-    const concurrency = 4;
+    // Gentle background download: concurrency 2
+    const concurrency = 2;
     for (let i = 0; i < urls.length; i += concurrency) {
       const batch = urls.slice(i, i + concurrency);
       await Promise.all(
@@ -98,7 +100,7 @@ export async function prewarmMapTiles(): Promise<number> {
           try {
             const match = await cache.match(url);
             if (!match) {
-              const res = await fetch(url, { mode: 'cors' });
+              const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
               if (res.ok) {
                 await cache.put(url, res);
                 cachedCount++;
@@ -109,9 +111,11 @@ export async function prewarmMapTiles(): Promise<number> {
           }
         })
       );
+      // Small pause to yield event loop & network to user actions
+      await new Promise((resolve) => setTimeout(resolve, 30));
     }
 
-    console.log(`[TileCache] Pre-warmed ${cachedCount} new tiles (Total 3.5km area: ${urls.length} tiles).`);
+    console.log(`[TileCache] Pre-warmed ${cachedCount} landing tiles in background.`);
     return cachedCount;
   } catch (err) {
     console.warn('[TileCache] Error prewarming tiles:', err);

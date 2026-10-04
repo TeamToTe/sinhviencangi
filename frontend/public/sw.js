@@ -1,4 +1,4 @@
-const TILE_CACHE_NAME = 'holamap-tiles-v1';
+const TILE_CACHE_NAME = 'holamap-tiles-v3';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -25,25 +25,36 @@ self.addEventListener('fetch', (event) => {
   if (
     url.includes('tile.openstreetmap') ||
     url.includes('arcgisonline.com') ||
+    url.includes('basemaps.cartocdn.com') ||
+    url.includes('cartocdn.com') ||
     url.includes('tile.openstreetmap.fr')
   ) {
     event.respondWith(
-      caches.open(TILE_CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
+      caches.open(TILE_CACHE_NAME).then(async (cache) => {
+        const cachedResponse = await cache.match(event.request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        try {
+          // Public tile CDNs return Access-Control-Allow-Origin: *
+          // which browsers block if credentials mode is 'include'.
+          // Must explicitly omit credentials so CORS allows wildcard.
+          const tileReq = new Request(event.request.url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+          });
+
+          const networkResponse = await fetch(tileReq);
+          if (networkResponse && networkResponse.ok) {
+            cache.put(event.request, networkResponse.clone());
           }
-          return fetch(event.request, { mode: 'cors' })
-            .then((networkResponse) => {
-              if (networkResponse && networkResponse.status === 200) {
-                cache.put(event.request, networkResponse.clone());
-              }
-              return networkResponse;
-            })
-            .catch(() => {
-              return cachedResponse || new Response('', { status: 408 });
-            });
-        });
+          return networkResponse;
+        } catch {
+          // Fallback directly to native fetch without 408 timeout
+          return fetch(event.request);
+        }
       })
     );
   }
