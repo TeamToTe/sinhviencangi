@@ -11,7 +11,7 @@ interface MapLibreViewProps {
   isLoading?: boolean;
 }
 
-// 100% Free, crystal-clear, zero-watermark tile layers
+// 100% Free, crystal-clear, zero-watermark, NO API KEY required
 const CLEAN_TILE_LAYERS = {
   osmHot: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
   esriStreet: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
@@ -70,7 +70,7 @@ function getMarkerHtml(
     : `${place.rating}★ (${place.reviewCount})`;
 
   const appearClass = isFirstMount ? 'marker-appear' : '';
-  const appearStyle = isFirstMount ? `animation-delay: ${staggerDelay}ms;` : '';
+  const appearStyle = isFirstMount ? `animation-delay: ${staggerDelay}ms; will-change: transform;` : 'will-change: transform;';
 
   // 1. Detailed Zoom or Selected -> Always Expanded Bubble
   if (isDetailedZoom || isSelected) {
@@ -228,6 +228,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
   const animatedMarkerIdsRef = useRef<Set<string>>(new Set());
   const markerStatesRef = useRef<{ [id: string]: MarkerState }>({});
   const prevHoveredIdRef = useRef<string | null>(null);
+  const isUserInteractingRef = useRef<boolean>(false);
 
   const {
     center,
@@ -252,35 +253,46 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       zoom: zoom,
       zoomControl: false,
       attributionControl: true,
+      preferCanvas: true,
+      fadeAnimation: true,
+      zoomAnimation: true,
+      markerZoomAnimation: true,
+      wheelDebounceTime: 60,
+      wheelPxPerZoomLevel: 120,
     });
 
     const tileLayer = L.tileLayer(CLEAN_TILE_LAYERS.osmHot, {
       subdomains: 'abc',
       maxZoom: 19,
+      crossOrigin: 'anonymous',
+      keepBuffer: 8,
+      updateWhenIdle: false,
+      updateWhenZooming: false,
       attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Tiles by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OSM</a>',
     });
 
+    let hasFallenBack = false;
     tileLayer.on('tileerror', () => {
-      tileLayer.setUrl(CLEAN_TILE_LAYERS.esriStreet);
+      if (!hasFallenBack) {
+        hasFallenBack = true;
+        console.warn('[Map] Switching to backup tile provider...');
+        tileLayer.setUrl(CLEAN_TILE_LAYERS.esriStreet);
+      }
     });
 
     tileLayer.addTo(map);
 
-    // 3.5km Radius Coverage Area centered at FPT University
-    const radiusCircle = L.circle([21.0135, 105.5252], {
-      radius: 3500,
-      color: '#059669',
-      weight: 1.5,
-      dashArray: '6, 6',
-      fillColor: '#10b981',
-      fillOpacity: 0.04,
-      interactive: false,
-    }).addTo(map);
+    map.on('movestart', () => {
+      isUserInteractingRef.current = true;
+    });
 
     map.on('moveend', () => {
       const c = map.getCenter();
       setCenter([c.lng, c.lat]);
       setZoom(map.getZoom());
+      setTimeout(() => {
+        isUserInteractingRef.current = false;
+      }, 100);
     });
 
     map.on('zoomend', () => {
@@ -290,7 +302,6 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     mapRef.current = map;
 
     return () => {
-      radiusCircle.remove();
       map.remove();
       mapRef.current = null;
     };
@@ -306,9 +317,9 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     return () => clearTimeout(timer);
   }, [selectedPlace, isSidebarOpen, activeTab]);
 
-  // Sync camera center when store center changes externally
+  // Sync camera center when store center changes externally (e.g. user clicked a place card)
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || isUserInteractingRef.current) return;
     const currentCenter = mapRef.current.getCenter();
     const [targetLng, targetLat] = center;
 

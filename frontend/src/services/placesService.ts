@@ -109,71 +109,73 @@ export const placesService = {
       }
 
       // 2. Try Supabase direct fallback
-      try {
-        let query = supabase.from('places').select('*, categories(name), reviews(*)');
+      if (supabase) {
+        try {
+          let query = supabase.from('places').select('*, categories(name), reviews(*)');
 
-        if (filters.area && filters.area !== 'all') {
-          query = query.ilike('area', `%${filters.area}%`);
-        }
-
-        if (filters.minPrice !== undefined && filters.minPrice > 0) {
-          query = query.gte('min_price', filters.minPrice);
-        }
-
-        if (filters.maxPrice !== undefined && filters.maxPrice > 0) {
-          query = query.lte('max_price', filters.maxPrice);
-        }
-
-        if (filters.bbox) {
-          query = query
-            .gte('longitude', filters.bbox.minLng)
-            .lte('longitude', filters.bbox.maxLng)
-            .gte('latitude', filters.bbox.minLat)
-            .lte('latitude', filters.bbox.maxLat);
-        }
-
-        const { data, error } = await query;
-
-        if (!error && data && data.length > 0) {
-          let places: Place[] = data.map((item: any) => {
-            const catName = item.categories?.name;
-            const revs: Review[] = (item.reviews || []).map((r: any) => ({
-              id: String(r.id),
-              authorName: 'Sinh viên FPT/VNU',
-              rating: r.rating || 5,
-              comment: r.content || '',
-              createdAt: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '',
-            }));
-            return mapDbRowToPlace(item, catName, revs);
-          });
-
-          if (filters.category && filters.category !== 'all') {
-            places = places.filter((p: Place) => p.category === filters.category);
+          if (filters.area && filters.area !== 'all') {
+            query = query.ilike('area', `%${filters.area}%`);
           }
 
-          if (filters.searchQuery && filters.searchQuery.trim()) {
-            const q = filters.searchQuery.toLowerCase().trim();
-            places = places.filter(
-              (p: Place) =>
-                p.name.toLowerCase().includes(q) ||
-                p.address.toLowerCase().includes(q) ||
-                p.shortDescription.toLowerCase().includes(q) ||
-                p.tags.some((t: string) => t.toLowerCase().includes(q))
-            );
+          if (filters.minPrice !== undefined && filters.minPrice > 0) {
+            query = query.gte('min_price', filters.minPrice);
           }
 
-          if (filters.sortBy === 'rating') {
-            places.sort((a: Place, b: Place) => b.rating - a.rating);
-          } else if (filters.sortBy === 'price_asc') {
-            places.sort((a: Place, b: Place) => (a.priceInfo?.amount || 0) - (b.priceInfo?.amount || 0));
-          } else if (filters.sortBy === 'price_desc') {
-            places.sort((a: Place, b: Place) => (b.priceInfo?.amount || 0) - (a.priceInfo?.amount || 0));
+          if (filters.maxPrice !== undefined && filters.maxPrice > 0) {
+            query = query.lte('max_price', filters.maxPrice);
           }
 
-          return places;
+          if (filters.bbox) {
+            query = query
+              .gte('longitude', filters.bbox.minLng)
+              .lte('longitude', filters.bbox.maxLng)
+              .gte('latitude', filters.bbox.minLat)
+              .lte('latitude', filters.bbox.maxLat);
+          }
+
+          const { data, error } = await query;
+
+          if (!error && data && data.length > 0) {
+            let places: Place[] = data.map((item: any) => {
+              const catName = item.categories?.name;
+              const revs: Review[] = (item.reviews || []).map((r: any) => ({
+                id: String(r.id),
+                authorName: 'Sinh viên FPT/VNU',
+                rating: r.rating || 5,
+                comment: r.content || '',
+                createdAt: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '',
+              }));
+              return mapDbRowToPlace(item, catName, revs);
+            });
+
+            if (filters.category && filters.category !== 'all') {
+              places = places.filter((p: Place) => p.category === filters.category);
+            }
+
+            if (filters.searchQuery && filters.searchQuery.trim()) {
+              const q = filters.searchQuery.toLowerCase().trim();
+              places = places.filter(
+                (p: Place) =>
+                  p.name.toLowerCase().includes(q) ||
+                  p.address.toLowerCase().includes(q) ||
+                  p.shortDescription.toLowerCase().includes(q) ||
+                  p.tags.some((t: string) => t.toLowerCase().includes(q))
+              );
+            }
+
+            if (filters.sortBy === 'rating') {
+              places.sort((a: Place, b: Place) => b.rating - a.rating);
+            } else if (filters.sortBy === 'price_asc') {
+              places.sort((a: Place, b: Place) => (a.priceInfo?.amount || 0) - (b.priceInfo?.amount || 0));
+            } else if (filters.sortBy === 'price_desc') {
+              places.sort((a: Place, b: Place) => (b.priceInfo?.amount || 0) - (a.priceInfo?.amount || 0));
+            }
+
+            return places;
+          }
+        } catch (err) {
+          console.warn('[PlacesService] Supabase fallback failed, returning mock data:', err);
         }
-      } catch (err) {
-        console.warn('[PlacesService] Supabase fallback failed, returning mock data:', err);
       }
     }
 
@@ -244,26 +246,28 @@ export const placesService = {
         console.warn('[PlacesService] Backend getPlaceById error, falling back:', err);
       }
 
-      try {
-        const { data, error } = await supabase
-          .from('places')
-          .select('*, categories(name), reviews(*)')
-          .eq('id', id)
-          .single();
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('places')
+            .select('*, categories(name), reviews(*)')
+            .eq('id', id)
+            .single();
 
-        if (!error && data) {
-          const catName = data.categories?.name;
-          const revs: Review[] = (data.reviews || []).map((r: any) => ({
-            id: String(r.id),
-            authorName: 'Sinh viên FPT/VNU',
-            rating: r.rating || 5,
-            comment: r.content || '',
-            createdAt: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '',
-          }));
-          return mapDbRowToPlace(data, catName, revs);
+          if (!error && data) {
+            const catName = data.categories?.name;
+            const revs: Review[] = (data.reviews || []).map((r: any) => ({
+              id: String(r.id),
+              authorName: 'Sinh viên FPT/VNU',
+              rating: r.rating || 5,
+              comment: r.content || '',
+              createdAt: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '',
+            }));
+            return mapDbRowToPlace(data, catName, revs);
+          }
+        } catch (err) {
+          console.warn('[PlacesService] Supabase getPlaceById error:', err);
         }
-      } catch (err) {
-        console.warn('[PlacesService] Supabase getPlaceById error:', err);
       }
     }
 
