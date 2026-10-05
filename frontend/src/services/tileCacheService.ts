@@ -3,7 +3,7 @@
  * Caches map tiles covering the 3.5km radius around FPT University (Hoa Lac).
  */
 
-const CACHE_NAME = 'holamap-tiles-v3';
+const CACHE_NAME = 'holamap-tiles-v4';
 const FPTU_COORDS = { lat: 21.0135, lng: 105.5252 };
 const RADIUS_KM = 3.5;
 
@@ -32,7 +32,7 @@ function getBoundingBox(lat: number, lng: number, radiusKm: number) {
 export function getFPTUTileUrls(zoomLevels: number[] = [13, 14, 15, 16]): string[] {
   const bounds = getBoundingBox(FPTU_COORDS.lat, FPTU_COORDS.lng, RADIUS_KM);
   const urls: string[] = [];
-  const subdomains = ['a', 'b', 'c'];
+  const subdomains = ['0', '1', '2', '3'];
 
   zoomLevels.forEach((zoom) => {
     const nw = latLngToTile(bounds.maxLat, bounds.minLng, zoom);
@@ -48,8 +48,8 @@ export function getFPTUTileUrls(zoomLevels: number[] = [13, 14, 15, 16]): string
       for (let y = minY; y <= maxY; y++) {
         const s = subdomains[subIndex % subdomains.length];
         subIndex++;
-        // OSM Hot tiles (100% Free, no API key required)
-        urls.push(`https://${s}.tile.openstreetmap.fr/hot/${zoom}/${x}/${y}.png`);
+        // Google Maps Vietnam tiles (100% compliant with Vietnamese sovereignty)
+        urls.push(`https://mt${s}.google.com/vt/lyrs=m&hl=vi&gl=VN&x=${x}&y=${y}&z=${zoom}`);
       }
     }
   });

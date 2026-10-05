@@ -1,4 +1,4 @@
-const TILE_CACHE_NAME = 'holamap-tiles-v3';
+const TILE_CACHE_NAME = 'holamap-tiles-v4';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -23,10 +23,12 @@ self.addEventListener('fetch', (event) => {
 
   // Intercept map tile requests for offline fast loading
   if (
+    url.includes('google.com/vt') ||
+    url.includes('mt0.google.com') ||
+    url.includes('mt1.google.com') ||
+    url.includes('mt2.google.com') ||
+    url.includes('mt3.google.com') ||
     url.includes('tile.openstreetmap') ||
-    url.includes('arcgisonline.com') ||
-    url.includes('basemaps.cartocdn.com') ||
-    url.includes('cartocdn.com') ||
     url.includes('tile.openstreetmap.fr')
   ) {
     event.respondWith(

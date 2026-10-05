@@ -11,11 +11,45 @@ interface MapLibreViewProps {
   isLoading?: boolean;
 }
 
-// 100% Free, crystal-clear, zero-watermark, NO API KEY required
-const CLEAN_TILE_LAYERS = {
-  osmHot: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-  esriStreet: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+// Bản đồ chuẩn quốc gia khẳng định chủ quyền lãnh thổ Việt Nam
+// Sử dụng Google Maps Tile Server tiếng Việt (hl=vi, gl=VN)
+// Cam kết: KHÔNG có đường lưỡi bò, KHÔNG có tên tiếng Trung sai lệch, hiển thị đúng "Quần đảo Hoàng Sa" & "quần đảo Trường Sa"
+const SAFE_TILE_LAYERS = {
+  roadmap: 'https://mt{s}.google.com/vt/lyrs=m&hl=vi&gl=VN&x={x}&y={y}&z={z}',
+  satellite: 'https://mt{s}.google.com/vt/lyrs=y&hl=vi&gl=VN&x={x}&y={y}&z={z}',
+  backupRoadmap: 'https://mt{s}.google.com/vt/lyrs=r&hl=vi&gl=VN&x={x}&y={y}&z={z}',
 };
+
+// Điểm mốc chủ quyền thiêng liêng khẳng định chủ quyền biển đảo của Việt Nam trên Biển Đông
+const VIETNAM_SOVEREIGNTY_POINTS = [
+  {
+    id: 'sovereignty-hoang-sa',
+    name: 'Quần đảo Hoàng Sa',
+    adminArea: 'Huyện đảo Hoàng Sa, TP. Đà Nẵng, Việt Nam 🇻🇳',
+    coords: [16.536, 111.605] as [number, number],
+  },
+  {
+    id: 'sovereignty-truong-sa',
+    name: 'Quần đảo Trường Sa',
+    adminArea: 'Huyện đảo Trường Sa, Tỉnh Khánh Hòa, Việt Nam 🇻🇳',
+    coords: [8.645, 111.919] as [number, number],
+  },
+];
+
+function getSovereigntyMarkerHtml(point: (typeof VIETNAM_SOVEREIGNTY_POINTS)[0]): string {
+  return `
+    <div class="sovereignty-marker select-none cursor-pointer flex flex-col items-center group -translate-x-1/2 -translate-y-1/2">
+      <div class="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white font-bold rounded-full shadow-lg ring-2 ring-amber-400 group-hover:scale-110 transition-transform">
+        <span class="text-sm">🇻🇳</span>
+        <span class="text-xs font-serif whitespace-nowrap tracking-wide drop-shadow-xs">${point.name}</span>
+      </div>
+      <div class="px-2 py-0.5 mt-0.5 bg-amber-400 text-[9px] text-amber-950 font-bold rounded-md shadow-xs whitespace-nowrap opacity-95 group-hover:opacity-100 font-serif">
+        Việt Nam
+      </div>
+    </div>
+  `;
+}
+
 
 // Format price with proper units
 function formatPriceText(priceInfo: { amount: number; unit: string }): string {
@@ -251,6 +285,8 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     const map = L.map(mapContainerRef.current, {
       center: [lat, lng],
       zoom: zoom,
+      minZoom: 6, // Giới hạn tầm nhìn trong phạm vi lãnh thổ Việt Nam
+      maxZoom: 20,
       zoomControl: false,
       attributionControl: true,
       preferCanvas: true,
@@ -261,26 +297,52 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       wheelPxPerZoomLevel: 120,
     });
 
-    const tileLayer = L.tileLayer(CLEAN_TILE_LAYERS.osmHot, {
-      subdomains: 'abc',
-      maxZoom: 19,
+    const tileLayer = L.tileLayer(SAFE_TILE_LAYERS.roadmap, {
+      subdomains: ['0', '1', '2', '3'],
+      maxZoom: 20,
+      minZoom: 6,
       crossOrigin: 'anonymous',
       keepBuffer: 8,
       updateWhenIdle: false,
       updateWhenZooming: false,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Tiles by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OSM</a>',
+      attribution: '© Google Maps | Bản đồ Việt Nam 🇻🇳 (Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam)',
     });
 
-    let hasFallenBack = false;
     tileLayer.on('tileerror', () => {
-      if (!hasFallenBack) {
-        hasFallenBack = true;
-        console.warn('[Map] Switching to backup tile provider...');
-        tileLayer.setUrl(CLEAN_TILE_LAYERS.esriStreet);
-      }
+      console.warn('[Map] Retrying with backup tile server...');
+      tileLayer.setUrl(SAFE_TILE_LAYERS.backupRoadmap);
     });
 
     tileLayer.addTo(map);
+
+    // Cắm mốc chủ quyền khẳng định Quần đảo Hoàng Sa & Quần đảo Trường Sa của Việt Nam
+    VIETNAM_SOVEREIGNTY_POINTS.forEach((point) => {
+      const icon = L.divIcon({
+        className: 'leaflet-sovereignty-marker',
+        iconSize: [0, 0],
+        iconAnchor: [0, 0],
+        html: getSovereigntyMarkerHtml(point),
+      });
+
+      const marker = L.marker([point.coords[0], point.coords[1]], {
+        icon,
+        zIndexOffset: 3000,
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <div style="font-family: sans-serif; padding: 6px 4px; text-align: center; min-width: 180px;">
+          <div style="font-size: 13px; font-weight: bold; color: #dc2626; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span>🇻🇳</span> ${point.name}
+          </div>
+          <div style="font-size: 11px; color: #1f2937; margin-top: 4px; font-weight: 600;">
+            ${point.adminArea}
+          </div>
+          <div style="font-size: 10px; color: #4b5563; margin-top: 5px; font-style: italic; border-top: 1px dashed #e5e7eb; padding-top: 4px;">
+            Lãnh thổ thiêng liêng không thể tách rời của Tổ quốc Việt Nam
+          </div>
+        </div>
+      `);
+    });
 
     map.on('movestart', () => {
       isUserInteractingRef.current = true;
