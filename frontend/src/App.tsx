@@ -12,6 +12,7 @@ import { PlaceReportModal } from './components/places/PlaceReportModal';
 import { PlaceCard } from './components/places/PlaceCard';
 
 import { useFavoritesStore } from './stores/useFavoritesStore';
+import { FloatingGif } from './components/common/FloatingGif';
 import { Sparkles, Heart, Search } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -187,6 +188,9 @@ export const App: React.FC = () => {
 
       {/* Report Modal */}
       <PlaceReportModal />
+
+      {/* Floating GIF Widget */}
+      <FloatingGif />
     </div>
   );
 };

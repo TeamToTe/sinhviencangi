@@ -43,8 +43,11 @@ pnpm-debug.log*
 lerna-debug.log*
 *.sqlite
 *.sqlite3
+*.sqlit
+*.db
 *.sqlite-journal
 data/*.sqlite
+backend/data/
 
 # ==========================================
 # IDE & Code Editors
