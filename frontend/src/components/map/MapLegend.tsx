@@ -10,7 +10,7 @@ export const MapLegend: React.FC = () => {
   const { category, setCategory } = useFilterStore();
 
   return (
-    <div className="absolute bottom-4 left-3 sm:bottom-6 sm:left-4 z-[950] select-none">
+    <div className="absolute bottom-12 left-3 sm:bottom-6 sm:left-4 z-[950] select-none">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 overflow-hidden max-w-[220px] sm:max-w-[240px] transition-all duration-300">
         {/* Toggle Bar */}
         <button

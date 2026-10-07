@@ -9,7 +9,7 @@ export const FloatingGif: React.FC = () => {
     return (
       <button
         onClick={() => setIsVisible(true)}
-        className="fixed bottom-3 right-3 z-[990] bg-white/90 hover:bg-white text-gray-600 hover:text-emerald-700 p-2 rounded-full shadow-lg border border-emerald-100 transition-all hover:scale-110 cursor-pointer text-xs flex items-center justify-center"
+        className="fixed bottom-12 sm:bottom-4 right-3 sm:right-4 z-[990] bg-white/90 hover:bg-white text-gray-600 hover:text-emerald-700 p-2 rounded-full shadow-lg border border-emerald-100 transition-all hover:scale-110 cursor-pointer text-xs flex items-center justify-center"
         title="Hiện bé mèo"
       >
         🐱
@@ -18,7 +18,7 @@ export const FloatingGif: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-3 right-3 z-[990] group select-none pointer-events-auto">
+    <div className="fixed bottom-12 sm:bottom-4 right-3 sm:right-4 z-[990] group select-none pointer-events-auto">
       {/* Container with shadow & hover interaction */}
       <div className="relative bg-white/90 backdrop-blur-xs p-1 rounded-2xl shadow-xl border border-emerald-200/80 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
         {/* Close Button (appears on hover or easily clickable) */}
