@@ -238,71 +238,85 @@ export async function runMigrations(): Promise<void> {
   }
   console.log(`✅ Seeded & verified ${INITIAL_USERS.length} admin accounts!`);
 
-  // 4. Seed Places if empty
-  const placeCount = await db.query('SELECT COUNT(*) as count FROM places');
-  const totalPlaces = Number(placeCount.rows[0]?.count || 0);
-  if (totalPlaces === 0) {
-    console.log('🌱 Seeding initial places and reviews...');
+  // 4. Seed Mock Places only if explicitly requested (default false to preserve clean production DB)
+  if (process.env.SEED_MOCK_DATA === 'true') {
+    const placeCount = await db.query('SELECT COUNT(*) as count FROM places');
+    const totalPlaces = Number(placeCount.rows[0]?.count || 0);
+    if (totalPlaces === 0) {
+      console.log('🌱 Seeding initial places and reviews...');
 
-    // Fetch categories and contributions mapping
-    const cats = await db.query('SELECT id, name FROM categories');
-    const catMap = new Map<string, any>();
-    cats.rows.forEach((r) => catMap.set(r.name, r.id));
+      // Fetch categories and contributions mapping
+      const cats = await db.query('SELECT id, name FROM categories');
+      const catMap = new Map<string, any>();
+      cats.rows.forEach((r) => catMap.set(r.name, r.id));
 
-    const contribs = await db.query('SELECT id, contributor_name FROM contributions');
-    const contribMap = new Map<string, any>();
-    contribs.rows.forEach((r) => contribMap.set(r.contributor_name, r.id));
+      const CAT_ALIAS_MAP: Record<string, string> = {
+        boarding_house: 'Nhà trọ & Chung cư mini',
+        food_drink: 'Ẩm thực',
+        grocery: 'grocery',
+        pharmacy: 'Y tế & Sức khỏe',
+        services: 'Dịch vụ học tập & Đời sống',
+        entertainment: 'Giải trí & Thể thao',
+        campus: 'campus',
+      };
 
-    for (const p of INITIAL_PLACES) {
-      const catId = catMap.get(p.categoryName) || null;
-      const contribId = contribMap.get(p.contributorName) || null;
+      const firstCatId = cats.rows[0]?.id || null;
 
-      const amenitiesVal = db.isPostgres ? p.amenities : JSON.stringify(p.amenities);
-      const imagesVal = db.isPostgres ? p.images : JSON.stringify(p.images);
+      const contribs = await db.query('SELECT id, contributor_name FROM contributions');
+      const contribMap = new Map<string, any>();
+      contribs.rows.forEach((r) => contribMap.set(r.contributor_name, r.id));
 
-      const res = await db.query(
-        `INSERT INTO places (
-          category_id, contribution_id, name, area, address,
-          latitude, longitude, min_price, max_price, rent_price,
-          electricity_price, water_price, room_status, opening_hours,
-          phone, amenities, images
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-        RETURNING id`,
-        [
-          catId,
-          contribId,
-          p.name,
-          p.area,
-          p.address,
-          p.latitude,
-          p.longitude,
-          p.min_price,
-          p.max_price,
-          p.rent_price,
-          p.electricity_price,
-          p.water_price,
-          p.room_status,
-          p.opening_hours,
-          p.phone,
-          amenitiesVal,
-          imagesVal,
-        ]
-      );
+      for (const p of INITIAL_PLACES) {
+        const catId = catMap.get(p.categoryName) || catMap.get(CAT_ALIAS_MAP[p.categoryName]) || firstCatId;
+        const contribId = contribMap.get(p.contributorName) || null;
 
-      const newPlaceId = res.rows[0]?.id;
+        const amenitiesVal = db.isPostgres ? p.amenities : JSON.stringify(p.amenities);
+        const imagesVal = db.isPostgres ? p.images : JSON.stringify(p.images);
 
-      if (newPlaceId && p.reviews && p.reviews.length > 0) {
-        for (const rev of p.reviews) {
-          const revContribId = contribMap.get(rev.author) || null;
-          await db.query(
-            `INSERT INTO reviews (place_id, contribution_id, author_name, rating, content)
-             VALUES ($1, $2, $3, $4, $5)`,
-            [newPlaceId, revContribId, rev.author, rev.rating, rev.content]
-          );
+        const res = await db.query(
+          `INSERT INTO places (
+            category_id, contribution_id, name, area, address,
+            latitude, longitude, min_price, max_price, rent_price,
+            electricity_price, water_price, room_status, opening_hours,
+            phone, amenities, images
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+          RETURNING id`,
+          [
+            catId,
+            contribId,
+            p.name,
+            p.area,
+            p.address,
+            p.latitude,
+            p.longitude,
+            p.min_price,
+            p.max_price,
+            p.rent_price,
+            p.electricity_price,
+            p.water_price,
+            p.room_status,
+            p.opening_hours,
+            p.phone,
+            amenitiesVal,
+            imagesVal,
+          ]
+        );
+
+        const newPlaceId = res.rows[0]?.id;
+
+        if (newPlaceId && p.reviews && p.reviews.length > 0) {
+          for (const rev of p.reviews) {
+            const revContribId = contribMap.get(rev.author) || null;
+            await db.query(
+              `INSERT INTO reviews (place_id, contribution_id, author_name, rating, content)
+               VALUES ($1, $2, $3, $4, $5)`,
+              [newPlaceId, revContribId, rev.author, rev.rating, rev.content]
+            );
+          }
         }
       }
+      console.log(`✅ Seeded ${INITIAL_PLACES.length} places with reviews!`);
     }
-    console.log(`✅ Seeded ${INITIAL_PLACES.length} places with reviews!`);
   }
 
   console.log('✅ Database migration & setup completed successfully!');
