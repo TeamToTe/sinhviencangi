@@ -3,7 +3,18 @@
  * Can be switched dynamically via VITE_USE_MOCK environment variable
  */
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+function normalizeBaseUrl(url?: string): string {
+  let base = (url || 'http://localhost:8080/api').trim();
+  // Strip all trailing slashes
+  base = base.replace(/\/+$/, '');
+  // If the user configured just the domain without /api (e.g. https://holamap-api.onrender.com)
+  if (!base.endsWith('/api')) {
+    base = `${base}/api`;
+  }
+  return base;
+}
+
+export const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
 export const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK !== 'false'; // Defaults to true in dev
 
 export class ApiError extends Error {
@@ -22,7 +33,10 @@ export async function request<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const rawUrl = `${API_BASE_URL}${cleanEndpoint}`;
+  // Sanitize consecutive slashes, keeping protocol :// intact
+  const url = rawUrl.replace(/([^:]\/)\/+/g, '$1');
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

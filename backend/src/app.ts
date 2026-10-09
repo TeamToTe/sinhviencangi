@@ -35,6 +35,14 @@ export function createApp(): Express {
   // Static files for uploaded field images
   app.use('/uploads', express.static(uploadDir));
 
+  // Normalize consecutive slashes in request URL (e.g. //auth/login -> /auth/login)
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    if (req.url.includes('//')) {
+      req.url = req.url.replace(/\/+/g, '/');
+    }
+    next();
+  });
+
   // Root welcome
   app.get('/', (_req: Request, res: Response) => {
     res.json({
@@ -55,14 +63,27 @@ export function createApp(): Express {
     });
   });
 
-  // Mount API Routers under /api
+  // Mount API Routers under /api and root aliases
   app.use('/api/places', placesRouter);
+  app.use('/places', placesRouter);
+
   app.use('/api/categories', categoriesRouter);
+  app.use('/categories', categoriesRouter);
+
   app.use('/api/reports', reportsRouter);
+  app.use('/reports', reportsRouter);
+
   app.use('/api/contributions', contributionsRouter);
+  app.use('/contributions', contributionsRouter);
+
   app.use('/api/upload', uploadRouter);
+  app.use('/upload', uploadRouter);
+
   app.use('/api/auth', authRouter);
+  app.use('/auth', authRouter);
+
   app.use('/api', healthRouter);
+  app.use('/', healthRouter);
 
   // 404 Handler
   app.use((req: Request, res: Response) => {
