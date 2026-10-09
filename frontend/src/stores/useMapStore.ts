@@ -13,6 +13,7 @@ interface MapState {
   isFilterModalOpen: boolean;
   isSidebarOpen: boolean;
   mapStyleMode: 'festival' | 'streets' | 'satellite';
+  isPickingLocation: boolean;
 
   // Actions
   setSelectedPlace: (place: Place | null) => void;
@@ -26,6 +27,7 @@ interface MapState {
   setFilterModalOpen: (isOpen: boolean) => void;
   setSidebarOpen: (isOpen: boolean) => void;
   setMapStyleMode: (mode: 'festival' | 'streets' | 'satellite') => void;
+  setIsPickingLocation: (val: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -40,6 +42,7 @@ export const useMapStore = create<MapState>((set) => ({
   isFilterModalOpen: false,
   isSidebarOpen: true,
   mapStyleMode: 'festival',
+  isPickingLocation: false,
 
   setSelectedPlace: (place) => set({ selectedPlace: place }),
   setHoveredPlaceId: (id) => set({ hoveredPlaceId: id }),
@@ -58,4 +61,5 @@ export const useMapStore = create<MapState>((set) => ({
   setFilterModalOpen: (isOpen) => set({ isFilterModalOpen: isOpen }),
   setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
   setMapStyleMode: (mode) => set({ mapStyleMode: mode }),
+  setIsPickingLocation: (val) => set({ isPickingLocation: val }),
 }));

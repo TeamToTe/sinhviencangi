@@ -72,7 +72,15 @@ const AMENITY_OPTIONS = [
 ];
 
 export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }) => {
-  const { isSurveyModalOpen, setSurveyModalOpen } = useMapStore();
+  const {
+    isSurveyModalOpen,
+    setSurveyModalOpen,
+    center,
+    setCenter,
+    setActiveTab,
+    isPickingLocation,
+    setIsPickingLocation,
+  } = useMapStore();
   const { user } = useAuthStore();
 
   // Form State
@@ -84,16 +92,15 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
   const [area, setArea] = useState('Tân Xã');
   const [address, setAddress] = useState('');
 
-  // GPS State
-  const [lat, setLat] = useState<number | null>(null);
-  const [lng, setLng] = useState<number | null>(null);
+  // GPS State (Defaults to Hoa Lac center to ensure form is always ready)
+  const [lat, setLat] = useState<number>(21.0185);
+  const [lng, setLng] = useState<number>(105.5345);
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'locating' | 'success' | 'error'>('idle');
   const [gpsErrorMessage, setGpsErrorMessage] = useState<string>('');
   const [isManualCoordinates, setIsManualCoordinates] = useState(false);
 
   const locatingRef = useRef(false);
-  const autoRequestedRef = useRef(false);
 
   // Prices & Housing details
   const [minPrice, setMinPrice] = useState<string>('');
@@ -137,17 +144,45 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     setLng(105.5345);
     setArea('Tân Xã');
     setGpsStatus('idle');
-    setIsManualCoordinates(true);
+    setIsManualCoordinates(false);
     setGpsErrorMessage('');
   };
 
-  // Function to request GPS location from device safely
+  // Solution 1: Start picking location directly on the map
+  const handleStartMapPick = () => {
+    setActiveTab('map');
+    if (lat && lng) {
+      setCenter([lng, lat]);
+    }
+    setIsPickingLocation(true);
+  };
+
+  // Solution 1: Confirm picked map location
+  const handleConfirmMapPick = async () => {
+    const pickedLat = Number(center[1].toFixed(6));
+    const pickedLng = Number(center[0].toFixed(6));
+    setLat(pickedLat);
+    setLng(pickedLng);
+    setGpsStatus('success');
+    setGpsAccuracy(5);
+    setIsManualCoordinates(false);
+    setIsPickingLocation(false);
+
+    try {
+      const detected = await placesService.detectArea(pickedLat, pickedLng);
+      if (detected) setArea(detected);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Solution 3: Smart 2-Phase Geolocation (Low-Accuracy Network first, Satellite second)
   const requestGpsLocation = () => {
     if (locatingRef.current) return;
 
     if (!('geolocation' in navigator)) {
       setGpsStatus('error');
-      setGpsErrorMessage('Trình duyệt hoặc thiết bị này không hỗ trợ định vị GPS.');
+      setGpsErrorMessage('Trình duyệt không hỗ trợ GPS. Bạn hãy dùng tính năng "Chọn trên bản đồ".');
       setIsManualCoordinates(true);
       return;
     }
@@ -156,6 +191,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     setGpsStatus('locating');
     setGpsErrorMessage('');
 
+    // Phase 1: Fast Low-Accuracy Network Call (Wi-Fi/Cell tower/IP - does not force satellite chip lock)
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         locatingRef.current = false;
@@ -169,7 +205,6 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
         setGpsStatus('success');
         setIsManualCoordinates(false);
 
-        // Auto-detect area
         try {
           const detected = await placesService.detectArea(latitude, longitude);
           if (detected) setArea(detected);
@@ -177,27 +212,53 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
           // ignore
         }
       },
-      (err) => {
-        locatingRef.current = false;
-        setGpsStatus('error');
-        if (err.code === 1) {
-          setGpsErrorMessage(
-            'Quyền vị trí đã bị từ chối hoặc điện thoại đang tắt GPS. Bạn có thể bật GPS trên thanh thông báo Android, hoặc bấm dùng tọa độ mặc định bên dưới.'
-          );
-        } else if (err.code === 2) {
-          setGpsErrorMessage('Không nhận được tín hiệu định vị từ điện thoại. Bạn có thể bật GPS hoặc nhập tay tọa độ.');
-        } else {
-          setGpsErrorMessage('Quá thời gian chờ tín hiệu GPS. Hệ thống đã chuẩn bị sẵn tọa độ mặc định.');
-        }
-        // Fallback to Hoa Lac center coordinates if not yet set
-        setLat((prev) => prev ?? 21.0185);
-        setLng((prev) => prev ?? 105.5345);
-        setIsManualCoordinates(true);
+      (lowErr) => {
+        console.warn('Low-accuracy geolocation failed, attempting satellite GPS...', lowErr);
+        // Phase 2: Satellite High-Accuracy fallback
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            locatingRef.current = false;
+            const latitude = Number(pos.coords.latitude.toFixed(6));
+            const longitude = Number(pos.coords.longitude.toFixed(6));
+            const accuracy = Math.round(pos.coords.accuracy);
+
+            setLat(latitude);
+            setLng(longitude);
+            setGpsAccuracy(accuracy);
+            setGpsStatus('success');
+            setIsManualCoordinates(false);
+
+            try {
+              const detected = await placesService.detectArea(latitude, longitude);
+              if (detected) setArea(detected);
+            } catch {
+              // ignore
+            }
+          },
+          (highErr) => {
+            locatingRef.current = false;
+            setGpsStatus('error');
+            if (highErr.code === 1) {
+              setGpsErrorMessage('Quyền vị trí bị từ chối hoặc điện thoại đang tắt GPS. Bạn có thể bấm "Chọn trên bản đồ" để ghim điểm ngay!');
+            } else if (highErr.code === 2) {
+              setGpsErrorMessage('Chưa nhận được sóng GPS từ điện thoại. Hãy bấm "Chọn trên bản đồ" để ghim vị trí chuẩn xác nhất.');
+            } else {
+              setGpsErrorMessage('Quá thời gian kết nối GPS. Hãy bấm "Chọn trên bản đồ" để ghim điểm trực tiếp.');
+            }
+            setLat((prev) => prev || 21.0185);
+            setLng((prev) => prev || 105.5345);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 60000,
+          }
+        );
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000,
+        enableHighAccuracy: false,
+        timeout: 5000,
+        maximumAge: 300000,
       }
     );
   };
@@ -206,31 +267,26 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
   useEffect(() => {
     if (!isSurveyModalOpen) {
       locatingRef.current = false;
-      autoRequestedRef.current = false;
       return;
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !isPickingLocation) {
         setSurveyModalOpen(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    // Auto-request GPS only once upon modal open if coordinates not yet assigned
-    if (!autoRequestedRef.current && lat === null) {
-      autoRequestedRef.current = true;
-      requestGpsLocation();
+    if (!isPickingLocation) {
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
     };
-  }, [isSurveyModalOpen]);
+  }, [isSurveyModalOpen, isPickingLocation]);
 
   // Pre-fill surveyor if authenticated user matches team roster
   useEffect(() => {
@@ -352,6 +408,45 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
 
   if (!isSurveyModalOpen) return null;
 
+  // Solution 1: If user is actively picking coordinates on the map, render floating bottom dock
+  if (isPickingLocation) {
+    return (
+      <div className="fixed bottom-5 inset-x-3 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[10001] max-w-md w-full bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border-2 border-emerald-500 p-3.5 sm:p-4 animate-in slide-in-from-bottom duration-300">
+        <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="font-extrabold text-xs sm:text-sm text-gray-900 font-serif">
+              📍 Chọn vị trí trên bản đồ
+            </span>
+          </div>
+          <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+            {center[1].toFixed(5)}, {center[0].toFixed(5)}
+          </span>
+        </div>
+        <p className="text-[11px] text-gray-600 mb-3 leading-relaxed">
+          Kéo hoặc zoom bản đồ để <strong>tâm ghim</strong> nằm đúng vị trí địa điểm khảo sát, sau đó bấm <strong>Xác nhận</strong>.
+        </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleConfirmMapPick}
+            className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <Check className="w-4 h-4" />
+            <span>Xác nhận vị trí này</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPickingLocation(false)}
+            className="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+          >
+            Quay lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 z-[10000] flex flex-col sm:items-center sm:justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm overflow-hidden animate-in fade-in duration-200"
@@ -423,23 +518,32 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                     Tọa độ GPS vị trí thực tế (*)
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <button
                     type="button"
-                    onClick={() => setIsManualCoordinates(!isManualCoordinates)}
-                    className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 hover:text-emerald-950 bg-white/80 hover:bg-white px-2.5 py-1 rounded-lg border border-emerald-300 transition-colors cursor-pointer"
+                    onClick={handleStartMapPick}
+                    className="flex items-center gap-1 text-[11px] font-bold text-amber-950 bg-amber-400 hover:bg-amber-300 px-2.5 py-1.5 rounded-xl border border-amber-500 shadow-xs active:scale-95 transition-all cursor-pointer"
+                    title="Chuyển sang bản đồ để chọn vị trí chính xác"
                   >
-                    <Edit3 className="w-3 h-3" />
-                    <span>{isManualCoordinates ? 'Dùng GPS' : 'Nhập tay'}</span>
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>Chọn trên bản đồ</span>
                   </button>
                   <button
                     type="button"
                     onClick={requestGpsLocation}
                     disabled={gpsStatus === 'locating'}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     <Crosshair className={`w-3.5 h-3.5 ${gpsStatus === 'locating' ? 'animate-spin' : ''}`} />
-                    <span>{gpsStatus === 'locating' ? 'Đang dò GPS...' : 'Lấy lại GPS'}</span>
+                    <span>{gpsStatus === 'locating' ? 'Đang dò GPS...' : 'Lấy vị trí GPS'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsManualCoordinates(!isManualCoordinates)}
+                    className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 hover:text-emerald-950 bg-white/80 hover:bg-white px-2 py-1.5 rounded-xl border border-emerald-300 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>{isManualCoordinates ? 'Dùng toạ độ' : 'Sửa tay'}</span>
                   </button>
                 </div>
               </div>
@@ -530,22 +634,30 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                     <span>{gpsErrorMessage}</span>
                   </p>
                   <p className="text-[11px] text-amber-950/80 leading-relaxed">
-                    💡 <strong>Mẹo Android:</strong> Nếu cửa sổ xin quyền bật liên tục, hãy vuốt từ đỉnh màn hình điện thoại xuống để <strong>bật tính năng "Vị trí" (GPS)</strong>, hoặc bấm nút dưới để lưu luôn bằng tọa độ mặc định.
+                    💡 <strong>Cách nhanh và chuẩn nhất:</strong> Hãy bấm <strong>"Chọn trên bản đồ"</strong> để di chuyển ghim trực tiếp đến địa điểm thực tế mà không cần lo lắng về GPS!
                   </p>
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
                     <button
                       type="button"
+                      onClick={handleStartMapPick}
+                      className="px-3 py-1.5 text-[11px] font-bold bg-amber-500 hover:bg-amber-600 active:scale-95 text-amber-950 rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Chọn trên bản đồ ngay</span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={handleUseDefaultCoords}
-                      className="px-2.5 py-1 text-[11px] font-bold bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors cursor-pointer"
+                      className="px-2.5 py-1.5 text-[11px] font-bold bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors cursor-pointer"
                     >
                       Dùng tọa độ Hòa Lạc
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsManualCoordinates(true)}
-                      className="px-2.5 py-1 text-[11px] font-bold bg-white text-emerald-800 border border-emerald-300 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer"
+                      className="px-2.5 py-1.5 text-[11px] font-bold bg-white text-emerald-800 border border-emerald-300 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer"
                     >
-                      Tự sửa tọa độ tay
+                      Sửa tay
                     </button>
                   </div>
                 </div>
