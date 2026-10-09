@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { Place } from '../types/place';
 
+export type SurveyStep = 'closed' | 'map_pin' | 'form';
+
 interface MapState {
   selectedPlace: Place | null;
   hoveredPlaceId: string | null;
@@ -10,6 +12,7 @@ interface MapState {
   isReportModalOpen: boolean;
   reportPlaceId: string | null;
   isSurveyModalOpen: boolean;
+  surveyStep: SurveyStep;
   isFilterModalOpen: boolean;
   isSidebarOpen: boolean;
   mapStyleMode: 'festival' | 'streets' | 'satellite';
@@ -21,9 +24,11 @@ interface MapState {
   setCenter: (center: [number, number]) => void;
   setZoom: (zoom: number) => void;
   flyToPlace: (place: Place) => void;
+  flyToCoordinates: (lat: number, lng: number, zoom?: number) => void;
   setActiveTab: (tab: 'map' | 'list' | 'favorites') => void;
   setReportModal: (isOpen: boolean, placeId?: string | null) => void;
   setSurveyModalOpen: (isOpen: boolean) => void;
+  setSurveyStep: (step: SurveyStep) => void;
   setFilterModalOpen: (isOpen: boolean) => void;
   setSidebarOpen: (isOpen: boolean) => void;
   setMapStyleMode: (mode: 'festival' | 'streets' | 'satellite') => void;
@@ -39,6 +44,7 @@ export const useMapStore = create<MapState>((set) => ({
   isReportModalOpen: false,
   reportPlaceId: null,
   isSurveyModalOpen: false,
+  surveyStep: 'closed',
   isFilterModalOpen: false,
   isSidebarOpen: true,
   mapStyleMode: 'festival',
@@ -54,10 +60,28 @@ export const useMapStore = create<MapState>((set) => ({
       center: [place.coordinates.lng, place.coordinates.lat],
       zoom: 16.5,
     }),
+  flyToCoordinates: (lat, lng, zoom = 16.5) =>
+    set({
+      center: [lng, lat],
+      zoom,
+    }),
   setActiveTab: (tab) => set({ activeTab: tab }),
   setReportModal: (isOpen, placeId = null) =>
     set({ isReportModalOpen: isOpen, reportPlaceId: placeId }),
-  setSurveyModalOpen: (isOpen) => set({ isSurveyModalOpen: isOpen }),
+  setSurveyStep: (step) =>
+    set({
+      surveyStep: step,
+      isSurveyModalOpen: step === 'form',
+      isPickingLocation: step === 'map_pin',
+      ...(step === 'map_pin' ? { activeTab: 'map' } : {}),
+    }),
+  setSurveyModalOpen: (isOpen) =>
+    set((state) => ({
+      isSurveyModalOpen: isOpen,
+      surveyStep: isOpen ? (state.surveyStep === 'form' ? 'form' : 'map_pin') : 'closed',
+      isPickingLocation: isOpen && state.surveyStep !== 'form',
+      ...(isOpen ? { activeTab: 'map' } : {}),
+    })),
   setFilterModalOpen: (isOpen) => set({ isFilterModalOpen: isOpen }),
   setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
   setMapStyleMode: (mode) => set({ mapStyleMode: mode }),

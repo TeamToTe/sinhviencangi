@@ -34,7 +34,7 @@ const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' 
 
 export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery } = useFilterStore();
-  const { activeTab, setActiveTab, setSurveyModalOpen } = useMapStore();
+  const { activeTab, setActiveTab, setSurveyStep } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
   const { user, isAuthenticated, isAdmin, setLoginModalOpen, logout } = useAuthStore();
 
@@ -80,7 +80,7 @@ export const Header: React.FC = () => {
           <div className="flex md:hidden items-center gap-1.5 shrink-0">
             {/* 1. Mobile Survey Pin Button */}
             <button
-              onClick={() => setSurveyModalOpen(true)}
+              onClick={() => setSurveyStep('map_pin')}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer shrink-0"
               title="Chấm điểm khảo sát thực địa bằng GPS"
             >
@@ -259,7 +259,7 @@ export const Header: React.FC = () => {
         <div className="hidden md:flex items-center gap-2.5">
           {/* Desktop Survey Pin Button */}
           <button
-            onClick={() => setSurveyModalOpen(true)}
+            onClick={() => setSurveyStep('map_pin')}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
             title="Chấm điểm khảo sát thực địa bằng GPS"
           >
