@@ -11,6 +11,8 @@ import { PlaceDetailDrawer } from './components/places/PlaceDetailDrawer';
 import { PlaceReportModal } from './components/places/PlaceReportModal';
 import { SurveyPinModal } from './components/survey/SurveyPinModal';
 import { PlaceCard } from './components/places/PlaceCard';
+import { AdminLoginModal } from './components/auth/AdminLoginModal';
+import { useAuthStore } from './stores/useAuthStore';
 
 import { useFavoritesStore } from './stores/useFavoritesStore';
 import { FloatingGif } from './components/common/FloatingGif';
@@ -38,6 +40,11 @@ export const App: React.FC = () => {
 
   const { activeTab, setActiveTab } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
+  const { checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   // Load places whenever filters change
   useEffect(() => {
@@ -196,6 +203,9 @@ export const App: React.FC = () => {
 
       {/* Field Survey GPS Pinning Modal */}
       <SurveyPinModal onPlaceCreated={handlePlaceCreated} />
+
+      {/* Admin & Surveyor Login Modal (JWT/Bcrypt) */}
+      <AdminLoginModal />
 
       {/* Floating GIF Widget */}
       <FloatingGif />

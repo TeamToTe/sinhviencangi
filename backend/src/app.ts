@@ -8,6 +8,7 @@ import { reportsRouter } from './routes/reportsRoutes.js';
 import { contributionsRouter } from './routes/contributionsRoutes.js';
 import { healthRouter } from './routes/healthRoutes.js';
 import { uploadRouter } from './routes/uploadRoutes.js';
+import { authRouter } from './routes/authRoutes.js';
 import { config } from './config.js';
 
 export function createApp(): Express {
@@ -45,6 +46,7 @@ export function createApp(): Express {
         detectArea: 'POST /api/places/detect-area',
         nearby: '/api/places/nearby?lat=21.0185&lng=105.5345&radius=1000',
         upload: 'POST /api/upload',
+        auth: 'POST /api/auth/login',
         categories: '/api/categories',
         contributions: '/api/contributions',
         health: '/api/health',
@@ -59,6 +61,7 @@ export function createApp(): Express {
   app.use('/api/reports', reportsRouter);
   app.use('/api/contributions', contributionsRouter);
   app.use('/api/upload', uploadRouter);
+  app.use('/api/auth', authRouter);
   app.use('/api', healthRouter);
 
   // 404 Handler

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { placesService, detectAreaFromCoordinates } from '../services/placesService.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
 import type { FilterParams, CreatePlaceDto, CreateReviewDto } from '../types/place.js';
 
 export const placesRouter = Router();
@@ -147,3 +148,19 @@ placesRouter.post('/:id/reviews', async (req: Request, res: Response): Promise<v
     res.status(400).json({ error: 'Bad Request', message: err.message });
   }
 });
+
+// DELETE /api/places/:id (Admin only)
+placesRouter.delete('/:id', requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const deleted = await placesService.deletePlace(id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Not Found', message: `Không tìm thấy địa điểm ${id}` });
+      return;
+    }
+    res.json({ success: true, message: `Đã xóa địa điểm ${id} thành công.` });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
+

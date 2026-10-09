@@ -11,4 +11,5 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL || '',
   sqlitePath: process.env.SQLITE_PATH || path.resolve(process.cwd(), 'data', 'connecthub.sqlite'),
   dbType: process.env.DATABASE_URL ? 'postgres' : 'sqlite',
+  jwtSecret: process.env.JWT_SECRET || 'connecthub-hola-map-jwt-super-secret-2026',
 };

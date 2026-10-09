@@ -18,6 +18,60 @@ export const INITIAL_SURVEYORS = [
   'Mai Xuân Dương',
 ];
 
+// 6 Admin accounts for the 6 team members + Master Admin
+// Password format: Tên không dấu + MSSV (ví dụ: vietHE204143, cuongHE204075)
+export const INITIAL_USERS = [
+  {
+    username: 'admin',
+    password: 'hola@2026',
+    fullName: 'Admin ConnectHub (Quản trị hệ thống)',
+    role: 'admin',
+    email: 'admin@connecthub.edu.vn',
+  },
+  {
+    username: 'cuongdc',
+    password: 'cuongHE204075',
+    fullName: 'Đặng Cao Cường (Nhóm trưởng)',
+    role: 'admin',
+    email: 'cuongdc@fpt.edu.vn',
+  },
+  {
+    username: 'vietdt',
+    password: 'vietHE204143',
+    fullName: 'Đào Thế Việt (Phó nhóm)',
+    role: 'admin',
+    email: 'vietdt@fpt.edu.vn',
+  },
+  {
+    username: 'thinhdt',
+    password: 'thinhHE201309',
+    fullName: 'Trần Đức Thịnh',
+    role: 'admin',
+    email: 'thinhdt@fpt.edu.vn',
+  },
+  {
+    username: 'giangpm',
+    password: 'giangHE204233',
+    fullName: 'Phạm Mạnh Giang',
+    role: 'admin',
+    email: 'giangpm@fpt.edu.vn',
+  },
+  {
+    username: 'huynguyen',
+    password: 'huyHE204101',
+    fullName: 'Ngô Quang Huy',
+    role: 'admin',
+    email: 'huynguyen@fpt.edu.vn',
+  },
+  {
+    username: 'duongmx',
+    password: 'duongHE204524',
+    fullName: 'Mai Xuân Dương',
+    role: 'admin',
+    email: 'duongmx@fpt.edu.vn',
+  },
+];
+
 export const INITIAL_PLACES = [
   {
     name: 'Chung Cư Mini Happy House Tân Xã',

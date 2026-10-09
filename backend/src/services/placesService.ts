@@ -477,6 +477,17 @@ export const placesService = {
   },
 
   /**
+   * Delete place (Admin only action)
+   */
+  async deletePlace(id: string | number): Promise<boolean> {
+    const numId = Number(id);
+    await db.query('DELETE FROM reviews WHERE place_id = $1', [numId]);
+    await db.query('DELETE FROM reports WHERE place_id = $1', [numId]);
+    const res = await db.query('DELETE FROM places WHERE id = $1', [numId]);
+    return res.rowCount > 0;
+  },
+
+  /**
    * Find places nearby a coordinate (Spatial Haversine calculation)
    */
   async getNearbyPlaces(lat: number, lng: number, radiusMeters: number = 1000): Promise<Place[]> {

@@ -1,5 +1,6 @@
+import bcrypt from 'bcryptjs';
 import { db } from './index.js';
-import { INITIAL_CATEGORIES, INITIAL_SURVEYORS, INITIAL_PLACES } from './seedData.js';
+import { INITIAL_CATEGORIES, INITIAL_SURVEYORS, INITIAL_USERS, INITIAL_PLACES } from './seedData.js';
 
 export async function runMigrations(): Promise<void> {
   console.log('🔄 Checking and applying database migrations...');
@@ -19,6 +20,21 @@ export async function runMigrations(): Promise<void> {
           contributor_name VARCHAR(100) NOT NULL UNIQUE,
           created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS users (
+          id BIGSERIAL PRIMARY KEY,
+          username VARCHAR(50) NOT NULL UNIQUE,
+          password_hash VARCHAR(255) NOT NULL,
+          full_name VARCHAR(100) NOT NULL,
+          role VARCHAR(20) NOT NULL DEFAULT 'surveyor',
+          email VARCHAR(100),
+          avatar VARCHAR(255),
+          is_active BOOLEAN DEFAULT TRUE,
+          last_login TIMESTAMPTZ,
+          created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
       CREATE TABLE IF NOT EXISTS places (
           id BIGSERIAL PRIMARY KEY,
@@ -86,6 +102,21 @@ export async function runMigrations(): Promise<void> {
           contributor_name VARCHAR(100) NOT NULL UNIQUE,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username VARCHAR(50) NOT NULL UNIQUE,
+          password_hash VARCHAR(255) NOT NULL,
+          full_name VARCHAR(100) NOT NULL,
+          role VARCHAR(20) NOT NULL DEFAULT 'surveyor',
+          email VARCHAR(100),
+          avatar VARCHAR(255),
+          is_active INTEGER DEFAULT 1,
+          last_login DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
       CREATE TABLE IF NOT EXISTS places (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -184,7 +215,27 @@ export async function runMigrations(): Promise<void> {
     }
   }
 
-  // 3. Seed Places if empty
+  // 3. Seed & Sync Users (All 6 members as admin with name+MSSV passwords)
+  console.log('🌱 Syncing and seeding 6 admin member accounts...');
+  for (const u of INITIAL_USERS) {
+    const passwordHash = bcrypt.hashSync(u.password, 10);
+    const existing = await db.query('SELECT id FROM users WHERE LOWER(username) = $1', [u.username.toLowerCase()]);
+    if (existing.rows.length > 0) {
+      await db.query(
+        'UPDATE users SET password_hash = $1, full_name = $2, role = $3, email = $4 WHERE id = $5',
+        [passwordHash, u.fullName, u.role, u.email, existing.rows[0].id]
+      );
+    } else {
+      await db.query(
+        `INSERT INTO users (username, password_hash, full_name, role, email)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [u.username, passwordHash, u.fullName, u.role, u.email]
+      );
+    }
+  }
+  console.log(`✅ Seeded & verified ${INITIAL_USERS.length} admin accounts!`);
+
+  // 4. Seed Places if empty
   const placeCount = await db.query('SELECT COUNT(*) as count FROM places');
   const totalPlaces = Number(placeCount.rows[0]?.count || 0);
   if (totalPlaces === 0) {

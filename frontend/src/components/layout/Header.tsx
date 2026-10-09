@@ -7,10 +7,14 @@ import {
   X,
   Compass,
   MapPin,
+  ShieldCheck,
+  LogOut,
+  Lock,
 } from 'lucide-react';
 import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
 import { useFavoritesStore } from '../../stores/useFavoritesStore';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg
@@ -31,6 +35,7 @@ export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery } = useFilterStore();
   const { activeTab, setActiveTab, setSurveyModalOpen } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
+  const { user, isAuthenticated, isAdmin, setLoginModalOpen, logout } = useAuthStore();
 
   return (
     <header className="bg-white/90 backdrop-blur-md border-b border-emerald-200 sticky top-0 z-30 px-3 sm:px-6 py-2.5 shadow-xs">
@@ -114,6 +119,33 @@ export const Header: React.FC = () => {
             >
               <FacebookIcon className="w-4 h-4" />
             </a>
+
+            {/* Mobile Admin / Auth button */}
+            {isAuthenticated && user ? (
+              <button
+                onClick={() => {
+                  if (window.confirm(`Đăng xuất tài khoản ${user.fullName}?`)) {
+                    logout();
+                  }
+                }}
+                className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs ${
+                  isAdmin
+                    ? 'bg-amber-100/90 text-amber-900 border-amber-300'
+                    : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
+                }`}
+                title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để đăng xuất`}
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setLoginModalOpen(true)}
+                className="p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 flex items-center justify-center cursor-pointer shadow-xs"
+                title="Đăng nhập Admin / Khảo sát"
+              >
+                <Lock className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -204,6 +236,41 @@ export const Header: React.FC = () => {
             </div>
             <span className="whitespace-nowrap font-medium">Theo dõi chúng mình</span>
           </a>
+
+          {/* Desktop Auth / Admin Button */}
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-1.5 bg-emerald-50/90 border border-emerald-300/80 pl-2.5 pr-1.5 py-1 rounded-2xl shadow-xs">
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-sm">{isAdmin ? '👑' : '🔍'}</span>
+                <span className="font-black text-emerald-950 max-w-[120px] truncate" title={user.fullName}>
+                  {user.fullName}
+                </span>
+                <span
+                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${
+                    isAdmin ? 'bg-amber-400 text-amber-950' : 'bg-emerald-200 text-emerald-900'
+                  }`}
+                >
+                  {isAdmin ? 'Admin' : 'Khảo sát'}
+                </span>
+              </div>
+              <button
+                onClick={logout}
+                className="p-1 rounded-xl hover:bg-emerald-100 text-gray-500 hover:text-rose-600 transition-colors cursor-pointer"
+                title="Đăng xuất"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setLoginModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title="Đăng nhập Admin / Thành viên khảo sát"
+            >
+              <Lock className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Admin</span>
+            </button>
+          )}
         </div>
       </div>
     </header>
