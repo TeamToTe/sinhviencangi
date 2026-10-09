@@ -1,6 +1,8 @@
 import { createApp } from '../src/app.js';
 import { runMigrations } from '../src/db/migrate.js';
 import { db } from '../src/db/index.js';
+import { config } from '../src/config.js';
+import jwt from 'jsonwebtoken';
 import http from 'http';
 
 async function testBackend() {
@@ -225,22 +227,36 @@ async function testBackend() {
     );
     const adminToken = adminLoginRes.data.token;
 
-    // Test 16: Auth - Surveyor Login
-    const surveyorLoginRes = await apiFetch('/api/auth/login', {
+    // Test 16: Auth - Member Admin Login with name+MSSV password
+    const memberLoginRes = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
         username: 'thinhdt',
-        password: 'hola@2026',
+        password: 'thinhHE201309',
       }),
     });
     assert(
-      surveyorLoginRes.status === 200 &&
-        surveyorLoginRes.data.token &&
-        surveyorLoginRes.data.user.role === 'surveyor' &&
-        surveyorLoginRes.data.user.fullName === 'Trần Đức Thịnh',
-      'POST /api/auth/login succeeds for surveyor team member'
+      memberLoginRes.status === 200 &&
+        memberLoginRes.data.token &&
+        memberLoginRes.data.user.role === 'admin' &&
+        memberLoginRes.data.user.fullName === 'Trần Đức Thịnh',
+      'POST /api/auth/login succeeds for member admin with name+MSSV password'
     );
-    const surveyorToken = surveyorLoginRes.data.token;
+
+    // Test 16b: Auth - Alias username & case-insensitive password login
+    const aliasLoginRes = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: 'cuong',
+        password: 'cuonghe204075',
+      }),
+    });
+    assert(
+      aliasLoginRes.status === 200 &&
+        aliasLoginRes.data.user.role === 'admin' &&
+        aliasLoginRes.data.user.username === 'cuongdc',
+      'POST /api/auth/login succeeds for alias username "cuong" and lowercase password'
+    );
 
     // Test 17: Auth - Invalid Credentials rejected
     const badLoginRes = await apiFetch('/api/auth/login', {
@@ -277,15 +293,20 @@ async function testBackend() {
       'GET /api/auth/users (admin only) returns all seeded team accounts'
     );
 
-    // Test 20: RBAC - Surveyor is forbidden from listing all users
+    // Test 20: RBAC - Non-admin surveyor token is forbidden from listing all users
+    const nonAdminToken = jwt.sign(
+      { userId: 999, username: 'testuser', fullName: 'Test Guest', role: 'surveyor' },
+      config.jwtSecret,
+      { expiresIn: '1h' }
+    );
     const forbiddenRes = await apiFetch('/api/auth/users', {
       headers: {
-        Authorization: `Bearer ${surveyorToken}`,
+        Authorization: `Bearer ${nonAdminToken}`,
       },
     });
     assert(
       forbiddenRes.status === 403,
-      'GET /api/auth/users rejects non-admin surveyor with 403 Forbidden'
+      'GET /api/auth/users rejects non-admin token with 403 Forbidden'
     );
 
     // Test 21: Protected Deletion - unauthenticated request rejected

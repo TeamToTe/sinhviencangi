@@ -215,30 +215,25 @@ export async function runMigrations(): Promise<void> {
     }
   }
 
-  // 3. Seed Users & Admins (6 members + system admin with bcrypt hashes)
-  const userCount = await db.query('SELECT COUNT(*) as count FROM users');
-  const totalUsers = Number(userCount.rows[0]?.count || 0);
-  if (totalUsers === 0) {
-    console.log('🌱 Seeding admin and surveyor accounts with bcrypt hashes...');
-    for (const u of INITIAL_USERS) {
-      const passwordHash = bcrypt.hashSync(u.password, 10);
-      if (db.isPostgres) {
-        await db.query(
-          `INSERT INTO users (username, password_hash, full_name, role, email)
-           VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (username) DO NOTHING`,
-          [u.username, passwordHash, u.fullName, u.role, u.email]
-        );
-      } else {
-        await db.query(
-          `INSERT OR IGNORE INTO users (username, password_hash, full_name, role, email)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [u.username, passwordHash, u.fullName, u.role, u.email]
-        );
-      }
+  // 3. Seed & Sync Users (All 6 members as admin with name+MSSV passwords)
+  console.log('🌱 Syncing and seeding 6 admin member accounts...');
+  for (const u of INITIAL_USERS) {
+    const passwordHash = bcrypt.hashSync(u.password, 10);
+    const existing = await db.query('SELECT id FROM users WHERE LOWER(username) = $1', [u.username.toLowerCase()]);
+    if (existing.rows.length > 0) {
+      await db.query(
+        'UPDATE users SET password_hash = $1, full_name = $2, role = $3, email = $4 WHERE id = $5',
+        [passwordHash, u.fullName, u.role, u.email, existing.rows[0].id]
+      );
+    } else {
+      await db.query(
+        `INSERT INTO users (username, password_hash, full_name, role, email)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [u.username, passwordHash, u.fullName, u.role, u.email]
+      );
     }
-    console.log(`✅ Seeded ${INITIAL_USERS.length} authenticated users & admins!`);
   }
+  console.log(`✅ Seeded & verified ${INITIAL_USERS.length} admin accounts!`);
 
   // 4. Seed Places if empty
   const placeCount = await db.query('SELECT COUNT(*) as count FROM places');

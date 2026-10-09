@@ -18,7 +18,8 @@ export const INITIAL_SURVEYORS = [
   'Mai Xuân Dương',
 ];
 
-// Admin & Member accounts for the 6 team members
+// 6 Admin accounts for the 6 team members + Master Admin
+// Password format: Tên không dấu + MSSV (ví dụ: vietHE204143, cuongHE204075)
 export const INITIAL_USERS = [
   {
     username: 'admin',
@@ -29,44 +30,44 @@ export const INITIAL_USERS = [
   },
   {
     username: 'cuongdc',
-    password: 'hola@2026',
+    password: 'cuongHE204075',
     fullName: 'Đặng Cao Cường (Nhóm trưởng)',
     role: 'admin',
     email: 'cuongdc@fpt.edu.vn',
   },
   {
     username: 'vietdt',
-    password: 'hola@2026',
+    password: 'vietHE204143',
     fullName: 'Đào Thế Việt (Phó nhóm)',
     role: 'admin',
     email: 'vietdt@fpt.edu.vn',
   },
   {
     username: 'thinhdt',
-    password: 'hola@2026',
+    password: 'thinhHE201309',
     fullName: 'Trần Đức Thịnh',
-    role: 'surveyor',
+    role: 'admin',
     email: 'thinhdt@fpt.edu.vn',
   },
   {
     username: 'giangpm',
-    password: 'hola@2026',
+    password: 'giangHE204233',
     fullName: 'Phạm Mạnh Giang',
-    role: 'surveyor',
+    role: 'admin',
     email: 'giangpm@fpt.edu.vn',
   },
   {
     username: 'huynguyen',
-    password: 'hola@2026',
+    password: 'huyHE204101',
     fullName: 'Ngô Quang Huy',
-    role: 'surveyor',
+    role: 'admin',
     email: 'huynguyen@fpt.edu.vn',
   },
   {
     username: 'duongmx',
-    password: 'hola@2026',
+    password: 'duongHE204524',
     fullName: 'Mai Xuân Dương',
-    role: 'surveyor',
+    role: 'admin',
     email: 'duongmx@fpt.edu.vn',
   },
 ];

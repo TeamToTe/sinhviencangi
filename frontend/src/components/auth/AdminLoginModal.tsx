@@ -15,25 +15,27 @@ import { useAuthStore } from '../../stores/useAuthStore';
 interface PresetAccount {
   username: string;
   name: string;
+  mssv: string;
+  defaultPassword: string;
   role: 'admin' | 'surveyor';
   roleLabel: string;
 }
 
 const PRESET_ACCOUNTS: PresetAccount[] = [
-  { username: 'admin', name: 'ConnectHub SuperAdmin', role: 'admin', roleLabel: 'Quản trị tối cao' },
-  { username: 'cuongdc', name: 'Đặng Cao Cường', role: 'admin', roleLabel: 'Admin / Khảo sát' },
-  { username: 'vietdt', name: 'Đào Thế Việt', role: 'admin', roleLabel: 'Admin / Khảo sát' },
-  { username: 'thinhdt', name: 'Trần Đức Thịnh', role: 'surveyor', roleLabel: 'Khảo sát thực địa' },
-  { username: 'giangpm', name: 'Phạm Mạnh Giang', role: 'surveyor', roleLabel: 'Khảo sát thực địa' },
-  { username: 'huynguyen', name: 'Ngô Quang Huy', role: 'surveyor', roleLabel: 'Khảo sát thực địa' },
-  { username: 'duongmx', name: 'Mai Xuân Dương', role: 'surveyor', roleLabel: 'Khảo sát thực địa' },
+  { username: 'cuongdc', name: 'Đặng Cao Cường', mssv: 'HE204075', defaultPassword: 'cuongHE204075', role: 'admin', roleLabel: 'Admin / Nhóm trưởng' },
+  { username: 'vietdt', name: 'Đào Thế Việt', mssv: 'HE204143', defaultPassword: 'vietHE204143', role: 'admin', roleLabel: 'Admin / Phó nhóm' },
+  { username: 'thinhdt', name: 'Trần Đức Thịnh', mssv: 'HE201309', defaultPassword: 'thinhHE201309', role: 'admin', roleLabel: 'Admin' },
+  { username: 'giangpm', name: 'Phạm Mạnh Giang', mssv: 'HE204233', defaultPassword: 'giangHE204233', role: 'admin', roleLabel: 'Admin' },
+  { username: 'huynguyen', name: 'Ngô Quang Huy', mssv: 'HE204101', defaultPassword: 'huyHE204101', role: 'admin', roleLabel: 'Admin' },
+  { username: 'duongmx', name: 'Mai Xuân Dương', mssv: 'HE204524', defaultPassword: 'duongHE204524', role: 'admin', roleLabel: 'Admin' },
+  { username: 'admin', name: 'ConnectHub Master', mssv: 'SUPERADMIN', defaultPassword: 'hola@2026', role: 'admin', roleLabel: 'Quản trị tối cao' },
 ];
 
 export const AdminLoginModal: React.FC = () => {
   const { isLoginModalOpen, setLoginModalOpen, login, isLoading, error } = useAuthStore();
 
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('hola@2026');
+  const [username, setUsername] = useState('cuongdc');
+  const [password, setPassword] = useState('cuongHE204075');
   const [successMsg, setSuccessMsg] = useState('');
 
   if (!isLoginModalOpen) return null;
@@ -54,7 +56,7 @@ export const AdminLoginModal: React.FC = () => {
 
   const handleSelectPreset = (acc: PresetAccount) => {
     setUsername(acc.username);
-    setPassword('hola@2026');
+    setPassword(acc.defaultPassword);
   };
 
   return (
@@ -165,15 +167,15 @@ export const AdminLoginModal: React.FC = () => {
                         : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
                     }`}
                   >
-                    <span>{acc.role === 'admin' ? '👑' : '🔍'}</span>
+                    <span>👑</span>
                     <span className="font-bold">{acc.username}</span>
-                    <span className="text-[10px] opacity-75">({acc.name})</span>
+                    <span className="text-[10px] opacity-80">({acc.name} - {acc.defaultPassword})</span>
                   </button>
                 );
               })}
             </div>
             <p className="text-[10px] text-gray-400 italic">
-              Mật khẩu mặc định toàn bộ nhóm: <strong>hola@2026</strong>
+              Định dạng mật khẩu: <strong>Tên không dấu + MSSV</strong> (hoặc mật khẩu dự phòng <strong>hola@2026</strong>)
             </p>
           </div>
 
