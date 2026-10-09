@@ -29,6 +29,11 @@ export async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
+  const token = localStorage.getItem('connecthub_auth_token');
+  if (token && !headers['Authorization']) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   try {
     const response = await fetch(url, {
       ...options,

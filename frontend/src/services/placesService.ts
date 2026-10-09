@@ -561,4 +561,27 @@ export const placesService = {
       bySurveyor: [],
     };
   },
+
+  /**
+   * Delete place (Admin only)
+   */
+  async deletePlace(id: string): Promise<boolean> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const res = await request<{ success: boolean }>(`/places/${id}`, {
+          method: 'DELETE',
+        });
+        return res?.success ?? true;
+      } catch (err) {
+        console.warn('[PlacesService] Backend deletePlace error:', err);
+        throw err;
+      }
+    }
+    const idx = MOCK_PLACES.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      MOCK_PLACES.splice(idx, 1);
+    }
+    return true;
+  },
 };
+

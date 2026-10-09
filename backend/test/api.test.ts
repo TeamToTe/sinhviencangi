@@ -208,6 +208,107 @@ async function testBackend() {
       'GET /api/stats returns progress towards 50-places field survey goal'
     );
 
+    // Test 15: Auth - Admin Login (POST /api/auth/login)
+    const adminLoginRes = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: 'admin',
+        password: 'hola@2026',
+      }),
+    });
+    assert(
+      adminLoginRes.status === 200 &&
+        adminLoginRes.data.token &&
+        adminLoginRes.data.user.role === 'admin' &&
+        adminLoginRes.data.user.username === 'admin',
+      'POST /api/auth/login succeeds for master admin with valid JWT token'
+    );
+    const adminToken = adminLoginRes.data.token;
+
+    // Test 16: Auth - Surveyor Login
+    const surveyorLoginRes = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: 'thinhdt',
+        password: 'hola@2026',
+      }),
+    });
+    assert(
+      surveyorLoginRes.status === 200 &&
+        surveyorLoginRes.data.token &&
+        surveyorLoginRes.data.user.role === 'surveyor' &&
+        surveyorLoginRes.data.user.fullName === 'Trần Đức Thịnh',
+      'POST /api/auth/login succeeds for surveyor team member'
+    );
+    const surveyorToken = surveyorLoginRes.data.token;
+
+    // Test 17: Auth - Invalid Credentials rejected
+    const badLoginRes = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: 'admin',
+        password: 'wrong_password_123',
+      }),
+    });
+    assert(
+      badLoginRes.status === 401 && badLoginRes.data.error,
+      'POST /api/auth/login rejects incorrect password with 401'
+    );
+
+    // Test 18: Auth - GET /api/auth/me with Bearer token
+    const meRes = await apiFetch('/api/auth/me', {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    });
+    assert(
+      meRes.status === 200 && meRes.data.username === 'admin',
+      'GET /api/auth/me returns authenticated user from JWT'
+    );
+
+    // Test 19: RBAC - Admin can list all 7 seeded users
+    const usersRes = await apiFetch('/api/auth/users', {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    });
+    assert(
+      usersRes.status === 200 && Array.isArray(usersRes.data) && usersRes.data.length >= 7,
+      'GET /api/auth/users (admin only) returns all seeded team accounts'
+    );
+
+    // Test 20: RBAC - Surveyor is forbidden from listing all users
+    const forbiddenRes = await apiFetch('/api/auth/users', {
+      headers: {
+        Authorization: `Bearer ${surveyorToken}`,
+      },
+    });
+    assert(
+      forbiddenRes.status === 403,
+      'GET /api/auth/users rejects non-admin surveyor with 403 Forbidden'
+    );
+
+    // Test 21: Protected Deletion - unauthenticated request rejected
+    const unauthDeleteRes = await apiFetch(`/api/places/${newPlaceId}`, {
+      method: 'DELETE',
+    });
+    assert(
+      unauthDeleteRes.status === 401,
+      'DELETE /api/places/:id rejects unauthenticated request with 401'
+    );
+
+    // Test 22: Protected Deletion - Admin deletes place successfully
+    const adminDeleteRes = await apiFetch(`/api/places/${newPlaceId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    });
+    assert(
+      adminDeleteRes.status === 200 && adminDeleteRes.data.success === true,
+      'DELETE /api/places/:id succeeds when called by authenticated Admin'
+    );
+
   } catch (err: any) {
     console.error('Test execution error:', err);
   } finally {

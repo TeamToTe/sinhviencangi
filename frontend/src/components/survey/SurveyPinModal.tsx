@@ -21,6 +21,7 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { useMapStore } from '../../stores/useMapStore';
+import { useAuthStore } from '../../stores/useAuthStore';
 import { placesService } from '../../services/placesService';
 import type { PlaceCategory, Place } from '../../types/place';
 
@@ -69,6 +70,7 @@ const AMENITY_OPTIONS = [
 
 export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }) => {
   const { isSurveyModalOpen, setSurveyModalOpen } = useMapStore();
+  const { user } = useAuthStore();
 
   // Form State
   const [surveyor, setSurveyor] = useState<string>(() => {
@@ -177,6 +179,16 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
       requestGpsLocation();
     }
   }, [isSurveyModalOpen]);
+
+  // Pre-fill surveyor if authenticated user matches team roster
+  useEffect(() => {
+    if (user && user.fullName) {
+      const match = SURVEYORS.find((s) => s.toLowerCase() === user.fullName.toLowerCase());
+      if (match) {
+        setSurveyor(match);
+      }
+    }
+  }, [user]);
 
   // Handle Photo selection & converting to base64
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

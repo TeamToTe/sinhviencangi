@@ -18,6 +18,59 @@ export const INITIAL_SURVEYORS = [
   'Mai Xuân Dương',
 ];
 
+// Admin & Member accounts for the 6 team members
+export const INITIAL_USERS = [
+  {
+    username: 'admin',
+    password: 'hola@2026',
+    fullName: 'Admin ConnectHub (Quản trị hệ thống)',
+    role: 'admin',
+    email: 'admin@connecthub.edu.vn',
+  },
+  {
+    username: 'cuongdc',
+    password: 'hola@2026',
+    fullName: 'Đặng Cao Cường (Nhóm trưởng)',
+    role: 'admin',
+    email: 'cuongdc@fpt.edu.vn',
+  },
+  {
+    username: 'vietdt',
+    password: 'hola@2026',
+    fullName: 'Đào Thế Việt (Phó nhóm)',
+    role: 'admin',
+    email: 'vietdt@fpt.edu.vn',
+  },
+  {
+    username: 'thinhdt',
+    password: 'hola@2026',
+    fullName: 'Trần Đức Thịnh',
+    role: 'surveyor',
+    email: 'thinhdt@fpt.edu.vn',
+  },
+  {
+    username: 'giangpm',
+    password: 'hola@2026',
+    fullName: 'Phạm Mạnh Giang',
+    role: 'surveyor',
+    email: 'giangpm@fpt.edu.vn',
+  },
+  {
+    username: 'huynguyen',
+    password: 'hola@2026',
+    fullName: 'Ngô Quang Huy',
+    role: 'surveyor',
+    email: 'huynguyen@fpt.edu.vn',
+  },
+  {
+    username: 'duongmx',
+    password: 'hola@2026',
+    fullName: 'Mai Xuân Dương',
+    role: 'surveyor',
+    email: 'duongmx@fpt.edu.vn',
+  },
+];
+
 export const INITIAL_PLACES = [
   {
     name: 'Chung Cư Mini Happy House Tân Xã',

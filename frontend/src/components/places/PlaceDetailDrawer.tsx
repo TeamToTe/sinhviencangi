@@ -20,12 +20,15 @@ import {
   Wifi,
   DollarSign,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 export const PlaceDetailDrawer: React.FC = () => {
   const { selectedPlace, setSelectedPlace, setReportModal } = useMapStore();
   const { isFavorite, toggleFavorite } = useFavoritesStore();
+  const { isAdmin } = useAuthStore();
 
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [reviewName, setReviewName] = useState('');
@@ -34,6 +37,25 @@ export const PlaceDetailDrawer: React.FC = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeletePlace = async () => {
+    if (!selectedPlace) return;
+    if (!window.confirm(`Xác nhận xóa vĩnh viễn địa điểm "${selectedPlace.name}"? Thao tác này chỉ dành cho Admin.`)) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      await placesService.deletePlace(selectedPlace.id);
+      alert('Đã xóa địa điểm thành công!');
+      setSelectedPlace(null);
+      window.location.reload();
+    } catch (err: any) {
+      alert(`Không thể xóa địa điểm: ${err.message || 'Lỗi hệ thống'}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (!selectedPlace) return null;
 
@@ -459,15 +481,26 @@ export const PlaceDetailDrawer: React.FC = () => {
             </form>
           </div>
 
-          {/* Report Button */}
-          <div className="pt-1 text-center">
+          {/* Report Button & Admin Actions */}
+          <div className="pt-1 flex flex-col items-center gap-2">
             <button
               onClick={() => setReportModal(true, selectedPlace.id)}
-              className="text-xs text-red-700 hover:text-red-900 font-bold inline-flex items-center gap-1 transition-colors"
+              className="text-xs text-red-700 hover:text-red-900 font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>Báo sai thông tin</span>
             </button>
+
+            {isAdmin && (
+              <button
+                onClick={handleDeletePlace}
+                disabled={isDeleting}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <span>{isDeleting ? 'Đang xóa...' : 'Xóa địa điểm (Admin)'}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
