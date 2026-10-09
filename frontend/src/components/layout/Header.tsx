@@ -6,6 +6,7 @@ import {
   Map as MapIcon,
   X,
   Compass,
+  MapPin,
 } from 'lucide-react';
 import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
@@ -28,7 +29,7 @@ const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' 
 
 export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery } = useFilterStore();
-  const { activeTab, setActiveTab } = useMapStore();
+  const { activeTab, setActiveTab, setSurveyModalOpen } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
 
   return (
@@ -53,7 +54,17 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1.5">
+            {/* Mobile Survey Pin Button */}
+            <button
+              onClick={() => setSurveyModalOpen(true)}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer"
+              title="Chấm điểm khảo sát thực địa bằng GPS"
+            >
+              <MapPin className="w-3.5 h-3.5 text-amber-300" />
+              <span>Chấm</span>
+            </button>
+
             {/* Mobile Tab Switcher */}
             <div className="flex items-center bg-gray-100 p-1 rounded-xl">
               <button
@@ -128,8 +139,18 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop View Mode Switcher & Facebook Link */}
+        {/* Desktop View Mode Switcher, Survey Button & Facebook Link */}
         <div className="hidden md:flex items-center gap-2.5">
+          {/* Desktop Survey Pin Button */}
+          <button
+            onClick={() => setSurveyModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
+            title="Chấm điểm khảo sát thực địa bằng GPS"
+          >
+            <MapPin className="w-3.5 h-3.5 text-amber-300" />
+            <span>+ Chấm Địa Điểm</span>
+          </button>
+
           <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-2xl border border-gray-200">
             <button
               onClick={() => setActiveTab('map')}
@@ -181,7 +202,7 @@ export const Header: React.FC = () => {
             <div className="w-5 h-5 rounded-full bg-[#1877F2] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-110 transition-transform">
               <FacebookIcon className="w-3 h-3 fill-current" />
             </div>
-            <span className="whitespace-nowrap font-medium">Theo dõi chúng mình trên Facebook</span>
+            <span className="whitespace-nowrap font-medium">Theo dõi chúng mình</span>
           </a>
         </div>
       </div>

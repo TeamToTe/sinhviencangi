@@ -156,11 +156,56 @@ async function testBackend() {
       'GET /api/places?category=food_drink filters accurately'
     );
 
-    // Test 10: Contributors
+    // Test 10: Contributors with KPI tracking
     const contribs = await apiFetch('/api/contributions');
     assert(
-      contribs.status === 200 && contribs.data.some((c: any) => c.name === 'Đặng Cao Cường'),
-      'GET /api/contributions returns survey contributors from Read_me.txt'
+      contribs.status === 200 &&
+        contribs.data.some((c: any) => c.name === 'Đặng Cao Cường' && c.placeCount !== undefined),
+      'GET /api/contributions returns survey contributors with KPI place count'
+    );
+
+    // Test 11: Survey Template
+    const template = await apiFetch('/api/places/template');
+    assert(
+      template.status === 200 &&
+        Array.isArray(template.data.surveyors) &&
+        template.data.surveyors.length >= 6 &&
+        Array.isArray(template.data.commonAmenities),
+      'GET /api/places/template returns full 14-question survey options from Read_me.txt'
+    );
+
+    // Test 12: Detect Area from GPS
+    const areaDetect = await apiFetch('/api/places/detect-area', {
+      method: 'POST',
+      body: JSON.stringify({ lat: 21.0185, lng: 105.5345 }),
+    });
+    assert(
+      areaDetect.status === 200 && areaDetect.data.area === 'Tân Xã',
+      'POST /api/places/detect-area auto-detects "Tân Xã" from GPS coordinates'
+    );
+
+    // Test 13: Image Upload (Base64)
+    const uploadRes = await apiFetch('/api/upload', {
+      method: 'POST',
+      body: JSON.stringify({
+        data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        name: 'test_pin.png',
+      }),
+    });
+    assert(
+      uploadRes.status === 201 && uploadRes.data.url.startsWith('/uploads/'),
+      'POST /api/upload accepts base64 field photos and returns static URL'
+    );
+
+    // Test 14: Overall Survey Stats & Dashboard
+    const statsRes = await apiFetch('/api/stats');
+    assert(
+      statsRes.status === 200 &&
+        statsRes.data.totalPlaces > 0 &&
+        statsRes.data.targetPlaces === 50 &&
+        statsRes.data.byCategory &&
+        statsRes.data.bySurveyor,
+      'GET /api/stats returns progress towards 50-places field survey goal'
     );
 
   } catch (err: any) {

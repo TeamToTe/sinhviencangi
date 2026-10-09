@@ -39,6 +39,7 @@ export async function runMigrations(): Promise<void> {
           phone VARCHAR(50),
           amenities TEXT[],
           images TEXT[],
+          gps_accuracy DOUBLE PRECISION,
           created_at TIMESTAMPTZ DEFAULT NOW(),
           updated_at TIMESTAMPTZ DEFAULT NOW()
       );
@@ -66,6 +67,9 @@ export async function runMigrations(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_places_latitude ON places(latitude);
       CREATE INDEX IF NOT EXISTS idx_places_longitude ON places(longitude);
       CREATE INDEX IF NOT EXISTS idx_reviews_place ON reviews(place_id);
+
+      -- Ensure gps_accuracy column exists if table pre-existed
+      ALTER TABLE places ADD COLUMN IF NOT EXISTS gps_accuracy DOUBLE PRECISION;
     `);
   } else {
     // SQLite Schema
@@ -102,6 +106,7 @@ export async function runMigrations(): Promise<void> {
           phone VARCHAR(50),
           amenities TEXT,
           images TEXT,
+          gps_accuracy REAL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
@@ -130,6 +135,13 @@ export async function runMigrations(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_places_longitude ON places(longitude);
       CREATE INDEX IF NOT EXISTS idx_reviews_place ON reviews(place_id);
     `);
+
+    // Ensure gps_accuracy column exists if table pre-existed
+    try {
+      await db.exec('ALTER TABLE places ADD COLUMN gps_accuracy REAL;');
+    } catch {
+      // Column already exists, safe to ignore
+    }
   }
 
   // 1. Seed Categories if empty

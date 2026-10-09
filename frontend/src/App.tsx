@@ -9,6 +9,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { MapLibreView } from './components/map/MapLibreView';
 import { PlaceDetailDrawer } from './components/places/PlaceDetailDrawer';
 import { PlaceReportModal } from './components/places/PlaceReportModal';
+import { SurveyPinModal } from './components/survey/SurveyPinModal';
 import { PlaceCard } from './components/places/PlaceCard';
 
 import { useFavoritesStore } from './stores/useFavoritesStore';
@@ -18,6 +19,10 @@ import { Sparkles, Heart, Search } from 'lucide-react';
 export const App: React.FC = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const handlePlaceCreated = (newPlace: Place) => {
+    setPlaces((prev) => [newPlace, ...prev.filter((p) => p.id !== newPlace.id)]);
+  };
 
   const {
     category,
@@ -188,6 +193,9 @@ export const App: React.FC = () => {
 
       {/* Report Modal */}
       <PlaceReportModal />
+
+      {/* Field Survey GPS Pinning Modal */}
+      <SurveyPinModal onPlaceCreated={handlePlaceCreated} />
 
       {/* Floating GIF Widget */}
       <FloatingGif />

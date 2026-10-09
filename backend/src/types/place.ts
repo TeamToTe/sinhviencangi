@@ -73,6 +73,8 @@ export interface Place {
   isAvailable?: boolean;
   openingHours?: string;
   badgeText?: string;
+  gpsAccuracy?: number;
+  contributorName?: string;
 }
 
 export interface CategoryMeta {
@@ -127,6 +129,9 @@ export interface CreatePlaceDto {
   roomStatus?: string;
   // Contributor / surveyor info (from Read_me.txt Google Form)
   contributorName?: string;
+  // GPS metadata
+  gpsAccuracy?: number;
+  isGpsVerified?: boolean;
   // Initial rating & review from surveyor
   rating?: number;
   reviewContent?: string;
@@ -148,4 +153,32 @@ export interface CreateReportDto {
   reason: 'wrong_info' | 'wrong_price' | 'wrong_phone' | 'closed' | 'other' | string;
   note: string;
   contactEmail?: string;
+}
+
+export interface ContributorProgress {
+  id: number;
+  name: string;
+  placeCount: number;
+  target: number;
+  progressPercentage: number;
+  recentPlaces: string[];
+}
+
+export interface SurveyTemplate {
+  surveyors: string[];
+  categories: CategoryMeta[];
+  areas: string[];
+  commonAmenities: string[];
+}
+
+export interface SurveyStats {
+  totalPlaces: number;
+  targetPlaces: number;
+  progressPercentage: number;
+  totalReviews: number;
+  totalCategories: number;
+  totalContributors: number;
+  byCategory: Record<string, number>;
+  byArea: Record<string, number>;
+  bySurveyor: { name: string; count: number }[];
 }

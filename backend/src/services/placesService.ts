@@ -1,7 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import { db } from '../db/index.js';
+import { INITIAL_SURVEYORS } from '../db/seedData.js';
 import type {
   Amenity,
   CategoryMeta,
+  ContributorProgress,
   CreatePlaceDto,
   CreateReportDto,
   CreateReviewDto,
@@ -9,11 +13,53 @@ import type {
   Place,
   PlaceCategory,
   Review,
+  SurveyStats,
+  SurveyTemplate,
 } from '../types/place.js';
 
-// Coordinates of Reference Campuses in Hoa Lac
+// Coordinates of Reference Campuses and Key Areas in Hoa Lac
 const FPT_CAMPUS = { lat: 21.0135, lng: 105.5252 };
 const VNU_CAMPUS = { lat: 21.0162, lng: 105.5235 };
+
+export const KEY_HOA_LAC_AREAS = [
+  { name: 'Tân Xã', lat: 21.0185, lng: 105.5345 },
+  { name: 'Thạch Hòa', lat: 21.0135, lng: 105.5252 },
+  { name: 'Bình Yên', lat: 21.0300, lng: 105.5100 },
+  { name: 'Khu Công Nghệ Cao Hòa Lạc', lat: 21.0050, lng: 105.5450 },
+];
+
+export function detectAreaFromCoordinates(lat: number, lng: number): string {
+  let closest = KEY_HOA_LAC_AREAS[0];
+  let minD = Infinity;
+  for (const a of KEY_HOA_LAC_AREAS) {
+    const d = calculateDistance(lat, lng, a.lat, a.lng);
+    if (d < minD) {
+      minD = d;
+      closest = a;
+    }
+  }
+  return closest.name;
+}
+
+export async function saveBase64Image(dataUri: string): Promise<string> {
+  if (!dataUri.startsWith('data:image/')) {
+    return dataUri;
+  }
+  const uploadDir = path.resolve(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+  if (!matches) {
+    return dataUri;
+  }
+  const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+  const buffer = Buffer.from(matches[2], 'base64');
+  const filename = `img_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+  const filePath = path.join(uploadDir, filename);
+  await fs.promises.writeFile(filePath, buffer);
+  return `/uploads/${filename}`;
+}
 
 export const CATEGORY_MAP: Record<
   string,
@@ -141,6 +187,8 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
     isAvailable: row.room_status ? row.room_status !== 'full' : true,
     openingHours: row.opening_hours,
     badgeText: row.room_status === 'available' ? 'Còn phòng' : undefined,
+    gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
+    contributorName: row.contributor_name || undefined,
   };
 }
 
@@ -281,8 +329,14 @@ export const placesService = {
     const lng = Number(dto.coordinates?.lng ?? dto.longitude);
 
     if (isNaN(lat) || isNaN(lng)) {
-      throw new Error('Tọa độ GPS (latitude, longitude) là bắt buộc khi chấm vào bản đồ!');
+      throw new Error('Tọa độ GPS (kinh độ, vĩ độ) là bắt buộc khi chấm vào bản đồ!');
     }
+
+    if (lat < 8.0 || lat > 24.0 || lng < 102.0 || lng > 110.0) {
+      throw new Error('Tọa độ GPS không hợp lệ hoặc nằm ngoài lãnh thổ Việt Nam. Hãy bật quyền định vị GPS trên điện thoại để lấy tọa độ chuẩn xác!');
+    }
+
+    const gpsAccuracy = dto.gpsAccuracy !== undefined ? Number(dto.gpsAccuracy) : null;
 
     if (!dto.name || !dto.name.trim()) {
       throw new Error('Tên địa điểm là bắt buộc!');
@@ -333,6 +387,23 @@ export const placesService = {
       imagesArr = dto.images;
     }
 
+    // Save base64 images to static uploads directory
+    const processedImages: string[] = [];
+    for (const img of imagesArr) {
+      if (typeof img === 'string') {
+        if (img.startsWith('data:image/')) {
+          try {
+            const url = await saveBase64Image(img);
+            processedImages.push(url);
+          } catch {
+            processedImages.push(img);
+          }
+        } else {
+          processedImages.push(img);
+        }
+      }
+    }
+
     const minPrice = dto.minPrice ?? dto.priceInfo?.amount ?? 0;
     const maxPrice = dto.maxPrice ?? dto.priceInfo?.amount ?? 0;
     const rentPrice = dto.rentPrice ?? (catName === 'boarding_house' ? minPrice : 0);
@@ -340,16 +411,22 @@ export const placesService = {
     const waterPrice = dto.waterPrice ? String(dto.waterPrice) : dto.priceInfo?.water ? `${dto.priceInfo.water}/khối` : '';
     const roomStatus = dto.roomStatus || 'available';
 
+    // Auto-detect area if not selected or 'Khác'
+    let areaName = dto.areaName || dto.area;
+    if (!areaName || areaName === 'Khác' || areaName === 'all' || areaName === 'auto') {
+      areaName = detectAreaFromCoordinates(lat, lng);
+    }
+
     const amenitiesVal = db.isPostgres ? amenitiesArr : JSON.stringify(amenitiesArr);
-    const imagesVal = db.isPostgres ? imagesArr : JSON.stringify(imagesArr);
+    const imagesVal = db.isPostgres ? processedImages : JSON.stringify(processedImages);
 
     const insertSql = `
       INSERT INTO places (
         category_id, contribution_id, name, area, address,
         latitude, longitude, min_price, max_price, rent_price,
         electricity_price, water_price, room_status, opening_hours,
-        phone, amenities, images
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        phone, amenities, images, gps_accuracy
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING id
     `;
 
@@ -357,7 +434,7 @@ export const placesService = {
       categoryId,
       contributionId,
       dto.name.trim(),
-      dto.areaName || dto.area || 'Hòa Lạc',
+      areaName,
       dto.address || 'Hòa Lạc, Thạch Thất, Hà Nội',
       lat,
       lng,
@@ -371,6 +448,7 @@ export const placesService = {
       dto.phone || dto.zaloPhone || '',
       amenitiesVal,
       imagesVal,
+      gpsAccuracy,
     ]);
 
     const newId = Number(insRes.rows[0]?.id);
@@ -491,10 +569,132 @@ export const placesService = {
   },
 
   /**
-   * Get list of survey contributors
+   * Get list of survey contributors with KPI progress (Read_me.txt KPI tracking)
    */
-  async getContributors(): Promise<{ id: number; name: string }[]> {
-    const res = await db.query('SELECT id, contributor_name FROM contributions ORDER BY id ASC');
-    return res.rows.map((r) => ({ id: Number(r.id), name: r.contributor_name }));
+  async getContributors(): Promise<ContributorProgress[]> {
+    const res = await db.query(`
+      SELECT c.id, c.contributor_name, COUNT(p.id) as place_count
+      FROM contributions c
+      LEFT JOIN places p ON p.contribution_id = c.id
+      GROUP BY c.id, c.contributor_name
+      ORDER BY place_count DESC, c.id ASC
+    `);
+
+    // Fetch up to 3 recent places per contributor
+    const placesRes = await db.query(`
+      SELECT contribution_id, name FROM places
+      WHERE contribution_id IS NOT NULL
+      ORDER BY id DESC
+    `);
+    const recentMap = new Map<number, string[]>();
+    for (const r of placesRes.rows) {
+      const cId = Number(r.contribution_id);
+      if (!recentMap.has(cId)) recentMap.set(cId, []);
+      if (recentMap.get(cId)!.length < 3) {
+        recentMap.get(cId)!.push(r.name);
+      }
+    }
+
+    return res.rows.map((r) => {
+      const id = Number(r.id);
+      const count = Number(r.place_count || 0);
+      const target = 10;
+      return {
+        id,
+        name: r.contributor_name,
+        placeCount: count,
+        target,
+        progressPercentage: Math.min(100, Math.round((count / target) * 100)),
+        recentPlaces: recentMap.get(id) || [],
+      };
+    });
+  },
+
+  /**
+   * Survey Template with 14 questions metadata from Read_me.txt
+   */
+  async getSurveyTemplate(): Promise<SurveyTemplate> {
+    const categories = await this.getCategories();
+    const contribs = await db.query('SELECT contributor_name FROM contributions ORDER BY id ASC');
+    const surveyors = contribs.rows.map((r) => r.contributor_name);
+
+    return {
+      surveyors: surveyors.length > 0 ? surveyors : INITIAL_SURVEYORS,
+      categories,
+      areas: ['Tân Xã', 'Thạch Hòa', 'Bình Yên', 'Khu Công Nghệ Cao Hòa Lạc', 'Khác'],
+      commonAmenities: [
+        'Có điều hòa',
+        'Wifi miễn phí',
+        'Chỗ để xe miễn phí / rộng rãi',
+        'Thanh toán Chuyển khoản / Quét mã QR',
+        'Thang máy',
+        'Khóa vân tay / Camera an ninh',
+        'Đạt chuẩn an toàn PCCC',
+        'Không chung chủ',
+        'Phục vụ thông trưa',
+      ],
+    };
+  },
+
+  /**
+   * Overall Survey KPIs and Statistics
+   */
+  async getSurveyStats(): Promise<SurveyStats> {
+    const placesRes = await db.query('SELECT COUNT(*) as count FROM places');
+    const reviewsRes = await db.query('SELECT COUNT(*) as count FROM reviews');
+    const catsRes = await db.query('SELECT COUNT(*) as count FROM categories');
+    const contribsRes = await db.query('SELECT COUNT(*) as count FROM contributions');
+
+    const totalPlaces = Number(placesRes.rows[0]?.count || 0);
+    const targetPlaces = 50;
+
+    // By category
+    const catCountsRes = await db.query(`
+      SELECT c.name, COUNT(p.id) as count
+      FROM categories c
+      LEFT JOIN places p ON p.category_id = c.id
+      GROUP BY c.name
+    `);
+    const byCategory: Record<string, number> = {};
+    catCountsRes.rows.forEach((r) => {
+      byCategory[r.name] = Number(r.count || 0);
+    });
+
+    // By area
+    const areaCountsRes = await db.query(`
+      SELECT area, COUNT(id) as count
+      FROM places
+      WHERE area IS NOT NULL
+      GROUP BY area
+    `);
+    const byArea: Record<string, number> = {};
+    areaCountsRes.rows.forEach((r) => {
+      byArea[r.area] = Number(r.count || 0);
+    });
+
+    // By surveyor
+    const surveyorCountsRes = await db.query(`
+      SELECT c.contributor_name, COUNT(p.id) as count
+      FROM contributions c
+      LEFT JOIN places p ON p.contribution_id = c.id
+      GROUP BY c.contributor_name
+      ORDER BY count DESC
+    `);
+    const bySurveyor = surveyorCountsRes.rows.map((r) => ({
+      name: r.contributor_name,
+      count: Number(r.count || 0),
+    }));
+
+    return {
+      totalPlaces,
+      targetPlaces,
+      progressPercentage: Math.min(100, Math.round((totalPlaces / targetPlaces) * 100)),
+      totalReviews: Number(reviewsRes.rows[0]?.count || 0),
+      totalCategories: Number(catsRes.rows[0]?.count || 0),
+      totalContributors: Number(contribsRes.rows[0]?.count || 0),
+      byCategory,
+      byArea,
+      bySurveyor,
+    };
   },
 };

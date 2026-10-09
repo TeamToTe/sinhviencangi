@@ -9,6 +9,7 @@ interface MapState {
   activeTab: 'map' | 'list' | 'favorites';
   isReportModalOpen: boolean;
   reportPlaceId: string | null;
+  isSurveyModalOpen: boolean;
   isFilterModalOpen: boolean;
   isSidebarOpen: boolean;
   mapStyleMode: 'festival' | 'streets' | 'satellite';
@@ -21,6 +22,7 @@ interface MapState {
   flyToPlace: (place: Place) => void;
   setActiveTab: (tab: 'map' | 'list' | 'favorites') => void;
   setReportModal: (isOpen: boolean, placeId?: string | null) => void;
+  setSurveyModalOpen: (isOpen: boolean) => void;
   setFilterModalOpen: (isOpen: boolean) => void;
   setSidebarOpen: (isOpen: boolean) => void;
   setMapStyleMode: (mode: 'festival' | 'streets' | 'satellite') => void;
@@ -34,6 +36,7 @@ export const useMapStore = create<MapState>((set) => ({
   activeTab: 'map',
   isReportModalOpen: false,
   reportPlaceId: null,
+  isSurveyModalOpen: false,
   isFilterModalOpen: false,
   isSidebarOpen: true,
   mapStyleMode: 'festival',
@@ -51,6 +54,7 @@ export const useMapStore = create<MapState>((set) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
   setReportModal: (isOpen, placeId = null) =>
     set({ isReportModalOpen: isOpen, reportPlaceId: placeId }),
+  setSurveyModalOpen: (isOpen) => set({ isSurveyModalOpen: isOpen }),
   setFilterModalOpen: (isOpen) => set({ isFilterModalOpen: isOpen }),
   setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
   setMapStyleMode: (mode) => set({ mapStyleMode: mode }),
