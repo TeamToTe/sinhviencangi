@@ -269,8 +269,49 @@ navigator.geolocation.getCurrentPosition(
     timeout: 12000,
     maximumAge: 0,
   }
-);
 ```
+
+---
+
+### 2.12. Xóa địa điểm dành cho Quản trị viên (`DELETE /api/places/:id` hoặc `POST /api/places/:id/delete`)
+Endpoint cho phép tài khoản Admin xóa vĩnh viễn một địa điểm cùng các đánh giá (reviews) và báo cáo vi phạm (reports) liên quan.
+
+- **Method**: `DELETE` (hoặc `POST /api/places/:id/delete`)
+- **Path**: `/api/places/{id}`
+- **Yêu cầu bảo mật**: Bearer Token trong Header (`Authorization: Bearer <JWT_TOKEN>`) của tài khoản có role `admin`.
+- **Headers**:
+  ```http
+  Authorization: Bearer <admin_jwt_token>
+  ```
+- **Phản hồi thành công** (`200 OK`):
+  ```json
+  {
+    "success": true,
+    "message": "Đã xóa địa điểm 24a3148e-83b5-4d87-a7dd-dccd364cbe69 thành công."
+  }
+  ```
+- **Phản hồi lỗi**:
+  - `401 Unauthorized`: Chưa truyền Bearer token hoặc token đã hết hạn.
+  - `403 Forbidden`: Người dùng không có vai trò `admin`.
+  - `404 Not Found`: Không tìm thấy địa điểm với ID chỉ định.
+
+- **Ví dụ lệnh cURL**:
+  ```bash
+  # 1. Đăng nhập lấy JWT Admin
+  curl -X POST http://localhost:8080/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"username": "admin", "password": "hola@2026"}'
+
+  # 2. Xóa địa điểm bằng DELETE
+  curl -X DELETE http://localhost:8080/api/places/<PLACE_ID> \
+    -H "Authorization: Bearer <TOKEN_ADMIN>"
+
+  # 3. Hoặc xóa bằng POST alias
+  curl -X POST http://localhost:8080/api/places/<PLACE_ID>/delete \
+    -H "Authorization: Bearer <TOKEN_ADMIN>"
+  ```
+
+---
 
 ## 🗄️ 3. Gợi Ý Thiết Kế Database Cho Tốc Độ Truy Vấn Cực Cao (< 15ms)
 

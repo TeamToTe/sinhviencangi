@@ -28,7 +28,7 @@ import { useAuthStore } from '../../stores/useAuthStore';
 export const PlaceDetailDrawer: React.FC = () => {
   const { selectedPlace, setSelectedPlace, setReportModal } = useMapStore();
   const { isFavorite, toggleFavorite } = useFavoritesStore();
-  const { isAdmin } = useAuthStore();
+  const { isAdmin, setLoginModalOpen } = useAuthStore();
 
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [reviewName, setReviewName] = useState('');
@@ -117,11 +117,11 @@ export const PlaceDetailDrawer: React.FC = () => {
       {/* Mobile Backdrop */}
       <div
         onClick={() => setSelectedPlace(null)}
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[1040] md:hidden animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[2040] md:hidden animate-in fade-in duration-200"
       />
 
       {/* Detail Panel: Bottom Sheet on Mobile, Right Panel on Desktop */}
-      <div className="fixed inset-x-0 bottom-0 top-[15%] sm:top-[10%] md:relative md:inset-auto md:top-auto md:bottom-auto w-full md:w-[380px] lg:w-[430px] h-[85%] sm:h-[90%] md:h-full bg-white rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-emerald-200/80 flex flex-col shrink-0 z-[1050] shadow-2xl md:shadow-none animate-in slide-in-from-bottom md:slide-in-from-right duration-300 overflow-hidden">
+      <div className="fixed inset-x-0 bottom-0 top-[15%] sm:top-[10%] md:relative md:inset-auto md:top-auto md:bottom-auto w-full md:w-[380px] lg:w-[430px] h-[85%] sm:h-[90%] md:h-full bg-white rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-emerald-200/80 flex flex-col shrink-0 z-[2050] shadow-2xl md:shadow-none animate-in slide-in-from-bottom md:slide-in-from-right duration-300 overflow-hidden">
         {/* Mobile Drag Indicator */}
         <div className="pt-2 pb-1 bg-emerald-50/70 flex justify-center md:hidden shrink-0">
           <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
@@ -145,6 +145,16 @@ export const PlaceDetailDrawer: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1">
+            {isAdmin && (
+              <button
+                onClick={handleDeletePlace}
+                disabled={isDeleting}
+                className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 transition-colors cursor-pointer"
+                title="Xóa vĩnh viễn địa điểm này (Admin)"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={handleShare}
               className="p-1.5 rounded-xl hover:bg-white text-gray-500 hover:text-gray-800 transition-colors border border-transparent hover:border-gray-200 cursor-pointer"
@@ -491,14 +501,21 @@ export const PlaceDetailDrawer: React.FC = () => {
               <span>Báo sai thông tin</span>
             </button>
 
-            {isAdmin && (
+            {isAdmin ? (
               <button
                 onClick={handleDeletePlace}
                 disabled={isDeleting}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
               >
                 <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                <span>{isDeleting ? 'Đang xóa...' : 'Xóa địa điểm (Admin)'}</span>
+                <span>{isDeleting ? 'Đang xóa...' : 'Xóa vĩnh viễn địa điểm (Admin)'}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setLoginModalOpen(true)}
+                className="text-[11px] text-gray-700 hover:text-emerald-700 font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <span>Bạn là Admin? Đăng nhập để xóa/sửa địa điểm</span>
               </button>
             )}
           </div>

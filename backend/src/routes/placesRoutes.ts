@@ -164,3 +164,18 @@ placesRouter.delete('/:id', requireAdmin, async (req: Request, res: Response): P
   }
 });
 
+// POST /api/places/:id/delete (Admin only - Alias for environments that restrict HTTP DELETE)
+placesRouter.post('/:id/delete', requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const deleted = await placesService.deletePlace(id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Not Found', message: `Không tìm thấy địa điểm ${id}` });
+      return;
+    }
+    res.json({ success: true, message: `Đã xóa địa điểm ${id} thành công.` });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
+

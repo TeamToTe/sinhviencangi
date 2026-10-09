@@ -72,7 +72,7 @@ export async function runMigrations(): Promise<void> {
 
       CREATE TABLE IF NOT EXISTS reports (
           id BIGSERIAL PRIMARY KEY,
-          place_id BIGINT REFERENCES places(id) ON DELETE CASCADE,
+          place_id UUID REFERENCES places(id) ON DELETE CASCADE,
           reason VARCHAR(50) NOT NULL,
           note TEXT,
           contact_email VARCHAR(255),
@@ -84,8 +84,11 @@ export async function runMigrations(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_places_longitude ON places(longitude);
       CREATE INDEX IF NOT EXISTS idx_reviews_place ON reviews(place_id);
 
-      -- Ensure gps_accuracy column exists if table pre-existed
+      -- Ensure optional columns exist if table pre-existed
       ALTER TABLE places ADD COLUMN IF NOT EXISTS gps_accuracy DOUBLE PRECISION;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMPTZ;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
+      ALTER TABLE reviews ADD COLUMN IF NOT EXISTS author_name VARCHAR(100);
     `);
   } else {
     // SQLite Schema
@@ -243,12 +246,12 @@ export async function runMigrations(): Promise<void> {
 
     // Fetch categories and contributions mapping
     const cats = await db.query('SELECT id, name FROM categories');
-    const catMap = new Map<string, number>();
-    cats.rows.forEach((r) => catMap.set(r.name, Number(r.id)));
+    const catMap = new Map<string, any>();
+    cats.rows.forEach((r) => catMap.set(r.name, r.id));
 
     const contribs = await db.query('SELECT id, contributor_name FROM contributions');
-    const contribMap = new Map<string, number>();
-    contribs.rows.forEach((r) => contribMap.set(r.contributor_name, Number(r.id)));
+    const contribMap = new Map<string, any>();
+    contribs.rows.forEach((r) => contribMap.set(r.contributor_name, r.id));
 
     for (const p of INITIAL_PLACES) {
       const catId = catMap.get(p.categoryName) || null;

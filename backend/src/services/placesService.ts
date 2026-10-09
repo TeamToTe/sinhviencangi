@@ -245,13 +245,13 @@ export const placesService = {
 
     // Fetch all reviews for these places
     const placeIds = res.rows.map((r) => r.id);
-    let reviewsByPlace = new Map<number, Review[]>();
+    let reviewsByPlace = new Map<string, Review[]>();
 
     if (placeIds.length > 0) {
-      const revSql = `SELECT * FROM reviews ORDER BY id DESC`;
+      const revSql = `SELECT * FROM reviews ORDER BY created_at DESC`;
       const revRes = await db.query(revSql);
       for (const rev of revRes.rows) {
-        const pId = Number(rev.place_id);
+        const pId = String(rev.place_id);
         if (!reviewsByPlace.has(pId)) {
           reviewsByPlace.set(pId, []);
         }
@@ -267,7 +267,7 @@ export const placesService = {
     }
 
     let places = res.rows.map((row) => {
-      const revs = reviewsByPlace.get(Number(row.id)) || [];
+      const revs = reviewsByPlace.get(String(row.id)) || [];
       return mapRowToPlace(row, revs);
     });
 
@@ -294,7 +294,7 @@ export const placesService = {
    * Get single place by ID with full reviews
    */
   async getPlaceById(id: string | number): Promise<Place | null> {
-    const numId = Number(id);
+    const placeId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
     const sql = `
       SELECT p.*, c.name as category_name, cont.contributor_name
       FROM places p
@@ -302,13 +302,13 @@ export const placesService = {
       LEFT JOIN contributions cont ON p.contribution_id = cont.id
       WHERE p.id = $1
     `;
-    const res = await db.query(sql, [numId]);
+    const res = await db.query(sql, [placeId]);
     if (res.rows.length === 0) {
       return null;
     }
 
-    const revSql = `SELECT * FROM reviews WHERE place_id = $1 ORDER BY id DESC`;
-    const revRes = await db.query(revSql, [numId]);
+    const revSql = `SELECT * FROM reviews WHERE place_id = $1 ORDER BY created_at DESC`;
+    const revRes = await db.query(revSql, [placeId]);
     const revs: Review[] = revRes.rows.map((rev) => ({
       id: String(rev.id),
       authorName: rev.author_name || 'Sinh viên Hòa Lạc',
@@ -348,27 +348,27 @@ export const placesService = {
     if (!categoryId) {
       const catRes = await db.query('SELECT id FROM categories WHERE name = $1', [catName]);
       if (catRes.rows.length > 0) {
-        categoryId = Number(catRes.rows[0].id);
+        categoryId = catRes.rows[0].id;
       } else {
         // default to first category
         const firstCat = await db.query('SELECT id FROM categories LIMIT 1');
-        categoryId = Number(firstCat.rows[0]?.id || 1);
+        categoryId = firstCat.rows[0]?.id || (db.isPostgres ? null : 1);
       }
     }
 
     // 2. Resolve Contributor ID (from Read_me.txt surveyors or anonymous)
-    let contributionId: number | null = null;
+    let contributionId: any = null;
     if (dto.contributorName && dto.contributorName.trim()) {
       const contribName = dto.contributorName.trim();
       const contRes = await db.query('SELECT id FROM contributions WHERE contributor_name = $1', [contribName]);
       if (contRes.rows.length > 0) {
-        contributionId = Number(contRes.rows[0].id);
+        contributionId = contRes.rows[0].id;
       } else {
         const ins = await db.query(
           'INSERT INTO contributions (contributor_name) VALUES ($1) RETURNING id',
           [contribName]
         );
-        contributionId = Number(ins.rows[0]?.id);
+        contributionId = ins.rows[0]?.id;
       }
     }
 
@@ -451,7 +451,7 @@ export const placesService = {
       gpsAccuracy,
     ]);
 
-    const newId = Number(insRes.rows[0]?.id);
+    const newId = insRes.rows[0]?.id;
 
     // 4. If initial review provided by surveyor
     if (dto.rating || dto.reviewContent) {
@@ -480,10 +480,18 @@ export const placesService = {
    * Delete place (Admin only action)
    */
   async deletePlace(id: string | number): Promise<boolean> {
-    const numId = Number(id);
-    await db.query('DELETE FROM reviews WHERE place_id = $1', [numId]);
-    await db.query('DELETE FROM reports WHERE place_id = $1', [numId]);
-    const res = await db.query('DELETE FROM places WHERE id = $1', [numId]);
+    const targetId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
+    try {
+      await db.query('DELETE FROM reviews WHERE place_id = $1', [targetId]);
+    } catch (e) {
+      console.warn('[placesService] Warn deleting reviews for place', targetId, e);
+    }
+    try {
+      await db.query('DELETE FROM reports WHERE place_id = $1', [targetId]);
+    } catch (e) {
+      console.warn('[placesService] Warn deleting reports for place', targetId, e);
+    }
+    const res = await db.query('DELETE FROM places WHERE id = $1', [targetId]);
     return res.rowCount > 0;
   },
 
@@ -508,13 +516,13 @@ export const placesService = {
    * Add student review
    */
   async addReview(placeId: string | number, dto: CreateReviewDto): Promise<Review> {
-    const numPlaceId = Number(placeId);
-    let contribId: number | null = null;
+    const targetPlaceId = db.isPostgres ? String(placeId) : (isNaN(Number(placeId)) ? placeId : Number(placeId));
+    let contribId: any = null;
 
     if (dto.contributorName) {
       const cRes = await db.query('SELECT id FROM contributions WHERE contributor_name = $1', [dto.contributorName]);
       if (cRes.rows.length > 0) {
-        contribId = Number(cRes.rows[0].id);
+        contribId = cRes.rows[0].id;
       }
     }
 
@@ -522,7 +530,7 @@ export const placesService = {
       `INSERT INTO reviews (place_id, contribution_id, author_name, rating, content)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id, created_at`,
-      [numPlaceId, contribId, dto.authorName || 'Sinh viên Hòa Lạc', dto.rating, dto.comment]
+      [targetPlaceId, contribId, dto.authorName || 'Sinh viên Hòa Lạc', dto.rating, dto.comment]
     );
 
     const newRevId = ins.rows[0]?.id;
@@ -544,10 +552,11 @@ export const placesService = {
    * Submit report about incorrect place info
    */
   async createReport(dto: CreateReportDto): Promise<{ success: boolean; message: string }> {
+    const reportPlaceId = db.isPostgres ? (dto.placeId ? String(dto.placeId) : null) : (Number(dto.placeId) || null);
     await db.query(
       `INSERT INTO reports (place_id, reason, note, contact_email)
        VALUES ($1, $2, $3, $4)`,
-      [Number(dto.placeId) || null, dto.reason, dto.note, dto.contactEmail || null]
+      [reportPlaceId, dto.reason, dto.note, dto.contactEmail || null]
     );
 
     return {

@@ -12,7 +12,7 @@ import type {
   SurveyStats,
   SurveyTemplate,
 } from '../types/place';
-import { request, USE_MOCK_DATA } from './apiClient';
+import { request, USE_MOCK_DATA, API_BASE_URL } from './apiClient';
 import { supabase } from './supabaseClient';
 
 const CATEGORY_MAP: Record<string, { id: PlaceCategory; label: string; color: string; icon: string }> = {
@@ -24,6 +24,14 @@ const CATEGORY_MAP: Record<string, { id: PlaceCategory; label: string; color: st
   'entertainment': { id: 'entertainment', label: 'Giải trí & Thể thao', color: '#7c3aed', icon: 'Gamepad2' },
   'campus': { id: 'campus', label: 'Trường & Điểm đón Bus', color: '#16a34a', icon: 'GraduationCap' },
 };
+
+function formatPhotoUrl(url: string): string {
+  if (url && typeof url === 'string' && url.startsWith('/uploads/')) {
+    const origin = API_BASE_URL.replace(/\/api\/?$/, '');
+    return `${origin}${url}`;
+  }
+  return url;
+}
 
 function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []): Place {
   const catKey = (categoryName || 'boarding_house') as PlaceCategory;
@@ -60,7 +68,7 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     phone: row.phone,
     zaloPhone: row.phone,
     photos: Array.isArray(row.images) && row.images.length > 0 
-      ? row.images 
+      ? row.images.map(formatPhotoUrl) 
       : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'],
     tags: Array.isArray(row.amenities) ? row.amenities : [],
     amenities: (Array.isArray(row.amenities) ? row.amenities : []).map((label: string) => ({
@@ -107,8 +115,11 @@ export const placesService = {
         }
 
         const data = await request<Place[]>(`/places?${params.toString()}`);
-        if (Array.isArray(data) && data.length > 0) {
-          return data;
+        if (Array.isArray(data)) {
+          return data.map((p) => ({
+            ...p,
+            photos: Array.isArray(p.photos) ? p.photos.map(formatPhotoUrl) : [],
+          }));
         }
       } catch (backendErr) {
         console.warn('[PlacesService] Backend API request failed, trying Supabase fallback:', backendErr);
@@ -573,7 +584,19 @@ export const placesService = {
         });
         return res?.success ?? true;
       } catch (err) {
-        console.warn('[PlacesService] Backend deletePlace error:', err);
+        console.warn('[PlacesService] Backend deletePlace error, trying fallback:', err);
+        if (supabase) {
+          try {
+            await supabase.from('reviews').delete().eq('place_id', id);
+            await supabase.from('reports').delete().eq('place_id', id);
+            const { error: supaErr } = await supabase.from('places').delete().eq('id', id);
+            if (!supaErr) {
+              return true;
+            }
+          } catch (supaCatch) {
+            console.error('[PlacesService] Supabase delete fallback failed:', supaCatch);
+          }
+        }
         throw err;
       }
     }

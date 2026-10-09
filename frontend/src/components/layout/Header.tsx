@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Search,
   Heart,
@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   LogOut,
   Lock,
+  ChevronDown,
 } from 'lucide-react';
 import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
@@ -37,90 +38,173 @@ export const Header: React.FC = () => {
   const { favoriteIds } = useFavoritesStore();
   const { user, isAuthenticated, isAdmin, setLoginModalOpen, logout } = useAuthStore();
 
+  const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
+  const viewMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (viewMenuRef.current && !viewMenuRef.current.contains(event.target as Node)) {
+        setIsViewMenuOpen(false);
+      }
+    };
+    if (isViewMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isViewMenuOpen]);
+
   return (
-    <header className="bg-white/90 backdrop-blur-md border-b border-emerald-200 sticky top-0 z-30 px-3 sm:px-6 py-2.5 shadow-xs">
+    <header className="bg-white/95 backdrop-blur-md border-b border-emerald-200 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-xs">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Brand & Logo */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-3">
-          <div className="flex items-center gap-2.5 cursor-pointer select-none">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-lime-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200">
-              <Compass className="w-6 h-6 animate-pulse" />
+        <div className="flex items-center justify-between w-full md:w-auto gap-2">
+          <div className="flex items-center gap-2 cursor-pointer select-none shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-lime-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0">
+              <Compass className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xl sm:text-2xl tracking-tight text-emerald-950 font-serif">
+                <span className="font-bold text-lg sm:text-2xl tracking-tight text-emerald-950 font-serif">
                   HOLA<span className="text-emerald-600 font-extrabold">MAP</span>
                 </span>
               </div>
-              <p className="text-[12px] sm:text-[13px] text-gray-600 font-normal font-serif tracking-tight">
+              <p className="hidden sm:block text-[12px] sm:text-[13px] text-gray-600 font-normal font-serif tracking-tight">
                 Bản đồ dịch vụ khu vực FPTU - VNU
               </p>
             </div>
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex md:hidden items-center gap-1.5">
-            {/* Mobile Survey Pin Button */}
+          <div className="flex md:hidden items-center gap-1.5 shrink-0">
+            {/* 1. Mobile Survey Pin Button */}
             <button
               onClick={() => setSurveyModalOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer shrink-0"
               title="Chấm điểm khảo sát thực địa bằng GPS"
             >
               <MapPin className="w-3.5 h-3.5 text-amber-300" />
               <span>Chấm</span>
             </button>
 
-            {/* Mobile Tab Switcher */}
-            <div className="flex items-center bg-gray-100 p-1 rounded-xl">
+            {/* 2. Mobile View Switcher - Gộp thành 1 ô, danh sách trượt xuống */}
+            <div className="relative shrink-0" ref={viewMenuRef}>
               <button
-                onClick={() => setActiveTab('map')}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'map'
-                    ? 'bg-white text-emerald-700 shadow-xs'
-                    : 'text-gray-700 hover:text-gray-900'
-                }`}
-              >
-                <MapIcon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setActiveTab('list')}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'list'
-                    ? 'bg-white text-emerald-700 shadow-xs'
-                    : 'text-gray-700 hover:text-gray-900'
-                }`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setActiveTab('favorites')}
-                className={`p-1.5 rounded-lg text-xs font-bold relative transition-all cursor-pointer ${
+                onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border transition-all shadow-xs cursor-pointer ${
                   activeTab === 'favorites'
-                    ? 'bg-white text-rose-600 shadow-xs'
-                    : 'text-gray-700 hover:text-gray-900'
+                    ? 'bg-rose-50 border-rose-200 text-rose-600'
+                    : 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-emerald-800'
                 }`}
+                title="Chuyển đổi chế độ xem (Bản đồ / Danh sách / Đã lưu)"
               >
-                <Heart className="w-4 h-4" />
-                {favoriteIds.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
-                    {favoriteIds.length}
-                  </span>
+                {activeTab === 'map' && <MapIcon className="w-4 h-4 text-emerald-700" />}
+                {activeTab === 'list' && <List className="w-4 h-4 text-emerald-700" />}
+                {activeTab === 'favorites' && (
+                  <div className="relative">
+                    <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                    {favoriteIds.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 text-white rounded-full text-[8px] font-black flex items-center justify-center">
+                        {favoriteIds.length}
+                      </span>
+                    )}
+                  </div>
                 )}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${
+                    isViewMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
               </button>
+
+              {/* List trượt xuống */}
+              {isViewMenuOpen && (
+                <>
+                  {/* Backdrop trong suốt bắt sự kiện chạm ra ngoài trên mobile */}
+                  <div
+                    className="fixed inset-0 z-[1200]"
+                    onClick={() => setIsViewMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-36 bg-white rounded-2xl shadow-2xl border border-emerald-200/80 p-1.5 z-[1300] animate-in fade-in slide-in-from-top-2 duration-150 space-y-1">
+                    <button
+                      onClick={() => {
+                        setActiveTab('map');
+                        setIsViewMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        activeTab === 'map'
+                          ? 'bg-emerald-50 text-emerald-800 font-black'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Bản đồ</span>
+                      </div>
+                      {activeTab === 'map' && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab('list');
+                        setIsViewMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        activeTab === 'list'
+                          ? 'bg-emerald-50 text-emerald-800 font-black'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <List className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Danh sách</span>
+                      </div>
+                      {activeTab === 'list' && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab('favorites');
+                        setIsViewMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        activeTab === 'favorites'
+                          ? 'bg-rose-50 text-rose-700 font-black'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" />
+                        <span>Đã lưu</span>
+                      </div>
+                      {favoriteIds.length > 0 && (
+                        <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-black">
+                          {favoriteIds.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Mobile Facebook Link */}
+            {/* 3. Mobile Facebook Link (Lùi vào cạnh ô chuyển chế độ) */}
             <a
               href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-xl bg-blue-50 text-[#1877F2] border border-blue-200 hover:bg-blue-100 transition-all cursor-pointer flex items-center justify-center shadow-xs"
+              className="p-2 rounded-xl bg-blue-50 text-[#1877F2] border border-blue-200 hover:bg-blue-100 transition-all cursor-pointer flex items-center justify-center shadow-xs shrink-0"
               title="Theo dõi chúng mình trên Facebook"
             >
               <FacebookIcon className="w-4 h-4" />
             </a>
 
-            {/* Mobile Admin / Auth button */}
+            {/* 4. Mobile Admin / Auth Button (Đặt ngay cạnh nút Facebook) */}
             {isAuthenticated && user ? (
               <button
                 onClick={() => {
@@ -128,7 +212,7 @@ export const Header: React.FC = () => {
                     logout();
                   }
                 }}
-                className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs ${
+                className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs shrink-0 ${
                   isAdmin
                     ? 'bg-amber-100/90 text-amber-900 border-amber-300'
                     : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
@@ -140,10 +224,10 @@ export const Header: React.FC = () => {
             ) : (
               <button
                 onClick={() => setLoginModalOpen(true)}
-                className="p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 flex items-center justify-center cursor-pointer shadow-xs"
+                className="p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200 flex items-center justify-center cursor-pointer shadow-xs shrink-0"
                 title="Đăng nhập Admin / Khảo sát"
               >
-                <Lock className="w-4 h-4" />
+                <Lock className="w-4 h-4 text-emerald-700" />
               </button>
             )}
           </div>
