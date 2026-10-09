@@ -33,7 +33,15 @@ export function createApp(): Express {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Static files for uploaded field images
-  app.use('/uploads', express.static(uploadDir));
+  app.use(
+    '/uploads',
+    (_req: Request, res: Response, next: NextFunction) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      next();
+    },
+    express.static(uploadDir)
+  );
 
   // Normalize consecutive slashes in request URL (e.g. //auth/login -> /auth/login)
   app.use((req: Request, _res: Response, next: NextFunction) => {

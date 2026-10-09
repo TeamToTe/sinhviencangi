@@ -10,6 +10,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
 
 interface PlaceCardProps {
   place: Place;
@@ -53,8 +54,11 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
         {/* Card Image Banner */}
         <div className="relative w-full h-36 rounded-2xl overflow-hidden bg-gray-100 mb-3">
           <img
-            src={place.photos[0]}
+            src={resolveImageUrl(place.photos[0])}
             alt={place.name}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = FALLBACK_PLACE_IMAGE;
+            }}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />

@@ -25,6 +25,7 @@ import {
 import { useMapStore } from '../../stores/useMapStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { placesService } from '../../services/placesService';
+import { resolveImageUrl } from '../../utils/imageUrl';
 import type { PlaceCategory, Place } from '../../types/place';
 
 interface SurveyPinModalProps {
@@ -91,6 +92,9 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
   const [gpsErrorMessage, setGpsErrorMessage] = useState<string>('');
   const [isManualCoordinates, setIsManualCoordinates] = useState(false);
 
+  const locatingRef = useRef(false);
+  const autoRequestedRef = useRef(false);
+
   // Prices & Housing details
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
@@ -126,8 +130,21 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     localStorage.setItem('connecthub_surveyor', val);
   };
 
-  // Function to request GPS location from device
+  // Immediate fallback to default Hoa Lac coordinates
+  const handleUseDefaultCoords = () => {
+    locatingRef.current = false;
+    setLat(21.0185);
+    setLng(105.5345);
+    setArea('Tân Xã');
+    setGpsStatus('idle');
+    setIsManualCoordinates(true);
+    setGpsErrorMessage('');
+  };
+
+  // Function to request GPS location from device safely
   const requestGpsLocation = () => {
+    if (locatingRef.current) return;
+
     if (!('geolocation' in navigator)) {
       setGpsStatus('error');
       setGpsErrorMessage('Trình duyệt hoặc thiết bị này không hỗ trợ định vị GPS.');
@@ -135,11 +152,13 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
       return;
     }
 
+    locatingRef.current = true;
     setGpsStatus('locating');
     setGpsErrorMessage('');
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        locatingRef.current = false;
         const latitude = Number(pos.coords.latitude.toFixed(6));
         const longitude = Number(pos.coords.longitude.toFixed(6));
         const accuracy = Math.round(pos.coords.accuracy);
@@ -159,34 +178,37 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
         }
       },
       (err) => {
+        locatingRef.current = false;
         setGpsStatus('error');
         if (err.code === 1) {
           setGpsErrorMessage(
-            'Quyền vị trí đã bị từ chối. Vui lòng cho phép chia sẻ vị trí trên trình duyệt, hoặc nhập tọa độ thủ công bên dưới.'
+            'Quyền vị trí đã bị từ chối hoặc điện thoại đang tắt GPS. Bạn có thể bật GPS trên thanh thông báo Android, hoặc bấm dùng tọa độ mặc định bên dưới.'
           );
         } else if (err.code === 2) {
-          setGpsErrorMessage('Không thể xác định vị trí. Vui lòng bật GPS / Định vị trên điện thoại.');
+          setGpsErrorMessage('Không nhận được tín hiệu định vị từ điện thoại. Bạn có thể bật GPS hoặc nhập tay tọa độ.');
         } else {
-          setGpsErrorMessage('Quá thời gian chờ tín hiệu GPS. Bạn có thể bấm lấy lại hoặc nhập tọa độ thủ công.');
+          setGpsErrorMessage('Quá thời gian chờ tín hiệu GPS. Hệ thống đã chuẩn bị sẵn tọa độ mặc định.');
         }
         // Fallback to Hoa Lac center coordinates if not yet set
-        if (lat === null || lng === null) {
-          setLat(21.0185);
-          setLng(105.5345);
-        }
+        setLat((prev) => prev ?? 21.0185);
+        setLng((prev) => prev ?? 105.5345);
         setIsManualCoordinates(true);
       },
       {
         enableHighAccuracy: true,
-        timeout: 12000,
-        maximumAge: 0,
+        timeout: 10000,
+        maximumAge: 60000,
       }
     );
   };
 
   // Keyboard Escape listener & Body scroll locking
   useEffect(() => {
-    if (!isSurveyModalOpen) return;
+    if (!isSurveyModalOpen) {
+      locatingRef.current = false;
+      autoRequestedRef.current = false;
+      return;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -198,8 +220,9 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    // Auto-request GPS upon modal open if not yet set
-    if (lat === null && gpsStatus === 'idle') {
+    // Auto-request GPS only once upon modal open if coordinates not yet assigned
+    if (!autoRequestedRef.current && lat === null) {
+      autoRequestedRef.current = true;
       requestGpsLocation();
     }
 
@@ -423,9 +446,18 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
 
               {/* GPS Feedback */}
               {gpsStatus === 'locating' && (
-                <div className="flex items-center gap-2.5 text-xs text-emerald-800 bg-white/90 p-3 rounded-xl border border-emerald-200">
-                  <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span>Đang kết nối chip GPS điện thoại để lấy tọa độ có độ chính xác cao nhất...</span>
+                <div className="flex items-center justify-between gap-2.5 text-xs text-emerald-800 bg-white/95 p-3 rounded-xl border border-emerald-200 shadow-xs flex-wrap">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                    <span className="truncate">Đang kết nối chip GPS điện thoại...</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleUseDefaultCoords}
+                    className="shrink-0 px-2.5 py-1 text-[11px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg border border-amber-300 transition-colors cursor-pointer"
+                  >
+                    Bỏ qua GPS (Dùng Hòa Lạc)
+                  </button>
                 </div>
               )}
 
@@ -492,14 +524,30 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               )}
 
               {gpsStatus === 'error' && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-1">
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-2">
                   <p className="font-bold flex items-center gap-1.5">
                     <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>{gpsErrorMessage}</span>
                   </p>
-                  <p className="text-[11px] text-gray-600">
-                    Hệ thống đã tự động gán tọa độ trung tâm Hòa Lạc. Bạn có thể nhấn <strong>"Nhập tay"</strong> để sửa tọa độ nếu muốn.
+                  <p className="text-[11px] text-amber-950/80 leading-relaxed">
+                    💡 <strong>Mẹo Android:</strong> Nếu cửa sổ xin quyền bật liên tục, hãy vuốt từ đỉnh màn hình điện thoại xuống để <strong>bật tính năng "Vị trí" (GPS)</strong>, hoặc bấm nút dưới để lưu luôn bằng tọa độ mặc định.
                   </p>
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={handleUseDefaultCoords}
+                      className="px-2.5 py-1 text-[11px] font-bold bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors cursor-pointer"
+                    >
+                      Dùng tọa độ Hòa Lạc
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsManualCoordinates(true)}
+                      className="px-2.5 py-1 text-[11px] font-bold bg-white text-emerald-800 border border-emerald-300 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer"
+                    >
+                      Tự sửa tọa độ tay
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -762,7 +810,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               <div className="flex flex-wrap items-center gap-2.5">
                 {photos.map((src, i) => (
                   <div key={i} className="relative w-20 h-20 rounded-2xl overflow-hidden border border-gray-200 group">
-                    <img src={src} alt={`Ảnh ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={resolveImageUrl(src)} alt={`Ảnh ${i + 1}`} className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removePhoto(i)}

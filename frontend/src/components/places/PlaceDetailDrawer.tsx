@@ -23,6 +23,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
 import { useAuthStore } from '../../stores/useAuthStore';
 
 export const PlaceDetailDrawer: React.FC = () => {
@@ -189,8 +190,11 @@ export const PlaceDetailDrawer: React.FC = () => {
           <div className="space-y-2">
             <div className="w-full h-48 sm:h-52 rounded-2xl overflow-hidden bg-gray-100 shadow-inner relative">
               <img
-                src={selectedPlace.photos[activePhotoIdx] || selectedPlace.photos[0]}
+                src={resolveImageUrl(selectedPlace.photos[activePhotoIdx] || selectedPlace.photos[0])}
                 alt={selectedPlace.name}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = FALLBACK_PLACE_IMAGE;
+                }}
                 className="w-full h-full object-cover"
               />
               {selectedPlace.isAvailable !== undefined && (
@@ -216,7 +220,14 @@ export const PlaceDetailDrawer: React.FC = () => {
                         : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                    <img
+                      src={resolveImageUrl(img)}
+                      alt="thumb"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = FALLBACK_PLACE_IMAGE;
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

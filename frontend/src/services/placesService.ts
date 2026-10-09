@@ -12,8 +12,9 @@ import type {
   SurveyStats,
   SurveyTemplate,
 } from '../types/place';
-import { request, USE_MOCK_DATA, API_BASE_URL } from './apiClient';
+import { request, USE_MOCK_DATA } from './apiClient';
 import { supabase } from './supabaseClient';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const CATEGORY_MAP: Record<string, { id: PlaceCategory; label: string; color: string; icon: string }> = {
   'boarding_house': { id: 'boarding_house', label: 'Nhà trọ & CCMN', color: '#ea580c', icon: 'Home' },
@@ -26,11 +27,7 @@ const CATEGORY_MAP: Record<string, { id: PlaceCategory; label: string; color: st
 };
 
 function formatPhotoUrl(url: string): string {
-  if (url && typeof url === 'string' && url.startsWith('/uploads/')) {
-    const origin = API_BASE_URL.replace(/\/api\/?$/, '');
-    return `${origin}${url}`;
-  }
-  return url;
+  return resolveImageUrl(url);
 }
 
 function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []): Place {
@@ -258,7 +255,12 @@ export const placesService = {
     if (!USE_MOCK_DATA) {
       try {
         const place = await request<Place>(`/places/${id}`);
-        if (place) return place;
+        if (place) {
+          return {
+            ...place,
+            photos: Array.isArray(place.photos) ? place.photos.map(formatPhotoUrl) : [],
+          };
+        }
       } catch (err) {
         console.warn('[PlacesService] Backend getPlaceById error, falling back:', err);
       }
@@ -298,10 +300,16 @@ export const placesService = {
   async createPlace(placeData: CreatePlaceDto | any): Promise<Place> {
     if (!USE_MOCK_DATA) {
       try {
-        return await request<Place>('/places', {
+        const created = await request<Place>('/places', {
           method: 'POST',
           body: JSON.stringify(placeData),
         });
+        if (created) {
+          return {
+            ...created,
+            photos: Array.isArray(created.photos) ? created.photos.map(formatPhotoUrl) : [],
+          };
+        }
       } catch (err) {
         console.warn('[PlacesService] Backend createPlace error, falling back to local mock:', err);
       }
