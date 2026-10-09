@@ -71,6 +71,8 @@ export interface Place {
   isAvailable?: boolean; // Còn phòng hay hết phòng
   openingHours?: string; // e.g., '07:00 - 22:00' or '24/7'
   badgeText?: string;    // e.g., 'HOT', 'Mới xây', 'Giá rẻ', 'FPT Pick'
+  gpsAccuracy?: number;
+  contributorName?: string;
 }
 
 export interface CategoryMeta {
@@ -109,4 +111,59 @@ export interface CreateReviewDto {
   studentBatch?: string;
   rating: number;
   comment: string;
+}
+
+export interface CreatePlaceDto {
+  name: string;
+  category: PlaceCategory;
+  address?: string;
+  areaName?: string;
+  area?: string;
+  coordinates: Coordinates;
+  latitude?: number;
+  longitude?: number;
+  gpsAccuracy?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  rentPrice?: number;
+  electricityPrice?: number;
+  waterPrice?: string | number;
+  roomStatus?: string;
+  phone?: string;
+  openingHours?: string;
+  photos?: string[];
+  images?: string[];
+  amenities?: string[];
+  tags?: string[];
+  contributorName?: string;
+  rating?: number;
+  reviewContent?: string;
+}
+
+export interface ContributorProgress {
+  id: number;
+  name: string;
+  placeCount: number;
+  target: number;
+  progressPercentage: number;
+  recentPlaces: string[];
+}
+
+export interface SurveyTemplate {
+  surveyors: string[];
+  categories: CategoryMeta[];
+  areas: string[];
+  commonAmenities: string[];
+}
+
+export interface SurveyStats {
+  totalPlaces: number;
+  targetPlaces: number;
+  progressPercentage: number;
+  totalReviews: number;
+  totalCategories: number;
+  totalContributors: number;
+  byCategory: Record<string, number>;
+  byArea: Record<string, number>;
+  bySurveyor: { name: string; count: number }[];
 }

@@ -174,6 +174,104 @@ Endpoint chính để truy vấn các địa điểm trên bản đồ và hiể
 
 ---
 
+### 2.6. Chấm địa điểm thực địa bằng GPS (`POST /api/places`)
+Endpoint cốt lõi để anh em trong nhóm đi khảo sát thực tế quanh Hòa Lạc bấm **"Chấm vào bản đồ"** trực tiếp trên điện thoại:
+
+- **Method**: `POST`
+- **Path**: `/api/places`
+- **Body**:
+```json
+{
+  "contributorName": "Đặng Cao Cường",
+  "name": "Quán Cơm Tấm K18",
+  "category": "food_drink",
+  "areaName": "Tân Xã",
+  "address": "Số 20 Ngõ 3 Thôn 2 Tân Xã, Thạch Thất, Hà Nội",
+  "coordinates": {
+    "lat": 21.01852,
+    "lng": 105.53451
+  },
+  "gpsAccuracy": 5.2,
+  "minPrice": 30000,
+  "maxPrice": 45000,
+  "openingHours": "09:00 - 21:00",
+  "phone": "0987654321",
+  "amenities": ["Có điều hòa", "Wifi miễn phí", "Thanh toán Chuyển khoản / Quét mã QR"],
+  "photos": ["/uploads/img_bien_hieu.jpg"],
+  "rating": 5,
+  "reviewContent": "Bác chủ thân thiện, cơm thêm miễn phí, quán đông vào giờ trưa."
+}
+```
+- **Sample Response** (`201 Created`): Trả về đầy đủ đối tượng `Place` kèm khoảng cách tính tự động tới ĐH FPT và KTX ĐHQG.
+
+---
+
+### 2.7. Tải lên ảnh thực tế từ điện thoại (`POST /api/upload`)
+Hỗ trợ chụp trực tiếp từ camera điện thoại hoặc thư viện ảnh:
+
+- **Method**: `POST`
+- **Path**: `/api/upload`
+- **Body**:
+```json
+{
+  "data": "data:image/jpeg;base64,...",
+  "name": "bien_hieu.jpg"
+}
+```
+- **Sample Response** (`201 Created`):
+```json
+{
+  "success": true,
+  "url": "/uploads/img_1715000000_abc123.jpg"
+}
+```
+
+---
+
+### 2.8. Lấy danh sách mẫu câu hỏi khảo sát (`GET /api/places/template`)
+- **Method**: `GET`
+- **Path**: `/api/places/template`
+- **Response**: Trả về danh sách 6 người khảo sát (`Đặng Cao Cường`, `Đào Thế Việt`, `Trần Đức Thịnh`, `Phạm Mạnh Giang`, `Ngô Quang Huy`, `Mai Xuân Dương`), danh mục dịch vụ, danh sách khu vực và 9 tiện ích chuẩn.
+
+---
+
+### 2.9. Tự động nhận diện khu vực từ GPS (`POST /api/places/detect-area`)
+- **Method**: `POST`
+- **Path**: `/api/places/detect-area`
+- **Body**: `{ "lat": 21.0185, "lng": 105.5345 }`
+- **Response**: `{ "area": "Tân Xã", "lat": 21.0185, "lng": 105.5345 }`
+
+---
+
+### 2.10. Tiến độ & KPI khảo sát của thành viên (`GET /api/contributions` & `GET /api/stats`)
+- **GET `/api/contributions`**: Bảng xếp hạng KPI của từng thành viên (số địa điểm đã chấm, % hoàn thành KPI 10 địa điểm/người).
+- **GET `/api/stats`**: Thống kê tổng số địa điểm đã chấm trên mục tiêu 50 địa điểm thực địa.
+
+---
+
+### 2.11. Hướng dẫn FE kích hoạt GPS chuẩn xác trên Điện Thoại
+Để điện thoại Android / iOS hỏi quyền truy cập vị trí và đo tọa độ có độ chính xác cao nhất:
+```typescript
+navigator.geolocation.getCurrentPosition(
+  (pos) => {
+    const lat = Number(pos.coords.latitude.toFixed(6));
+    const lng = Number(pos.coords.longitude.toFixed(6));
+    const accuracy = Math.round(pos.coords.accuracy); // mét
+    console.log(`Đã khóa GPS: [${lat}, ${lng}] sai số ±${accuracy}m`);
+  },
+  (err) => {
+    if (err.code === 1) {
+      alert("Vui lòng mở cài đặt trình duyệt và cấp quyền Vị trí (GPS) để chấm tọa độ chính xác!");
+    }
+  },
+  {
+    enableHighAccuracy: true, // BẮT BUỘC để kích hoạt chip GPS điện thoại
+    timeout: 12000,
+    maximumAge: 0,
+  }
+);
+```
+
 ## 🗄️ 3. Gợi Ý Thiết Kế Database Cho Tốc Độ Truy Vấn Cực Cao (< 15ms)
 
 Để đáp ứng phục vụ **nhiều sinh viên cùng truy cập cùng lúc** khi tìm trọ vào đầu kỳ học:

@@ -1,8 +1,36 @@
 import { Router, Request, Response } from 'express';
-import { placesService } from '../services/placesService.js';
+import { placesService, detectAreaFromCoordinates } from '../services/placesService.js';
 import type { FilterParams, CreatePlaceDto, CreateReviewDto } from '../types/place.js';
 
 export const placesRouter = Router();
+
+// GET /api/places/template (14-question survey metadata for surveyors)
+placesRouter.get('/template', async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const template = await placesService.getSurveyTemplate();
+    res.json(template);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
+
+// POST /api/places/detect-area (Auto-detect area from GPS coordinates)
+placesRouter.post('/detect-area', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const lat = parseFloat(req.body.lat ?? req.body.latitude);
+    const lng = parseFloat(req.body.lng ?? req.body.longitude);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      res.status(400).json({ error: 'Validation Error', message: 'Tọa độ GPS lat và lng là bắt buộc.' });
+      return;
+    }
+
+    const area = detectAreaFromCoordinates(lat, lng);
+    res.json({ area, lat, lng });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
 
 // GET /api/places/nearby?lat=21.0185&lng=105.5345&radius=1000
 placesRouter.get('/nearby', async (req: Request, res: Response): Promise<void> => {

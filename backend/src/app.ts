@@ -1,14 +1,23 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 import { placesRouter } from './routes/placesRoutes.js';
 import { categoriesRouter } from './routes/categoriesRoutes.js';
 import { reportsRouter } from './routes/reportsRoutes.js';
 import { contributionsRouter } from './routes/contributionsRoutes.js';
 import { healthRouter } from './routes/healthRoutes.js';
+import { uploadRouter } from './routes/uploadRoutes.js';
 import { config } from './config.js';
 
 export function createApp(): Express {
   const app = express();
+
+  // Ensure uploads directory exists
+  const uploadDir = path.resolve(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 
   // CORS configuration
   app.use(
@@ -22,14 +31,20 @@ export function createApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+  // Static files for uploaded field images
+  app.use('/uploads', express.static(uploadDir));
+
   // Root welcome
   app.get('/', (_req: Request, res: Response) => {
     res.json({
-      name: 'ConnectHub Hola Map API',
+      name: 'ConnectHub Hola Map API (SSG Nhóm 2)',
       status: 'active',
       endpoints: {
         places: '/api/places',
+        surveyTemplate: '/api/places/template',
+        detectArea: 'POST /api/places/detect-area',
         nearby: '/api/places/nearby?lat=21.0185&lng=105.5345&radius=1000',
+        upload: 'POST /api/upload',
         categories: '/api/categories',
         contributions: '/api/contributions',
         health: '/api/health',
@@ -43,6 +58,7 @@ export function createApp(): Express {
   app.use('/api/categories', categoriesRouter);
   app.use('/api/reports', reportsRouter);
   app.use('/api/contributions', contributionsRouter);
+  app.use('/api/upload', uploadRouter);
   app.use('/api', healthRouter);
 
   // 404 Handler

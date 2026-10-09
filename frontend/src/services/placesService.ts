@@ -1,12 +1,16 @@
 import { CATEGORIES, MOCK_PLACES } from '../data/mockPlaces';
 import type {
   CategoryMeta,
+  ContributorProgress,
+  CreatePlaceDto,
   CreateReportDto,
   CreateReviewDto,
   FilterParams,
   Place,
   PlaceCategory,
   Review,
+  SurveyStats,
+  SurveyTemplate,
 } from '../types/place';
 import { request, USE_MOCK_DATA } from './apiClient';
 import { supabase } from './supabaseClient';
@@ -71,6 +75,8 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     isAvailable: row.room_status ? row.room_status !== 'full' : true,
     openingHours: row.opening_hours,
     badgeText: row.room_status === 'available' ? 'Còn phòng' : undefined,
+    gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
+    contributorName: row.contributor_name || undefined,
   };
 }
 
@@ -278,7 +284,7 @@ export const placesService = {
   /**
    * Create a new place (Supports "Chấm vào bản đồ" - Map Pinning!)
    */
-  async createPlace(placeData: any): Promise<Place> {
+  async createPlace(placeData: CreatePlaceDto | any): Promise<Place> {
     if (!USE_MOCK_DATA) {
       try {
         return await request<Place>('/places', {
@@ -407,5 +413,152 @@ export const placesService = {
     }
 
     return newReview;
+  },
+
+  /**
+   * Fetch survey metadata & 14-question options
+   */
+  async getSurveyTemplate(): Promise<SurveyTemplate> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const tmpl = await request<SurveyTemplate>('/places/template');
+        if (tmpl) return tmpl;
+      } catch (err) {
+        console.warn('[PlacesService] Backend getSurveyTemplate error, falling back:', err);
+      }
+    }
+
+    return {
+      surveyors: [
+        'Đặng Cao Cường',
+        'Đào Thế Việt',
+        'Trần Đức Thịnh',
+        'Phạm Mạnh Giang',
+        'Ngô Quang Huy',
+        'Mai Xuân Dương',
+      ],
+      categories: await this.getCategories(),
+      areas: ['Tân Xã', 'Thạch Hòa', 'Bình Yên', 'Khu Công Nghệ Cao Hòa Lạc', 'Khác'],
+      commonAmenities: [
+        'Có điều hòa',
+        'Wifi miễn phí',
+        'Chỗ để xe miễn phí / rộng rãi',
+        'Thanh toán Chuyển khoản / Quét mã QR',
+        'Thang máy',
+        'Khóa vân tay / Camera an ninh',
+        'Đạt chuẩn an toàn PCCC',
+        'Không chung chủ',
+        'Phục vụ thông trưa',
+      ],
+    };
+  },
+
+  /**
+   * Upload field survey photo (supports mobile camera)
+   */
+  async uploadImage(dataUri: string): Promise<string> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const res = await request<{ success: boolean; url: string }>('/upload', {
+          method: 'POST',
+          body: JSON.stringify({ data: dataUri }),
+        });
+        if (res?.url) return res.url;
+      } catch (err) {
+        console.warn('[PlacesService] Backend uploadImage error, fallback to dataUri:', err);
+      }
+    }
+    return dataUri;
+  },
+
+  /**
+   * Auto-detect area from GPS coordinates
+   */
+  async detectArea(lat: number, lng: number): Promise<string> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const res = await request<{ area: string }>('/places/detect-area', {
+          method: 'POST',
+          body: JSON.stringify({ lat, lng }),
+        });
+        if (res?.area) return res.area;
+      } catch (err) {
+        console.warn('[PlacesService] Backend detectArea error:', err);
+      }
+    }
+
+    // Client-side fallback detection
+    const spots = [
+      { name: 'Tân Xã', lat: 21.0185, lng: 105.5345 },
+      { name: 'Thạch Hòa', lat: 21.0135, lng: 105.5252 },
+      { name: 'Bình Yên', lat: 21.0300, lng: 105.5100 },
+      { name: 'Khu Công Nghệ Cao Hòa Lạc', lat: 21.0050, lng: 105.5450 },
+    ];
+    let closest = spots[0];
+    let minD = Infinity;
+    for (const s of spots) {
+      const d = Math.hypot(lat - s.lat, lng - s.lng);
+      if (d < minD) {
+        minD = d;
+        closest = s;
+      }
+    }
+    return closest.name;
+  },
+
+  /**
+   * Get contributor ranking and survey KPI progress
+   */
+  async getContributors(): Promise<ContributorProgress[]> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const contribs = await request<ContributorProgress[]>('/contributions');
+        if (Array.isArray(contribs) && contribs.length > 0) return contribs;
+      } catch (err) {
+        console.warn('[PlacesService] Backend getContributors error:', err);
+      }
+    }
+
+    const defaultNames = [
+      'Đặng Cao Cường',
+      'Đào Thế Việt',
+      'Trần Đức Thịnh',
+      'Phạm Mạnh Giang',
+      'Ngô Quang Huy',
+      'Mai Xuân Dương',
+    ];
+    return defaultNames.map((name, idx) => ({
+      id: idx + 1,
+      name,
+      placeCount: 0,
+      target: 10,
+      progressPercentage: 0,
+      recentPlaces: [],
+    }));
+  },
+
+  /**
+   * Get overall survey statistics and KPIs
+   */
+  async getSurveyStats(): Promise<SurveyStats> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const stats = await request<SurveyStats>('/stats');
+        if (stats) return stats;
+      } catch (err) {
+        console.warn('[PlacesService] Backend getSurveyStats error:', err);
+      }
+    }
+    return {
+      totalPlaces: MOCK_PLACES.length,
+      targetPlaces: 50,
+      progressPercentage: Math.min(100, Math.round((MOCK_PLACES.length / 50) * 100)),
+      totalReviews: 12,
+      totalCategories: CATEGORIES.length,
+      totalContributors: 6,
+      byCategory: {},
+      byArea: {},
+      bySurveyor: [],
+    };
   },
 };
