@@ -30,13 +30,49 @@ function formatPhotoUrl(url: string): string {
   return resolveImageUrl(url);
 }
 
+const VIETNAMESE_CATEGORY_MAP: Record<string, PlaceCategory> = {
+  'ẩm thực': 'food_drink',
+  'ăn uống': 'food_drink',
+  'food_drink': 'food_drink',
+  'nhà trọ & chung cư mini': 'boarding_house',
+  'nhà trọ': 'boarding_house',
+  'boarding_house': 'boarding_house',
+  'dịch vụ học tập & đời sống': 'services',
+  'dịch vụ': 'services',
+  'services': 'services',
+  'y tế & sức khỏe': 'pharmacy',
+  'y tế': 'pharmacy',
+  'pharmacy': 'pharmacy',
+  'giải trí & thể thao': 'entertainment',
+  'giải trí': 'entertainment',
+  'entertainment': 'entertainment',
+  'grocery': 'grocery',
+  'siêu thị & tạp hóa': 'grocery',
+  'campus': 'campus',
+  'trường & điểm đón bus': 'campus',
+};
+
+function normalizeCategory(categoryName?: string): PlaceCategory {
+  if (!categoryName) return 'boarding_house';
+  const lower = categoryName.toLowerCase().trim();
+  return VIETNAMESE_CATEGORY_MAP[lower] || 'boarding_house';
+}
+
 function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []): Place {
-  const catKey = (categoryName || 'boarding_house') as PlaceCategory;
+  const catKey = normalizeCategory(categoryName);
   const meta = CATEGORY_MAP[catKey] || CATEGORY_MAP['boarding_house'];
+  const isBoarding = meta.id === 'boarding_house';
 
   const ratingAvg = reviews.length > 0 
     ? Number((reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)) 
     : 4.8;
+
+  let badge: string | undefined = undefined;
+  if (isBoarding) {
+    badge = row.room_status === 'available' ? 'Còn phòng' : (row.room_status === 'full' ? 'Hết phòng' : undefined);
+  } else if (meta.id === 'food_drink') {
+    badge = row.min_price ? `${Math.round(row.min_price / 1000)}k` : undefined;
+  }
 
   return {
     id: String(row.id),
@@ -57,10 +93,10 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     distanceToFPT: 'Gần FPTU',
     distanceToVNU: 'Gần VNU',
     priceInfo: (row.rent_price || row.min_price) ? {
-      amount: row.rent_price || row.min_price || 0,
-      unit: 'tháng',
-      electricity: row.electricity_price,
-      water: row.water_price ? parseInt(row.water_price, 10) || undefined : undefined,
+      amount: (isBoarding ? row.rent_price : (row.min_price || row.rent_price)) || 0,
+      unit: isBoarding ? 'tháng' : 'suất',
+      electricity: isBoarding ? row.electricity_price : undefined,
+      water: isBoarding ? (row.water_price ? parseInt(row.water_price, 10) || undefined : undefined) : undefined,
     } : undefined,
     phone: row.phone,
     zaloPhone: row.phone,
@@ -77,9 +113,9 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     reviewCount: reviews.length,
     reviews,
     isVerified: true,
-    isAvailable: row.room_status ? row.room_status !== 'full' : true,
+    isAvailable: isBoarding ? (row.room_status ? row.room_status !== 'full' : true) : true,
     openingHours: row.opening_hours,
-    badgeText: row.room_status === 'available' ? 'Còn phòng' : undefined,
+    badgeText: badge,
     gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
     contributorName: row.contributor_name || undefined,
   };
