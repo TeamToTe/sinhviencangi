@@ -78,15 +78,17 @@ export const Header: React.FC = () => {
 
           {/* Mobile Right Controls */}
           <div className="flex md:hidden items-center gap-1.5 shrink-0">
-            {/* 1. Mobile Survey Pin Button */}
-            <button
-              onClick={() => setSurveyStep('map_pin')}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer shrink-0"
-              title="Chấm điểm khảo sát thực địa bằng GPS"
-            >
-              <MapPin className="w-3.5 h-3.5 text-amber-300" />
-              <span>Chấm</span>
-            </button>
+            {/* 1. Mobile Survey Pin Button (Chỉ Admin mới có quyền) */}
+            {isAuthenticated && isAdmin && (
+              <button
+                onClick={() => setSurveyStep('map_pin')}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer shrink-0"
+                title="Chấm điểm khảo sát thực địa bằng GPS"
+              >
+                <MapPin className="w-3.5 h-3.5 text-amber-300" />
+                <span>Chấm</span>
+              </button>
+            )}
 
             {/* 2. Mobile View Switcher - Gộp thành 1 ô, danh sách trượt xuống */}
             <div className="relative shrink-0" ref={viewMenuRef}>
@@ -279,15 +281,17 @@ export const Header: React.FC = () => {
 
         {/* Desktop View Mode Switcher, Survey Button & Facebook Link */}
         <div className="hidden md:flex items-center gap-2.5">
-          {/* Desktop Survey Pin Button */}
-          <button
-            onClick={() => setSurveyStep('map_pin')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
-            title="Chấm điểm khảo sát thực địa bằng GPS"
-          >
-            <MapPin className="w-3.5 h-3.5 text-amber-300" />
-            <span>+ Chấm Địa Điểm</span>
-          </button>
+          {/* Desktop Survey Pin Button (Chỉ Admin mới có quyền) */}
+          {isAuthenticated && isAdmin && (
+            <button
+              onClick={() => setSurveyStep('map_pin')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
+              title="Chấm điểm khảo sát thực địa bằng GPS"
+            >
+              <MapPin className="w-3.5 h-3.5 text-amber-300" />
+              <span>+ Chấm Địa Điểm</span>
+            </button>
+          )}
 
           <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-2xl border border-gray-200">
             <button
