@@ -5,7 +5,7 @@ import type { Place } from '../../types/place';
 import { useMapStore } from '../../stores/useMapStore';
 import { MapControls } from './MapControls';
 import { MapLegend } from './MapLegend';
-import { MapPin } from 'lucide-react';
+import { Crosshair } from 'lucide-react';
 
 interface MapLibreViewProps {
   places: Place[];
@@ -608,26 +608,27 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
         </div>
       )}
 
-      {/* Location Picker Target Crosshair & Pin */}
+      {/* Location Picker Target Crosshair & Pin (Clean, transparent, doesn't obscure map icons) */}
       {isPickingLocation && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-[1200]">
-          <div className="flex flex-col items-center -translate-y-8 select-none">
-            {/* Radar Pulse */}
-            <div className="w-14 h-14 rounded-full bg-emerald-500/25 animate-ping absolute -top-1" />
-            <div className="w-8 h-8 rounded-full bg-emerald-600/30 border border-emerald-500 absolute top-2" />
-            
-            {/* Center Pin Icon */}
-            <div className="relative flex flex-col items-center drop-shadow-2xl animate-bounce">
-              <div className="bg-emerald-600 text-white p-2.5 rounded-2xl shadow-2xl ring-4 ring-white flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-amber-300" />
+          <div className="relative flex items-center justify-center select-none">
+            {/* Soft transparent target ring */}
+            <div className="w-16 h-16 rounded-full border-2 border-emerald-500/60 bg-emerald-500/10 animate-pulse absolute" />
+
+            {/* Precision Crosshair Lines */}
+            <div className="w-24 h-[1.5px] bg-emerald-600/50 absolute" />
+            <div className="h-24 w-[1.5px] bg-emerald-600/50 absolute" />
+
+            {/* Accurate Center Target Dot */}
+            <div className="w-3.5 h-3.5 rounded-full bg-emerald-600 border-2 border-white shadow-md z-10" />
+
+            {/* Floating Needle Pin (Small, sits neatly above the center dot, doesn't cover surroundings) */}
+            <div className="absolute bottom-3 flex flex-col items-center drop-shadow-md">
+              <div className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black tracking-wide shadow-md flex items-center gap-1 border border-white/80">
+                <Crosshair className="w-3 h-3 text-amber-300" />
+                <span>Ghim vị trí</span>
               </div>
-              <div className="w-3 h-3 bg-emerald-700 rotate-45 -mt-2 shadow-sm" />
-              <div className="w-3 h-1.5 bg-black/40 rounded-full blur-[1px] mt-1.5" />
-            </div>
-            
-            {/* Badge Indicator */}
-            <div className="mt-3 px-3 py-1 bg-gray-900/90 backdrop-blur-md text-white text-[11px] font-bold rounded-full shadow-lg border border-white/20 whitespace-nowrap">
-              Tâm điểm ghim khảo sát
+              <div className="w-1.5 h-1.5 bg-emerald-600 rotate-45 -mt-0.5 border-r border-b border-white" />
             </div>
           </div>
         </div>

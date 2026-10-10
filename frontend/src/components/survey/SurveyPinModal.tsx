@@ -89,7 +89,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     center,
     flyToCoordinates,
   } = useMapStore();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated, isAdmin } = useAuthStore();
 
   // Form State
   const [surveyor, setSurveyor] = useState<string>(() => {
@@ -348,7 +348,8 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     }
   };
 
-  if (surveyStep === 'closed') return null;
+  // Chỉ admin mới có quyền thực hiện chấm điểm khảo sát
+  if (surveyStep === 'closed' || !isAuthenticated || !isAdmin) return null;
 
   // Step 1: Grab / Be Map Pinning Bottom Sheet
   if (surveyStep === 'map_pin') {
