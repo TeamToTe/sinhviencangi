@@ -16,9 +16,9 @@ interface MapLibreViewProps {
 // Sử dụng Google Maps Tile Server tiếng Việt (hl=vi, gl=VN)
 // Cam kết: KHÔNG có đường lưỡi bò, KHÔNG có tên tiếng Trung sai lệch, hiển thị đúng "Quần đảo Hoàng Sa" & "quần đảo Trường Sa"
 const SAFE_TILE_LAYERS = {
-  roadmap: 'https://mt{s}.google.com/vt/lyrs=m&hl=vi&gl=VN&apistyle=s.t:3|p.v:off,s.t:33|p.v:off,s.t:49|p.v:off&x={x}&y={y}&z={z}',
+  roadmap: 'https://mt{s}.google.com/vt/lyrs=m&hl=vi&gl=VN&x={x}&y={y}&z={z}',
   satellite: 'https://mt{s}.google.com/vt/lyrs=y&hl=vi&gl=VN&x={x}&y={y}&z={z}',
-  backupRoadmap: 'https://mt{s}.google.com/vt/lyrs=r&hl=vi&gl=VN&apistyle=s.t:3|p.v:off,s.t:33|p.v:off,s.t:49|p.v:off&x={x}&y={y}&z={z}',
+  backupRoadmap: 'https://mt{s}.google.com/vt/lyrs=r&hl=vi&gl=VN&x={x}&y={y}&z={z}',
 };
 
 // Điểm mốc chủ quyền thiêng liêng khẳng định chủ quyền biển đảo của Việt Nam trên Biển Đông
