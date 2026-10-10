@@ -94,7 +94,7 @@ interface MarkerState {
 
 function getMarkerHtml(
   place: Place,
-  isDetailedZoom: boolean,
+  _isDetailedZoom: boolean,
   isMicroZoom: boolean,
   isSelected: boolean,
   isFirstMount: boolean,

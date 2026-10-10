@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useMapStore } from '../../stores/useMapStore';
 
 interface PresetAccount {
   username: string;
@@ -33,6 +34,7 @@ const PRESET_ACCOUNTS: PresetAccount[] = [
 
 export const AdminLoginModal: React.FC = () => {
   const { isLoginModalOpen, setLoginModalOpen, login, isLoading, error } = useAuthStore();
+  const { setActiveTab } = useMapStore();
 
   const [username, setUsername] = useState('cuongdc');
   const [password, setPassword] = useState('cuongHE204075');
@@ -50,7 +52,8 @@ export const AdminLoginModal: React.FC = () => {
       setTimeout(() => {
         setSuccessMsg('');
         setLoginModalOpen(false);
-      }, 700);
+        setActiveTab('admin');
+      }, 500);
     }
   };
 
