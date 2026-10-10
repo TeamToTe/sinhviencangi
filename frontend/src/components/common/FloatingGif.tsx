@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import catGif from '../../assets/Catty Scuba Cat GIF.gif';
-import { X } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 
 export const FloatingGif: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -9,10 +9,10 @@ export const FloatingGif: React.FC = () => {
     return (
       <button
         onClick={() => setIsVisible(true)}
-        className="fixed bottom-12 sm:bottom-4 right-3 sm:right-4 z-[990] bg-white/90 hover:bg-white text-gray-600 hover:text-emerald-700 p-2 rounded-full shadow-lg border border-emerald-100 transition-all hover:scale-110 cursor-pointer text-xs flex items-center justify-center"
+        className="fixed bottom-12 sm:bottom-4 right-3 sm:right-4 z-[990] bg-white/90 hover:bg-white text-gray-600 hover:text-emerald-700 p-2.5 rounded-full shadow-lg border border-emerald-100 transition-all hover:scale-110 cursor-pointer text-xs flex items-center justify-center"
         title="Hiện bé mèo"
       >
-        🐱
+        <Sparkles className="w-4 h-4 text-emerald-600" />
       </button>
     );
   }

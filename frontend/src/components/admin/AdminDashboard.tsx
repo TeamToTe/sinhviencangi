@@ -16,6 +16,7 @@ import {
   Laptop,
   Phone,
   ExternalLink,
+  ShieldCheck,
 } from 'lucide-react';
 import type { Place, ReportItem, PlaceCategory } from '../../types/place';
 import { placesService } from '../../services/placesService';
@@ -195,7 +196,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl">👑</span>
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
                 <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
                   Trang Quản Trị Hệ Thống HolaMap
                 </h1>

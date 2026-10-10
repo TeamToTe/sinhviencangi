@@ -369,7 +369,7 @@ export const Header: React.FC = () => {
                 className="flex items-center gap-1.5 text-xs hover:opacity-85 transition-opacity cursor-pointer"
                 title="Bấm để vào Trang Quản Trị"
               >
-                <span className="text-sm">{isAdmin ? '👑' : '🔍'}</span>
+                <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
                 <span className="font-black text-emerald-950 max-w-[120px] truncate" title={user.fullName}>
                   {user.fullName}
                 </span>

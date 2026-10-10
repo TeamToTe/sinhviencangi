@@ -363,7 +363,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '10:00 - 14:00 & 17:00 - 21:30',
-    badgeText: 'FPT Top Pick 🍜',
+    badgeText: 'FPT Top Pick',
   },
 
   // 7. Cafe The Study Station - Co-working
@@ -411,7 +411,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: 'Mở cửa 24/7',
-    badgeText: 'Mở 24/7 ☕',
+    badgeText: 'Mở 24/7',
   },
 
   // 8. WinMart+ Hòa Lạc
@@ -495,7 +495,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '06:00 - 23:30',
-    badgeText: 'Y tế 24/7 🏥',
+    badgeText: 'Y tế 24/7',
   },
 
   // 10. Sửa xe máy Tuấn Cường 24/7
@@ -538,7 +538,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '24/7',
-    badgeText: 'Cứu hộ 24/7 🏍️',
+    badgeText: 'Cứu hộ 24/7',
   },
 
   // 11. Cyber Game King Gaming Hòa Lạc
@@ -584,7 +584,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '24/7',
-    badgeText: 'Cyber Pro 🎮',
+    badgeText: 'Cyber Pro',
   },
 
   // 12. Điểm đón Bus 107 & 74 Hòa Lạc
@@ -625,7 +625,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '05:00 - 21:00',
-    badgeText: 'Bus Hub 🚌',
+    badgeText: 'Bus Hub',
   },
 
   // 13. Cơm Tấm Bảo Uyên (ĐIỂM TEST NẰM TRÊN ẢNH GOOGLE MAPS)
@@ -670,7 +670,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '09:30 - 20:30',
-    badgeText: 'Cơm Sườn 35k 🍖',
+    badgeText: 'Cơm Sườn 35k',
   },
 
   // 14. Ẩm Thực Thái Linh Gà Cá (Hiện rõ giữa bản đồ QL21)
@@ -716,7 +716,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '09:00 - 22:30',
-    badgeText: 'Gà Ri & Cá Hồ 🐟',
+    badgeText: 'Gà Ri & Cá Hồ',
   },
 
   // 15. Quầy Thuốc Nga Cường (Hiện góc trên bên trái Phố Nam Sơn)
@@ -757,7 +757,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '07:00 - 21:30',
-    badgeText: 'Y Tế Nam Sơn 💊',
+    badgeText: 'Y Tế Nam Sơn',
   },
 
   // 16. Honda Cường Thành (Trục QL21 gần Chợ Hòa Lạc)
@@ -798,7 +798,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '07:30 - 18:00',
-    badgeText: 'Honda HEAD 🏍️',
+    badgeText: 'Honda HEAD',
   },
 
   // 17. Sân Cầu Lông 368 Badminton (Trục ĐT420)
@@ -843,7 +843,7 @@ export const MOCK_PLACES: Place[] = [
     ],
     isVerified: true,
     openingHours: '05:30 - 23:00',
-    badgeText: 'Sân Cầu Lông 🏸',
+    badgeText: 'Sân Cầu Lông',
   },
 ];
 
