@@ -105,6 +105,20 @@ export interface CreateReportDto {
   contactEmail?: string;
 }
 
+export interface ReportItem {
+  id: string;
+  placeId: string;
+  placeName?: string;
+  reason: 'wrong_info' | 'wrong_price' | 'wrong_phone' | 'closed' | 'other';
+  reasonLabel?: string;
+  note: string;
+  contactEmail?: string;
+  status: 'pending' | 'resolved';
+  createdAt: string;
+  resolvedAt?: string;
+  adminNote?: string;
+}
+
 export interface CreateReviewDto {
   placeId: string;
   authorName: string;

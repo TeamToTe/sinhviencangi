@@ -188,12 +188,36 @@ export const Header: React.FC = () => {
                         </span>
                       )}
                     </button>
+
+                    <button
+                      onClick={() => {
+                        if (isAuthenticated) {
+                          setActiveTab('admin');
+                        } else {
+                          setLoginModalOpen(true);
+                        }
+                        setIsViewMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        activeTab === 'admin'
+                          ? 'bg-amber-50 text-amber-900 font-black'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Trang Admin</span>
+                      </div>
+                      {activeTab === 'admin' && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                      )}
+                    </button>
                   </div>
                 </>
               )}
             </div>
 
-            {/* 3. Mobile Facebook Link (Lùi vào cạnh ô chuyển chế độ) */}
+            {/* 3. Mobile Facebook Link */}
             <a
               href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
               target="_blank"
@@ -204,20 +228,18 @@ export const Header: React.FC = () => {
               <FacebookIcon className="w-4 h-4" />
             </a>
 
-            {/* 4. Mobile Admin / Auth Button (Đặt ngay cạnh nút Facebook) */}
+            {/* 4. Mobile Admin / Auth Button */}
             {isAuthenticated && user ? (
               <button
-                onClick={() => {
-                  if (window.confirm(`Đăng xuất tài khoản ${user.fullName}?`)) {
-                    logout();
-                  }
-                }}
+                onClick={() => setActiveTab('admin')}
                 className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs shrink-0 ${
-                  isAdmin
+                  activeTab === 'admin'
+                    ? 'bg-amber-400 text-amber-950 border-amber-500 ring-2 ring-amber-300'
+                    : isAdmin
                     ? 'bg-amber-100/90 text-amber-900 border-amber-300'
                     : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
                 }`}
-                title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để đăng xuất`}
+                title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để vào Trang Quản Trị`}
               >
                 <ShieldCheck className="w-4 h-4 text-emerald-700" />
               </button>
@@ -306,6 +328,24 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => {
+                if (isAuthenticated) {
+                  setActiveTab('admin');
+                } else {
+                  setLoginModalOpen(true);
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'admin'
+                  ? 'bg-white text-amber-900 shadow-xs ring-1 ring-amber-300'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+              title="Trang quản trị hệ thống"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+              <span>Trang Admin</span>
+            </button>
           </div>
 
           <a
@@ -324,7 +364,11 @@ export const Header: React.FC = () => {
           {/* Desktop Auth / Admin Button */}
           {isAuthenticated && user ? (
             <div className="flex items-center gap-1.5 bg-emerald-50/90 border border-emerald-300/80 pl-2.5 pr-1.5 py-1 rounded-2xl shadow-xs">
-              <div className="flex items-center gap-1.5 text-xs">
+              <button
+                onClick={() => setActiveTab('admin')}
+                className="flex items-center gap-1.5 text-xs hover:opacity-85 transition-opacity cursor-pointer"
+                title="Bấm để vào Trang Quản Trị"
+              >
                 <span className="text-sm">{isAdmin ? '👑' : '🔍'}</span>
                 <span className="font-black text-emerald-950 max-w-[120px] truncate" title={user.fullName}>
                   {user.fullName}
@@ -336,7 +380,7 @@ export const Header: React.FC = () => {
                 >
                   {isAdmin ? 'Admin' : 'Khảo sát'}
                 </span>
-              </div>
+              </button>
               <button
                 onClick={logout}
                 className="p-1 rounded-xl hover:bg-emerald-100 text-gray-500 hover:text-rose-600 transition-colors cursor-pointer"

@@ -9,6 +9,7 @@ import type {
   Place,
   PlaceCategory,
   Review,
+  ReportItem,
   SurveyStats,
   SurveyTemplate,
 } from '../types/place';
@@ -30,13 +31,49 @@ function formatPhotoUrl(url: string): string {
   return resolveImageUrl(url);
 }
 
+const VIETNAMESE_CATEGORY_MAP: Record<string, PlaceCategory> = {
+  'ẩm thực': 'food_drink',
+  'ăn uống': 'food_drink',
+  'food_drink': 'food_drink',
+  'nhà trọ & chung cư mini': 'boarding_house',
+  'nhà trọ': 'boarding_house',
+  'boarding_house': 'boarding_house',
+  'dịch vụ học tập & đời sống': 'services',
+  'dịch vụ': 'services',
+  'services': 'services',
+  'y tế & sức khỏe': 'pharmacy',
+  'y tế': 'pharmacy',
+  'pharmacy': 'pharmacy',
+  'giải trí & thể thao': 'entertainment',
+  'giải trí': 'entertainment',
+  'entertainment': 'entertainment',
+  'grocery': 'grocery',
+  'siêu thị & tạp hóa': 'grocery',
+  'campus': 'campus',
+  'trường & điểm đón bus': 'campus',
+};
+
+function normalizeCategory(categoryName?: string): PlaceCategory {
+  if (!categoryName) return 'boarding_house';
+  const lower = categoryName.toLowerCase().trim();
+  return VIETNAMESE_CATEGORY_MAP[lower] || 'boarding_house';
+}
+
 function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []): Place {
-  const catKey = (categoryName || 'boarding_house') as PlaceCategory;
+  const catKey = normalizeCategory(categoryName);
   const meta = CATEGORY_MAP[catKey] || CATEGORY_MAP['boarding_house'];
+  const isBoarding = meta.id === 'boarding_house';
 
   const ratingAvg = reviews.length > 0 
     ? Number((reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)) 
     : 4.8;
+
+  let badge: string | undefined = undefined;
+  if (isBoarding) {
+    badge = row.room_status === 'available' ? 'Còn phòng' : (row.room_status === 'full' ? 'Hết phòng' : undefined);
+  } else if (meta.id === 'food_drink') {
+    badge = row.min_price ? `${Math.round(row.min_price / 1000)}k` : undefined;
+  }
 
   return {
     id: String(row.id),
@@ -57,10 +94,10 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     distanceToFPT: 'Gần FPTU',
     distanceToVNU: 'Gần VNU',
     priceInfo: (row.rent_price || row.min_price) ? {
-      amount: row.rent_price || row.min_price || 0,
-      unit: 'tháng',
-      electricity: row.electricity_price,
-      water: row.water_price ? parseInt(row.water_price, 10) || undefined : undefined,
+      amount: (isBoarding ? row.rent_price : (row.min_price || row.rent_price)) || 0,
+      unit: isBoarding ? 'tháng' : 'suất',
+      electricity: isBoarding ? row.electricity_price : undefined,
+      water: isBoarding ? (row.water_price ? parseInt(row.water_price, 10) || undefined : undefined) : undefined,
     } : undefined,
     phone: row.phone,
     zaloPhone: row.phone,
@@ -77,12 +114,66 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     reviewCount: reviews.length,
     reviews,
     isVerified: true,
-    isAvailable: row.room_status ? row.room_status !== 'full' : true,
+    isAvailable: isBoarding ? (row.room_status ? row.room_status !== 'full' : true) : true,
     openingHours: row.opening_hours,
-    badgeText: row.room_status === 'available' ? 'Còn phòng' : undefined,
+    badgeText: badge,
     gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
     contributorName: row.contributor_name || undefined,
   };
+}
+
+const INITIAL_MOCK_REPORTS: ReportItem[] = [
+  {
+    id: 'rep-1',
+    placeId: 'boarding-1',
+    placeName: 'Nhà Trọ Sinh Viên Xanh Tân Xã',
+    reason: 'wrong_price',
+    reasonLabel: 'Sai giá phòng',
+    note: 'Chủ trọ vừa báo giá phòng tầng 3 là 2.8tr chứ không phải 2.5tr, có thêm phòng khép kín mới sửa.',
+    contactEmail: 'hoangyen.k18@fe.edu.vn',
+    status: 'pending',
+    createdAt: '2026-10-09 14:30',
+  },
+  {
+    id: 'rep-2',
+    placeId: 'food-pho-ly-quoc-su',
+    placeName: 'Phở Bò Lý Quốc Sư Hòa Lạc',
+    reason: 'wrong_phone',
+    reasonLabel: 'Sai số điện thoại',
+    note: 'Số điện thoại quán đổi sang 0987.654.321, số cũ gọi không liên lạc được.',
+    contactEmail: 'ducviet.fpt@gmail.com',
+    status: 'pending',
+    createdAt: '2026-10-08 19:15',
+  },
+  {
+    id: 'rep-3',
+    placeId: 'service-honda-cuong-thanh',
+    placeName: 'HEAD Honda Cường Thành - Sửa Xe Máy',
+    reason: 'wrong_info',
+    reasonLabel: 'Sai địa chỉ / vị trí',
+    note: 'Cửa hàng nằm đối diện Chợ Hòa Lạc chứ không phải bên trong ngõ, biển hiệu Honda rất to.',
+    contactEmail: 'manhgiang.k19@gmail.com',
+    status: 'resolved',
+    createdAt: '2026-10-05 10:20',
+    resolvedAt: '2026-10-06 08:45',
+    adminNote: 'Đã cập nhật vị trí chính xác và ghi chú địa chỉ đối diện Chợ Hòa Lạc.',
+  },
+];
+
+function getStoredReports(): ReportItem[] {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('hola_map_reports') : null;
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return INITIAL_MOCK_REPORTS;
+}
+
+function saveStoredReports(reports: ReportItem[]) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hola_map_reports', JSON.stringify(reports));
+    }
+  } catch {}
 }
 
 /**
@@ -384,13 +475,39 @@ export const placesService = {
     }));
   },
 
+
   /**
    * Submit report about incorrect place info
    */
   async reportPlace(dto: CreateReportDto): Promise<{ success: boolean; message: string }> {
+    const place = MOCK_PLACES.find((p) => p.id === dto.placeId);
+    const reasonLabels: Record<string, string> = {
+      wrong_price: 'Sai giá phòng / dịch vụ',
+      wrong_phone: 'Sai số điện thoại',
+      closed: 'Địa điểm đã đóng cửa',
+      wrong_info: 'Sai địa chỉ / vị trí bản đồ',
+      other: 'Lý do khác',
+    };
+
+    const newReport: ReportItem = {
+      id: `rep-${Date.now()}`,
+      placeId: dto.placeId,
+      placeName: place?.name || `Địa điểm #${dto.placeId}`,
+      reason: dto.reason,
+      reasonLabel: reasonLabels[dto.reason] || 'Báo cáo sai lệch',
+      note: dto.note,
+      contactEmail: dto.contactEmail,
+      status: 'pending',
+      createdAt: new Date().toLocaleString('vi-VN'),
+    };
+
+    const reports = getStoredReports();
+    reports.unshift(newReport);
+    saveStoredReports(reports);
+
     if (!USE_MOCK_DATA) {
       try {
-        return await request<{ success: boolean; message: string }>('/reports', {
+        await request<{ success: boolean; message: string }>('/reports', {
           method: 'POST',
           body: JSON.stringify(dto),
         });
@@ -399,6 +516,82 @@ export const placesService = {
       }
     }
     return { success: true, message: 'Cảm ơn bạn! Báo cáo đã được ghi nhận.' };
+  },
+
+  /**
+   * Get all reports for Admin page
+   */
+  async getReports(): Promise<ReportItem[]> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const res = await request<ReportItem[]>('/reports');
+        if (Array.isArray(res) && res.length > 0) return res;
+      } catch (err) {
+        console.warn('[PlacesService] Backend getReports error:', err);
+      }
+    }
+    return getStoredReports();
+  },
+
+  /**
+   * Mark report as resolved or update status (Admin only)
+   */
+  async updateReportStatus(
+    reportId: string,
+    status: 'pending' | 'resolved',
+    adminNote?: string
+  ): Promise<boolean> {
+    const reports = getStoredReports();
+    const target = reports.find((r) => r.id === reportId);
+    if (target) {
+      target.status = status;
+      if (status === 'resolved') {
+        target.resolvedAt = new Date().toLocaleString('vi-VN');
+      }
+      if (adminNote) {
+        target.adminNote = adminNote;
+      }
+      saveStoredReports(reports);
+    }
+
+    if (!USE_MOCK_DATA) {
+      try {
+        await request(`/reports/${reportId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status, adminNote }),
+        });
+      } catch (err) {
+        console.warn('[PlacesService] Backend updateReportStatus error:', err);
+      }
+    }
+    return true;
+  },
+
+  /**
+   * Update place info (Admin only)
+   */
+  async updatePlace(id: string, placeData: Partial<Place>): Promise<Place> {
+    const idx = MOCK_PLACES.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      MOCK_PLACES[idx] = {
+        ...MOCK_PLACES[idx],
+        ...placeData,
+      };
+    }
+
+    if (!USE_MOCK_DATA) {
+      try {
+        const res = await request<Place>(`/places/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(placeData),
+        });
+        if (res) return res;
+      } catch (err) {
+        console.warn('[PlacesService] Backend updatePlace error:', err);
+      }
+    }
+
+    return MOCK_PLACES[idx] || (placeData as Place);
   },
 
   /**

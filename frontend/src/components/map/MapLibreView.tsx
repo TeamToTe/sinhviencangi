@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Place } from '../../types/place';
@@ -16,9 +16,9 @@ interface MapLibreViewProps {
 // Sử dụng Google Maps Tile Server tiếng Việt (hl=vi, gl=VN)
 // Cam kết: KHÔNG có đường lưỡi bò, KHÔNG có tên tiếng Trung sai lệch, hiển thị đúng "Quần đảo Hoàng Sa" & "quần đảo Trường Sa"
 const SAFE_TILE_LAYERS = {
-  roadmap: 'https://mt{s}.google.com/vt/lyrs=m&hl=vi&gl=VN&x={x}&y={y}&z={z}',
+  roadmap: 'https://mt{s}.google.com/vt/lyrs=m&hl=vi&gl=VN&apistyle=s.t:3|p.v:off,s.t:33|p.v:off,s.t:49|p.v:off&x={x}&y={y}&z={z}',
   satellite: 'https://mt{s}.google.com/vt/lyrs=y&hl=vi&gl=VN&x={x}&y={y}&z={z}',
-  backupRoadmap: 'https://mt{s}.google.com/vt/lyrs=r&hl=vi&gl=VN&x={x}&y={y}&z={z}',
+  backupRoadmap: 'https://mt{s}.google.com/vt/lyrs=r&hl=vi&gl=VN&apistyle=s.t:3|p.v:off,s.t:33|p.v:off,s.t:49|p.v:off&x={x}&y={y}&z={z}',
 };
 
 // Điểm mốc chủ quyền thiêng liêng khẳng định chủ quyền biển đảo của Việt Nam trên Biển Đông
@@ -94,7 +94,7 @@ interface MarkerState {
 
 function getMarkerHtml(
   place: Place,
-  isDetailedZoom: boolean,
+  _isDetailedZoom: boolean,
   isMicroZoom: boolean,
   isSelected: boolean,
   isFirstMount: boolean,
@@ -107,12 +107,10 @@ function getMarkerHtml(
   const appearClass = isFirstMount ? 'marker-appear' : '';
   const appearStyle = isFirstMount ? `animation-delay: ${staggerDelay}ms; will-change: transform;` : 'will-change: transform;';
 
-  // 1. Detailed Zoom or Selected -> Always Expanded Bubble
-  if (isDetailedZoom || isSelected) {
+  // 1. Selected Place -> Always Expanded Bubble
+  if (isSelected) {
     return `
-      <div class="${appearClass} marker-wrapper relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-150 ease-out group ${
-        isSelected ? 'scale-115 drop-shadow-2xl z-[2000]' : 'scale-100 drop-shadow-md hover:scale-110 hover:drop-shadow-xl'
-      }" id="marker-${place.id}" style="${appearStyle}">
+      <div class="${appearClass} marker-wrapper relative -translate-x-1/2 -translate-y-full pb-1 select-none cursor-pointer flex flex-col items-center origin-bottom transition-all duration-150 ease-out z-[2000] scale-110 drop-shadow-2xl" id="marker-${place.id}" style="${appearStyle}">
         <!-- Bubble Box -->
         <div class="relative bg-white text-gray-900 px-3 py-1.5 rounded-2xl shadow-xl border-2 flex items-center gap-2 whitespace-nowrap min-w-[120px] max-w-[240px] transition-all duration-150"
              style="border-color: ${place.categoryColor}">
@@ -256,6 +254,58 @@ function getMarkerHtml(
   `;
 }
 
+function getVisiblePlacesWithoutOverlap(
+  places: Place[],
+  map: L.Map | null,
+  selectedId?: string
+): Place[] {
+  if (!map) return places;
+  const currentZoom = map.getZoom();
+
+  // Screen pixel collision threshold
+  // Zoom >= 16.5: 32px
+  // Zoom 14.5 - 16.5: 40px
+  // Zoom < 14.5: 50px
+  const collisionThreshold = currentZoom >= 16.5 ? 32 : currentZoom >= 14.5 ? 40 : 50;
+
+  const sorted = [...places].sort((a, b) => {
+    if (a.id === selectedId) return -1;
+    if (b.id === selectedId) return 1;
+    return (b.rating * 10 + b.reviewCount) - (a.rating * 10 + a.reviewCount);
+  });
+
+  const visible: Place[] = [];
+  const screenPositions: { x: number; y: number }[] = [];
+
+  for (const place of sorted) {
+    if (place.id === selectedId) {
+      visible.push(place);
+      try {
+        const pt = map.latLngToContainerPoint([place.coordinates.lat, place.coordinates.lng]);
+        screenPositions.push(pt);
+      } catch {
+        // Map may not be ready yet
+      }
+      continue;
+    }
+
+    try {
+      const pt = map.latLngToContainerPoint([place.coordinates.lat, place.coordinates.lng]);
+      const isOverlapping = screenPositions.some(
+        (sp) => Math.hypot(sp.x - pt.x, sp.y - pt.y) < collisionThreshold
+      );
+      if (!isOverlapping) {
+        visible.push(place);
+        screenPositions.push(pt);
+      }
+    } catch {
+      visible.push(place);
+    }
+  }
+
+  return visible;
+}
+
 export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -264,6 +314,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
   const markerStatesRef = useRef<{ [id: string]: MarkerState }>({});
   const prevHoveredIdRef = useRef<string | null>(null);
   const isUserInteractingRef = useRef<boolean>(false);
+  const [viewportTick, setViewportTick] = useState<number>(0);
 
   const {
     center,
@@ -354,6 +405,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       const c = map.getCenter();
       setCenter([c.lng, c.lat]);
       setZoom(map.getZoom());
+      setViewportTick((v) => v + 1);
       setTimeout(() => {
         isUserInteractingRef.current = false;
       }, 100);
@@ -361,6 +413,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
 
     map.on('zoomend', () => {
       setZoom(map.getZoom());
+      setViewportTick((v) => v + 1);
     });
 
     mapRef.current = map;
@@ -423,15 +476,18 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     prevHoveredIdRef.current = currId;
   }, [hoveredPlaceId, selectedPlace]);
 
-  // Render & Update Custom Adaptive LOD Markers (Only runs on places/selected/zoom changes)
+  // Render & Update Custom Adaptive LOD Markers (Avoids overlaps and collisions)
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
 
-    // Clear old markers that are no longer in places
-    const currentPlaceIds = new Set(places.map((p) => p.id));
+    // Filter places to avoid overlap / collisions on screen
+    const visiblePlaces = getVisiblePlacesWithoutOverlap(places, map, selectedPlace?.id);
+    const visiblePlaceIds = new Set(visiblePlaces.map((p) => p.id));
+
+    // Clear old markers that are no longer visible or in places
     Object.keys(markersRef.current).forEach((id) => {
-      if (!currentPlaceIds.has(id)) {
+      if (!visiblePlaceIds.has(id)) {
         markersRef.current[id].remove();
         delete markersRef.current[id];
         delete markerStatesRef.current[id];
@@ -443,7 +499,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     const isMicroZoom = zoom < 14.5;
 
     // Create or update markers ONLY when their individual LOD/selected state changes
-    places.forEach((place, index) => {
+    visiblePlaces.forEach((place, index) => {
       const isSelected = selectedPlace?.id === place.id;
       const staggerDelay = Math.min(index * 30, 360);
 
@@ -506,7 +562,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
         }
       }
     });
-  }, [places, selectedPlace, zoom, activeTab]);
+  }, [places, selectedPlace, zoom, activeTab, viewportTick]);
 
   // Controls Handlers
   const handleZoomIn = () => {

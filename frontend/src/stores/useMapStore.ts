@@ -8,7 +8,7 @@ interface MapState {
   hoveredPlaceId: string | null;
   center: [number, number]; // [lng, lat]
   zoom: number;
-  activeTab: 'map' | 'list' | 'favorites';
+  activeTab: 'map' | 'list' | 'favorites' | 'admin';
   isReportModalOpen: boolean;
   reportPlaceId: string | null;
   isSurveyModalOpen: boolean;
@@ -25,7 +25,7 @@ interface MapState {
   setZoom: (zoom: number) => void;
   flyToPlace: (place: Place) => void;
   flyToCoordinates: (lat: number, lng: number, zoom?: number) => void;
-  setActiveTab: (tab: 'map' | 'list' | 'favorites') => void;
+  setActiveTab: (tab: 'map' | 'list' | 'favorites' | 'admin') => void;
   setReportModal: (isOpen: boolean, placeId?: string | null) => void;
   setSurveyModalOpen: (isOpen: boolean) => void;
   setSurveyStep: (step: SurveyStep) => void;

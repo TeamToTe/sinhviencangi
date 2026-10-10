@@ -12,6 +12,7 @@ import { PlaceReportModal } from './components/places/PlaceReportModal';
 import { SurveyPinModal } from './components/survey/SurveyPinModal';
 import { PlaceCard } from './components/places/PlaceCard';
 import { AdminLoginModal } from './components/auth/AdminLoginModal';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { useAuthStore } from './stores/useAuthStore';
 
 import { useFavoritesStore } from './stores/useFavoritesStore';
@@ -90,16 +91,25 @@ export const App: React.FC = () => {
 
       {/* 2. Main Workspace */}
       <main className="flex-1 flex relative overflow-hidden">
-        {/* List View & Favorites Tab */}
-        <div
-          className={`flex-1 overflow-y-auto p-3 sm:p-6 max-w-5xl mx-auto w-full space-y-4 custom-scrollbar pb-16 ${
-            activeTab === 'map' ? 'hidden' : 'block'
-          }`}
-        >
-          {/* Centered Filter Bar in List view */}
-          <div className="flex justify-center w-full sticky top-0 z-20 py-1">
-            <CategoryBar />
-          </div>
+        {/* Admin Dashboard Page */}
+        {activeTab === 'admin' ? (
+          <AdminDashboard
+            places={places}
+            onPlaceUpdated={handlePlaceCreated}
+            onPlaceDeleted={(id) => setPlaces((prev) => prev.filter((p) => p.id !== id))}
+          />
+        ) : (
+          <>
+            {/* List View & Favorites Tab */}
+            <div
+              className={`flex-1 overflow-y-auto p-3 sm:p-6 max-w-5xl mx-auto w-full space-y-4 custom-scrollbar pb-16 ${
+                activeTab === 'map' ? 'hidden' : 'block'
+              }`}
+            >
+              {/* Centered Filter Bar in List view */}
+              <div className="flex justify-center w-full sticky top-0 z-20 py-1">
+                <CategoryBar />
+              </div>
 
           {/* List Section Title */}
           <div className="flex items-center justify-between px-1">
@@ -196,6 +206,8 @@ export const App: React.FC = () => {
           {/* Cột Phải: Bảng chi tiết pop-up khi bấm vào địa điểm */}
           <PlaceDetailDrawer />
         </div>
+          </>
+        )}
       </main>
 
       {/* Report Modal */}
