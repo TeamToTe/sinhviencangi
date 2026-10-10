@@ -260,9 +260,9 @@ export const PlaceDetailDrawer: React.FC = () => {
                 <span>{selectedPlace.address}</span>
               </div>
               <div className="flex items-center gap-3 text-gray-700 pl-5">
-                <span>📍 Cách FPT: <strong>{selectedPlace.distanceToFPT || 'Rất gần'}</strong></span>
+                <span>Cách FPT: <strong>{selectedPlace.distanceToFPT || 'Rất gần'}</strong></span>
                 {selectedPlace.distanceToVNU && (
-                  <span>📍 Cách VNU: <strong>{selectedPlace.distanceToVNU}</strong></span>
+                  <span>Cách VNU: <strong>{selectedPlace.distanceToVNU}</strong></span>
                 )}
               </div>
             </div>

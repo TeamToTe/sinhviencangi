@@ -12,13 +12,10 @@ interface MapLibreViewProps {
   isLoading?: boolean;
 }
 
-// Bản đồ chuẩn quốc gia khẳng định chủ quyền lãnh thổ Việt Nam
-// Sử dụng Google Maps Tile Server tiếng Việt (hl=vi, gl=VN)
-// Cam kết: KHÔNG có đường lưỡi bò, KHÔNG có tên tiếng Trung sai lệch, hiển thị đúng "Quần đảo Hoàng Sa" & "quần đảo Trường Sa"
-const SAFE_TILE_LAYERS = {
-  roadmap: 'https://mt{s}.google.com/vt/lyrs=m&hl=vi&gl=VN&x={x}&y={y}&z={z}',
-  satellite: 'https://mt{s}.google.com/vt/lyrs=y&hl=vi&gl=VN&x={x}&y={y}&z={z}',
-  backupRoadmap: 'https://mt{s}.google.com/vt/lyrs=r&hl=vi&gl=VN&x={x}&y={y}&z={z}',
+// 100% Free, crystal-clear, zero Google POI watermark, NO API KEY required
+const CLEAN_TILE_LAYERS = {
+  osmHot: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+  esriStreet: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
 };
 
 // Điểm mốc chủ quyền thiêng liêng khẳng định chủ quyền biển đảo của Việt Nam trên Biển Đông
@@ -350,20 +347,24 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       wheelPxPerZoomLevel: 120,
     });
 
-    const tileLayer = L.tileLayer(SAFE_TILE_LAYERS.roadmap, {
-      subdomains: ['0', '1', '2', '3'],
-      maxZoom: 20,
+    const tileLayer = L.tileLayer(CLEAN_TILE_LAYERS.osmHot, {
+      subdomains: 'abc',
+      maxZoom: 19,
       minZoom: 6,
       crossOrigin: 'anonymous',
       keepBuffer: 8,
       updateWhenIdle: false,
       updateWhenZooming: false,
-      attribution: '© Google Maps | Bản đồ Việt Nam 🇻🇳 (Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam)',
+      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Tiles by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OSM</a> | Bản đồ Việt Nam 🇻🇳',
     });
 
+    let hasFallenBack = false;
     tileLayer.on('tileerror', () => {
-      console.warn('[Map] Retrying with backup tile server...');
-      tileLayer.setUrl(SAFE_TILE_LAYERS.backupRoadmap);
+      if (!hasFallenBack) {
+        hasFallenBack = true;
+        console.warn('[Map] Switching to backup tile provider...');
+        tileLayer.setUrl(CLEAN_TILE_LAYERS.esriStreet);
+      }
     });
 
     tileLayer.addTo(map);
@@ -626,7 +627,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
             
             {/* Badge Indicator */}
             <div className="mt-3 px-3 py-1 bg-gray-900/90 backdrop-blur-md text-white text-[11px] font-bold rounded-full shadow-lg border border-white/20 whitespace-nowrap">
-              🎯 Tâm điểm ghim khảo sát
+              Tâm điểm ghim khảo sát
             </div>
           </div>
         </div>

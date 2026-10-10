@@ -1,5 +1,4 @@
-import React from 'react';
-import { X, Check, RotateCcw } from 'lucide-react';
+import { X, Check, RotateCcw, Star, DollarSign, Gem } from 'lucide-react';
 import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
 
@@ -101,23 +100,27 @@ export const FilterModal: React.FC = () => {
             <label className="block font-bold text-gray-900 mb-2">Sắp xếp theo</label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'rating', label: '⭐ Đánh giá cao' },
-                { id: 'price_asc', label: '💵 Giá thấp trước' },
-                { id: 'price_desc', label: '💎 Giá cao trước' },
-              ].map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setSortBy(s.id as any)}
-                  className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center ${
-                    sortBy === s.id
-                      ? 'bg-emerald-600 text-white border-emerald-600'
-                      : 'bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
+                { id: 'rating', label: 'Đánh giá cao', icon: Star },
+                { id: 'price_asc', label: 'Giá thấp trước', icon: DollarSign },
+                { id: 'price_desc', label: 'Giá cao trước', icon: Gem },
+              ].map((s) => {
+                const IconComponent = s.icon;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSortBy(s.id as any)}
+                    className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+                      sortBy === s.id
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    <IconComponent className="w-3.5 h-3.5 shrink-0" />
+                    <span>{s.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

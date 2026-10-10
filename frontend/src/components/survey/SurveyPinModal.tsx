@@ -21,6 +21,9 @@ import {
   GraduationCap,
   Edit3,
   ArrowRight,
+  Waves,
+  Building2,
+  Trees,
 } from 'lucide-react';
 import { useMapStore } from '../../stores/useMapStore';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -72,11 +75,11 @@ const AMENITY_OPTIONS = [
 ];
 
 const HOA_LAC_LANDMARKS = [
-  { name: 'ĐH FPT', lat: 21.0135, lng: 105.5252, icon: '🏫', area: 'Thạch Hòa' },
-  { name: 'Hồ Tân Xã', lat: 21.0185, lng: 105.5345, icon: '🌊', area: 'Tân Xã' },
-  { name: 'KTX VNU', lat: 21.0162, lng: 105.5235, icon: '🎓', area: 'Thạch Hòa' },
-  { name: 'Thạch Hòa', lat: 21.0145, lng: 105.5210, icon: '🏙️', area: 'Thạch Hòa' },
-  { name: 'Bình Yên', lat: 21.0300, lng: 105.5100, icon: '🌳', area: 'Bình Yên' },
+  { name: 'ĐH FPT', lat: 21.0135, lng: 105.5252, icon: GraduationCap, area: 'Thạch Hòa' },
+  { name: 'Hồ Tân Xã', lat: 21.0185, lng: 105.5345, icon: Waves, area: 'Tân Xã' },
+  { name: 'KTX VNU', lat: 21.0162, lng: 105.5235, icon: GraduationCap, area: 'Thạch Hòa' },
+  { name: 'Thạch Hòa', lat: 21.0145, lng: 105.5210, icon: Building2, area: 'Thạch Hòa' },
+  { name: 'Bình Yên', lat: 21.0300, lng: 105.5100, icon: Trees, area: 'Bình Yên' },
 ];
 
 export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }) => {
@@ -385,16 +388,20 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
           {/* Quick Landmark Jump Chips (1-tap to Hoa Lac spots) */}
           <div className="flex items-center gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs">
             <span className="text-[11px] text-gray-400 font-bold shrink-0">Đi nhanh:</span>
-            {HOA_LAC_LANDMARKS.map((spot) => (
-              <button
-                key={spot.name}
-                type="button"
-                onClick={() => handleJumpToLandmark(spot)}
-                className="shrink-0 px-2.5 py-1 rounded-xl bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 hover:border-emerald-300 text-[11px] font-medium transition-colors cursor-pointer"
-              >
-                {spot.icon} {spot.name}
-              </button>
-            ))}
+            {HOA_LAC_LANDMARKS.map((spot) => {
+              const IconComp = spot.icon;
+              return (
+                <button
+                  key={spot.name}
+                  type="button"
+                  onClick={() => handleJumpToLandmark(spot)}
+                  className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 hover:border-emerald-300 text-[11px] font-medium transition-colors cursor-pointer"
+                >
+                  <IconComp className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>{spot.name}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Friendly Toast Tip if GPS error occurred */}
@@ -476,7 +483,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-center gap-3 animate-in fade-in">
                 <Check className="w-6 h-6 text-emerald-600 shrink-0" />
                 <div>
-                  <p className="font-bold text-sm">🎉 Đã chấm địa điểm thành công!</p>
+                  <p className="font-bold text-sm">Đã chấm địa điểm thành công!</p>
                   <p className="text-xs text-emerald-700">Dữ liệu đã được lưu trực tiếp vào bản đồ.</p>
                 </div>
               </div>
