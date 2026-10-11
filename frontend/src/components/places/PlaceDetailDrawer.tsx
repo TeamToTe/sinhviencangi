@@ -21,6 +21,7 @@ import {
   DollarSign,
   Sparkles,
   Trash2,
+  LoaderCircle,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
@@ -39,6 +40,7 @@ export const PlaceDetailDrawer: React.FC = () => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOpeningDirections, setIsOpeningDirections] = useState(false);
 
   const handleDeletePlace = async () => {
     if (!selectedPlace) return;
@@ -71,8 +73,40 @@ export const PlaceDetailDrawer: React.FC = () => {
 
   const handleOpenGoogleMaps = () => {
     const { lat, lng } = selectedPlace.coordinates;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-    window.open(url, '_blank');
+    const directionsWindow = window.open('about:blank', '_blank');
+    if (directionsWindow) directionsWindow.opener = null;
+
+    const openDirections = (position?: GeolocationPosition) => {
+      const params = new URLSearchParams({
+        api: '1',
+        destination: `${lat},${lng}`,
+        travelmode: 'driving',
+      });
+
+      if (position) {
+        params.set('origin', `${position.coords.latitude},${position.coords.longitude}`);
+      }
+
+      const url = `https://www.google.com/maps/dir/?${params.toString()}`;
+      if (directionsWindow) {
+        directionsWindow.location.replace(url);
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+      setIsOpeningDirections(false);
+    };
+
+    if (!navigator.geolocation) {
+      openDirections();
+      return;
+    }
+
+    setIsOpeningDirections(true);
+    navigator.geolocation.getCurrentPosition(
+      openDirections,
+      () => openDirections(),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
   };
 
   const handleShare = () => {
@@ -304,10 +338,15 @@ export const PlaceDetailDrawer: React.FC = () => {
 
             <button
               onClick={handleOpenGoogleMaps}
-              className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-all shadow-md shadow-amber-500/20"
+              disabled={isOpeningDirections}
+              className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs transition-all shadow-md shadow-amber-500/20 disabled:cursor-wait"
             >
-              <Navigation className="w-4 h-4 mb-1" />
-              <span>Chỉ đường</span>
+              {isOpeningDirections ? (
+                <LoaderCircle className="w-4 h-4 mb-1 animate-spin" />
+              ) : (
+                <Navigation className="w-4 h-4 mb-1" />
+              )}
+              <span>{isOpeningDirections ? 'Đang định vị...' : 'Chỉ đường'}</span>
             </button>
           </div>
 
