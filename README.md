@@ -38,7 +38,7 @@ Dự án giải quyết triệt để vấn đề thiếu thông tin minh bạch
 - 📐 **Layout 3 Cột Khoa Học**:
   - **Cột trái**: Danh sách địa điểm cuộn mượt, hiển thị khoảng cách đến FPTU/VNU, giá cả, trạng thái phòng trống.
   - **Cột giữa**: Bản đồ số toàn màn hình với các nút thao tác nhanh (định vị GPS, reset góc nhìn, chuyển layer).
-  - **Cột phải**: Drawer chi tiết địa điểm — ảnh chụp thực tế, biểu phí điện/nước, số điện thoại, nút gọi Hotline / nhắn Zalo tức thì và chỉ đường Google Maps từ vị trí GPS hiện tại (tự động fallback khi không cấp quyền định vị).
+  - **Cột phải**: Drawer chi tiết địa điểm — ảnh chụp thực tế, biểu phí điện/nước, số điện thoại, nút gọi Hotline / nhắn Zalo tức thì và chỉ đường ngay trên HOLA MAP (vẽ tuyến đường, khoảng cách, thời gian dự kiến; dùng GPS hoặc điểm mặc định FPT Hòa Lạc).
 - 📱 **Tối ưu Mobile First**:
   - Bottom sheet kéo thả vuốt mượt (drag-to-scroll) trên điện thoại.
   - Tự động ẩn các thành phần thừa khi cuộn xem thông tin.

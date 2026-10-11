@@ -26,9 +26,31 @@ import {
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { getDrivingRoute } from '../../services/routingService';
+
+function formatDistance(meters: number): string {
+  return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
+}
+
+function formatDuration(seconds: number): string {
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  return minutes < 60 ? `${minutes} phút` : `${Math.floor(minutes / 60)} giờ ${minutes % 60} phút`;
+}
+
+const DEFAULT_ROUTE_ORIGIN: [number, number] = [105.5252, 21.0135];
 
 export const PlaceDetailDrawer: React.FC = () => {
-  const { selectedPlace, setSelectedPlace, setReportModal } = useMapStore();
+  const {
+    selectedPlace,
+    route,
+    routeStatus,
+    routeError,
+    setSelectedPlace,
+    setReportModal,
+    setRoute,
+    setRouteStatus,
+    clearRoute,
+  } = useMapStore();
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const { isAdmin, setLoginModalOpen } = useAuthStore();
 
@@ -63,6 +85,9 @@ export const PlaceDetailDrawer: React.FC = () => {
   if (!selectedPlace) return null;
 
   const isFav = isFavorite(selectedPlace.id);
+  const isRouteForSelectedPlace =
+    route?.destination[0] === selectedPlace.coordinates.lng &&
+    route?.destination[1] === selectedPlace.coordinates.lat;
 
   const handleFavorite = () => {
     toggleFavorite(selectedPlace.id);
@@ -71,41 +96,44 @@ export const PlaceDetailDrawer: React.FC = () => {
     }
   };
 
-  const handleOpenGoogleMaps = () => {
-    const { lat, lng } = selectedPlace.coordinates;
-    const destinationUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-    const directionsWindow = window.open(destinationUrl, '_blank', 'noopener,noreferrer');
+  const handleOpenDirections = () => {
+    const destination: [number, number] = [
+      selectedPlace.coordinates.lng,
+      selectedPlace.coordinates.lat,
+    ];
+    const fallbackOrigin = DEFAULT_ROUTE_ORIGIN;
 
-    const openDirections = (position?: GeolocationPosition) => {
-      const params = new URLSearchParams({
-        api: '1',
-        destination: `${lat},${lng}`,
-        travelmode: 'driving',
-      });
-
-      if (position) {
-        params.set('origin', `${position.coords.latitude},${position.coords.longitude}`);
+    const loadRoute = async (origin: [number, number]) => {
+      setIsOpeningDirections(true);
+      setRouteStatus('loading');
+      try {
+        const nextRoute = await getDrivingRoute(origin, destination);
+        setRoute(nextRoute);
+      } catch (error) {
+        setRouteStatus(
+          'error',
+          error instanceof Error ? error.message : 'Không thể tìm tuyến đường.'
+        );
+      } finally {
+        setIsOpeningDirections(false);
       }
-
-      const url = `https://www.google.com/maps/dir/?${params.toString()}`;
-      if (directionsWindow) {
-        directionsWindow.location.replace(url);
-      } else {
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }
-      setIsOpeningDirections(false);
     };
 
     if (!navigator.geolocation) {
-      openDirections();
+      void loadRoute(fallbackOrigin);
       return;
     }
 
     setIsOpeningDirections(true);
+    setRouteStatus('locating');
     navigator.geolocation.getCurrentPosition(
-      openDirections,
-      () => openDirections(),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      (position) => {
+        void loadRoute([position.coords.longitude, position.coords.latitude]);
+      },
+      () => {
+        void loadRoute(fallbackOrigin);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
     );
   };
 
@@ -337,9 +365,9 @@ export const PlaceDetailDrawer: React.FC = () => {
             )}
 
             <button
-              onClick={handleOpenGoogleMaps}
+              onClick={handleOpenDirections}
               disabled={isOpeningDirections}
-              className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold text-xs transition-all shadow-md shadow-amber-500/20 disabled:cursor-wait"
+              className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold text-xs transition-all shadow-md shadow-orange-500/20 disabled:cursor-wait"
             >
               {isOpeningDirections ? (
                 <LoaderCircle className="w-4 h-4 mb-1 animate-spin" />
@@ -349,6 +377,29 @@ export const PlaceDetailDrawer: React.FC = () => {
               <span>{isOpeningDirections ? 'Đang định vị...' : 'Chỉ đường'}</span>
             </button>
           </div>
+
+          {isRouteForSelectedPlace && routeStatus === 'ready' && route && (
+            <div className="rounded-2xl bg-orange-50 border border-orange-200 p-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-wider text-orange-800">Tuyến đường đang hiển thị</p>
+                <p className="text-xs font-bold text-gray-800 mt-0.5">
+                  {formatDistance(route.distanceMeters)} · {formatDuration(route.durationSeconds)}
+                </p>
+              </div>
+              <button
+                onClick={clearRoute}
+                className="px-2.5 py-1.5 rounded-xl bg-white border border-orange-200 text-orange-700 text-[11px] font-bold hover:bg-orange-100 transition-colors cursor-pointer"
+              >
+                Xóa tuyến
+              </button>
+            </div>
+          )}
+
+          {routeStatus === 'error' && routeError && (
+            <div className="rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700">
+              {routeError}
+            </div>
+          )}
 
           {/* Price Info Breakdown (If available) */}
           {selectedPlace.priceInfo && (

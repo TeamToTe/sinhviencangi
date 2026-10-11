@@ -56,8 +56,8 @@ export const Header: React.FC = () => {
   }, [isViewMenuOpen]);
 
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b border-emerald-200 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-xs">
-      <div className="max-w-7xl mx-auto flex flex-wrap lg:flex-nowrap items-center justify-between gap-2.5 sm:gap-3">
+    <header className="bg-white/95 backdrop-blur-xl border-b border-emerald-200/80 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-[0_8px_30px_rgba(6,78,59,0.08)]">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(280px,1fr)_auto] items-center gap-2.5 sm:gap-3">
         {/* Brand & Logo */}
         <div className="flex items-center justify-between w-full md:w-auto gap-2 min-w-0">
           <div className="flex items-center gap-2 cursor-pointer select-none shrink-0 min-w-0">
@@ -258,7 +258,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="order-3 basis-full lg:order-none lg:basis-auto flex-1 w-full lg:max-w-2xl flex items-center">
+        <div className="order-2 col-span-full lg:order-none lg:col-span-1 flex-1 w-full min-w-0 lg:max-w-2xl flex items-center">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
             <input
