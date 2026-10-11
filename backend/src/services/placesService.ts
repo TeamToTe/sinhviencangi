@@ -42,23 +42,46 @@ export function detectAreaFromCoordinates(lat: number, lng: number): string {
 }
 
 export async function saveBase64Image(dataUri: string): Promise<string> {
-  if (!dataUri.startsWith('data:image/')) {
-    return dataUri;
+  // Keep the image in the database instead of Render's ephemeral filesystem.
+  return dataUri;
+}
+
+async function readUploadAsDataUri(uploadPath: string): Promise<string | null> {
+  if (!uploadPath.startsWith('/uploads/')) return null;
+  const filePath = path.resolve(process.cwd(), uploadPath.slice(1));
+  try {
+    const buffer = await fs.promises.readFile(filePath);
+    const extension = path.extname(filePath).toLowerCase();
+    const mimeType = extension === '.png' ? 'image/png' : extension === '.webp' ? 'image/webp' : 'image/jpeg';
+    return `data:${mimeType};base64,${buffer.toString('base64')}`;
+  } catch {
+    return null;
   }
-  const uploadDir = path.resolve(process.cwd(), 'uploads');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+export async function getPlaceImage(
+  placeId: string,
+  imageIndex: number
+): Promise<{ mimeType: string; buffer: Buffer } | null> {
+  const result = await db.query('SELECT images FROM places WHERE id = $1', [placeId]);
+  const images = parseArrayField(result.rows[0]?.images);
+  const image = images[imageIndex];
+  if (!image) return null;
+
+  const dataMatch = image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (dataMatch) {
+    return { mimeType: dataMatch[1], buffer: Buffer.from(dataMatch[2], 'base64') };
   }
-  const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
-  if (!matches) {
-    return dataUri;
+
+  const storedDataUri = await readUploadAsDataUri(image);
+  if (storedDataUri) {
+    const storedMatch = storedDataUri.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (storedMatch) {
+      return { mimeType: storedMatch[1], buffer: Buffer.from(storedMatch[2], 'base64') };
+    }
   }
-  const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
-  const buffer = Buffer.from(matches[2], 'base64');
-  const filename = `img_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
-  const filePath = path.join(uploadDir, filename);
-  await fs.promises.writeFile(filePath, buffer);
-  return `/uploads/${filename}`;
+
+  return null;
 }
 
 export const CATEGORY_MAP: Record<
@@ -145,7 +168,11 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
 
   const photosList =
     rawImages.length > 0
-      ? rawImages
+      ? rawImages.map((image, index) =>
+          image.startsWith('data:image/') || image.startsWith('/uploads/')
+            ? `/api/places/${row.id}/images/${index}`
+            : image
+        )
       : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'];
 
   return {
@@ -399,7 +426,8 @@ export const placesService = {
             processedImages.push(img);
           }
         } else {
-          processedImages.push(img);
+          const storedImage = await readUploadAsDataUri(img);
+          processedImages.push(storedImage || img);
         }
       }
     }

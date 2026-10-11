@@ -222,7 +222,7 @@ Hỗ trợ chụp trực tiếp từ camera điện thoại hoặc thư viện �
 ```json
 {
   "success": true,
-  "url": "/uploads/img_1715000000_abc123.jpg"
+  "url": "data:image/jpeg;base64,..."
 }
 ```
 

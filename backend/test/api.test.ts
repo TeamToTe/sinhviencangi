@@ -195,8 +195,8 @@ async function testBackend() {
       }),
     });
     assert(
-      uploadRes.status === 201 && uploadRes.data.url.startsWith('/uploads/'),
-      'POST /api/upload accepts base64 field photos and returns static URL'
+      uploadRes.status === 201 && uploadRes.data.url.startsWith('data:image/png;base64,'),
+      'POST /api/upload keeps base64 photos in durable database-compatible form'
     );
 
     // Test 14: Overall Survey Stats & Dashboard

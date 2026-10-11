@@ -5,7 +5,7 @@ import type { Place } from '../../types/place';
 import { useMapStore } from '../../stores/useMapStore';
 import { MapControls } from './MapControls';
 import { MapLegend } from './MapLegend';
-import { Clock3, Crosshair, LoaderCircle, MapPinned, Navigation, X } from 'lucide-react';
+import { Bike, CarFront, Clock3, Crosshair, LoaderCircle, MapPinned, X } from 'lucide-react';
 
 interface MapLibreViewProps {
   places: Place[];
@@ -691,7 +691,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
             <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-9 h-9 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0">
-                  {routeStatus === 'ready' ? <Navigation className="w-4 h-4" /> : <MapPinned className="w-4 h-4" />}
+                  {routeStatus === 'ready' ? (route?.vehicle === 'motorcycle' ? <Bike className="w-4 h-4" /> : <CarFront className="w-4 h-4" />) : <MapPinned className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-black text-orange-950 uppercase tracking-wider">Chỉ đường trong HOLA MAP</p>
@@ -716,6 +716,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
               <div className="px-4 py-3 flex items-center gap-4 text-xs text-gray-700">
                 <div className="flex items-center gap-1.5 font-bold"><MapPinned className="w-4 h-4 text-sky-600" />{formatRouteDistance(route.distanceMeters)}</div>
                 <div className="flex items-center gap-1.5 font-bold"><Clock3 className="w-4 h-4 text-orange-600" />{formatRouteDuration(route.durationSeconds)}</div>
+                <span className="text-[10px] font-bold text-slate-600">{route.vehicle === 'motorcycle' ? 'Xe máy' : 'Ô tô'}</span>
                 <span className="ml-auto text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">Đang hiển thị</span>
               </div>
             )}
