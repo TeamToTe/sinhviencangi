@@ -73,8 +73,8 @@ export const PlaceDetailDrawer: React.FC = () => {
 
   const handleOpenGoogleMaps = () => {
     const { lat, lng } = selectedPlace.coordinates;
-    const directionsWindow = window.open('about:blank', '_blank');
-    if (directionsWindow) directionsWindow.opener = null;
+    const destinationUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+    const directionsWindow = window.open(destinationUrl, '_blank', 'noopener,noreferrer');
 
     const openDirections = (position?: GeolocationPosition) => {
       const params = new URLSearchParams({

@@ -254,7 +254,8 @@ function getMarkerHtml(
 function getVisiblePlacesWithoutOverlap(
   places: Place[],
   map: L.Map | null,
-  selectedId?: string
+  selectedId?: string,
+  hoveredId?: string | null
 ): Place[] {
   if (!map) return places;
   const currentZoom = map.getZoom();
@@ -268,6 +269,8 @@ function getVisiblePlacesWithoutOverlap(
   const sorted = [...places].sort((a, b) => {
     if (a.id === selectedId) return -1;
     if (b.id === selectedId) return 1;
+    if (a.id === hoveredId) return -1;
+    if (b.id === hoveredId) return 1;
     return (b.rating * 10 + b.reviewCount) - (a.rating * 10 + a.reviewCount);
   });
 
@@ -275,7 +278,7 @@ function getVisiblePlacesWithoutOverlap(
   const screenPositions: { x: number; y: number }[] = [];
 
   for (const place of sorted) {
-    if (place.id === selectedId) {
+    if (place.id === selectedId || place.id === hoveredId) {
       visible.push(place);
       try {
         const pt = map.latLngToContainerPoint([place.coordinates.lat, place.coordinates.lng]);
@@ -483,7 +486,12 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     const map = mapRef.current;
 
     // Filter places to avoid overlap / collisions on screen
-    const visiblePlaces = getVisiblePlacesWithoutOverlap(places, map, selectedPlace?.id);
+    const visiblePlaces = getVisiblePlacesWithoutOverlap(
+      places,
+      map,
+      selectedPlace?.id,
+      hoveredPlaceId
+    );
     const visiblePlaceIds = new Set(visiblePlaces.map((p) => p.id));
 
     // Clear old markers that are no longer visible or in places
@@ -562,8 +570,13 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
           marker.setZIndexOffset(isSelected ? 2500 : 10);
         }
       }
+
+      const markerElement = markersRef.current[place.id]
+        ?.getElement()
+        ?.querySelector<HTMLElement>(`#marker-${place.id}`);
+      markerElement?.classList.toggle('is-hovered', hoveredPlaceId === place.id);
     });
-  }, [places, selectedPlace, zoom, activeTab, viewportTick]);
+  }, [places, selectedPlace, hoveredPlaceId, zoom, activeTab, viewportTick]);
 
   // Controls Handlers
   const handleZoomIn = () => {
@@ -602,7 +615,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg border border-emerald-200 flex items-center gap-2 text-xs font-bold text-emerald-900 animate-pulse font-serif">
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-emerald-200 flex items-center gap-2 text-xs font-bold text-emerald-900 animate-pulse font-serif">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
           <span>Đang tải địa điểm Hòa Lạc...</span>
         </div>
