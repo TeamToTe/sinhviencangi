@@ -5,7 +5,7 @@ import type { Place } from '../../types/place';
 import { useMapStore } from '../../stores/useMapStore';
 import { MapControls } from './MapControls';
 import { MapLegend } from './MapLegend';
-import { Crosshair } from 'lucide-react';
+import { Clock3, Crosshair, LoaderCircle, MapPinned, Navigation, X } from 'lucide-react';
 
 interface MapLibreViewProps {
   places: Place[];
@@ -50,6 +50,15 @@ function getSovereigntyMarkerHtml(point: (typeof VIETNAM_SOVEREIGNTY_POINTS)[0])
 
 
 // Format price with proper units
+function formatRouteDistance(meters: number): string {
+  return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
+}
+
+function formatRouteDuration(seconds: number): string {
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  return minutes < 60 ? `${minutes} phút` : `${Math.floor(minutes / 60)} giờ ${minutes % 60} phút`;
+}
+
 function formatPriceText(priceInfo: { amount: number; unit: string }): string {
   if (priceInfo.amount >= 1000000) {
     const val = (priceInfo.amount / 1000000).toFixed(1).replace('.0', '');
@@ -312,6 +321,7 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const animatedMarkerIdsRef = useRef<Set<string>>(new Set());
   const markerStatesRef = useRef<{ [id: string]: MarkerState }>({});
+  const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const prevHoveredIdRef = useRef<string | null>(null);
   const isUserInteractingRef = useRef<boolean>(false);
   const [viewportTick, setViewportTick] = useState<number>(0);
@@ -328,6 +338,10 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     isSidebarOpen,
     activeTab,
     isPickingLocation,
+    route,
+    routeStatus,
+    routeError,
+    clearRoute,
   } = useMapStore();
 
   // Initialize Leaflet Map
@@ -427,6 +441,56 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       mapRef.current = null;
     };
   }, []);
+
+  // Draw the active route directly on the map instead of handing navigation off to another app.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    routeLayerRef.current?.remove();
+    routeLayerRef.current = null;
+
+    if (!route) return;
+
+    const routeLayer = L.layerGroup();
+    L.polyline(route.coordinates, {
+      color: '#f97316',
+      weight: 8,
+      opacity: 0.25,
+      lineCap: 'round',
+      lineJoin: 'round',
+    }).addTo(routeLayer);
+    L.polyline(route.coordinates, {
+      color: '#ea580c',
+      weight: 5,
+      opacity: 0.95,
+      lineCap: 'round',
+      lineJoin: 'round',
+    }).addTo(routeLayer);
+    L.circleMarker([route.origin[1], route.origin[0]], {
+      radius: 8,
+      color: '#ffffff',
+      weight: 3,
+      fillColor: '#0ea5e9',
+      fillOpacity: 1,
+    }).bindTooltip('Điểm bắt đầu', { direction: 'top' }).addTo(routeLayer);
+    L.circleMarker([route.destination[1], route.destination[0]], {
+      radius: 9,
+      color: '#ffffff',
+      weight: 3,
+      fillColor: '#ea580c',
+      fillOpacity: 1,
+    }).bindTooltip('Điểm đến', { direction: 'top' }).addTo(routeLayer);
+
+    routeLayer.addTo(map);
+    routeLayerRef.current = routeLayer;
+    map.fitBounds(L.latLngBounds(route.coordinates), { padding: [48, 48], maxZoom: 17 });
+
+    return () => {
+      routeLayer.remove();
+      if (routeLayerRef.current === routeLayer) routeLayerRef.current = null;
+    };
+  }, [route]);
 
   // Invalidate map size when side panels expand/collapse or tab switches to map
   useEffect(() => {
@@ -618,6 +682,49 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-emerald-200 flex items-center gap-2 text-xs font-bold text-emerald-900 animate-pulse font-serif">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
           <span>Đang tải địa điểm Hòa Lạc...</span>
+        </div>
+      )}
+
+      {routeStatus !== 'idle' && (
+        <div className="absolute top-16 left-3 sm:left-4 z-[1100] w-[min(350px,calc(100%-1.5rem))]">
+          <div className="rounded-3xl bg-white/95 backdrop-blur-xl border border-orange-200 shadow-2xl shadow-orange-950/15 overflow-hidden">
+            <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-9 h-9 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0">
+                  {routeStatus === 'ready' ? <Navigation className="w-4 h-4" /> : <MapPinned className="w-4 h-4" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black text-orange-950 uppercase tracking-wider">Chỉ đường trong HOLA MAP</p>
+                  <p className="text-[11px] text-orange-800/80 truncate">
+                    {routeStatus === 'locating' && 'Đang lấy vị trí của bạn...'}
+                    {routeStatus === 'loading' && 'Đang tìm tuyến đường tối ưu...'}
+                    {routeStatus === 'error' && (routeError || 'Không thể tìm tuyến đường')}
+                    {routeStatus === 'ready' && 'Tuyến đường đã sẵn sàng'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={clearRoute}
+                className="p-1.5 rounded-xl text-orange-700 hover:bg-orange-100 transition-colors cursor-pointer shrink-0"
+                title="Đóng chỉ đường"
+                aria-label="Đóng chỉ đường"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {routeStatus === 'ready' && route && (
+              <div className="px-4 py-3 flex items-center gap-4 text-xs text-gray-700">
+                <div className="flex items-center gap-1.5 font-bold"><MapPinned className="w-4 h-4 text-sky-600" />{formatRouteDistance(route.distanceMeters)}</div>
+                <div className="flex items-center gap-1.5 font-bold"><Clock3 className="w-4 h-4 text-orange-600" />{formatRouteDuration(route.durationSeconds)}</div>
+                <span className="ml-auto text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">Đang hiển thị</span>
+              </div>
+            )}
+            {(routeStatus === 'locating' || routeStatus === 'loading') && (
+              <div className="px-4 py-3 flex items-center gap-2 text-xs font-semibold text-gray-600">
+                <LoaderCircle className="w-4 h-4 animate-spin text-orange-500" /> HOLA MAP đang tính đường...
+              </div>
+            )}
+          </div>
         </div>
       )}
 

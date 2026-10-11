@@ -2,6 +2,15 @@ import { create } from 'zustand';
 import type { Place } from '../types/place';
 
 export type SurveyStep = 'closed' | 'map_pin' | 'form';
+export type RouteStatus = 'idle' | 'locating' | 'loading' | 'ready' | 'error';
+
+export interface RoutePlan {
+  origin: [number, number]; // [lng, lat]
+  destination: [number, number]; // [lng, lat]
+  coordinates: [number, number][]; // [lat, lng] for Leaflet
+  distanceMeters: number;
+  durationSeconds: number;
+}
 
 interface MapState {
   selectedPlace: Place | null;
@@ -17,6 +26,9 @@ interface MapState {
   isSidebarOpen: boolean;
   mapStyleMode: 'festival' | 'streets' | 'satellite';
   isPickingLocation: boolean;
+  route: RoutePlan | null;
+  routeStatus: RouteStatus;
+  routeError: string | null;
 
   // Actions
   setSelectedPlace: (place: Place | null) => void;
@@ -33,6 +45,9 @@ interface MapState {
   setSidebarOpen: (isOpen: boolean) => void;
   setMapStyleMode: (mode: 'festival' | 'streets' | 'satellite') => void;
   setIsPickingLocation: (val: boolean) => void;
+  setRouteStatus: (status: RouteStatus, error?: string | null) => void;
+  setRoute: (route: RoutePlan) => void;
+  clearRoute: () => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -49,6 +64,9 @@ export const useMapStore = create<MapState>((set) => ({
   isSidebarOpen: true,
   mapStyleMode: 'festival',
   isPickingLocation: false,
+  route: null,
+  routeStatus: 'idle',
+  routeError: null,
 
   setSelectedPlace: (place) => set({ selectedPlace: place }),
   setHoveredPlaceId: (id) => set({ hoveredPlaceId: id }),
@@ -86,4 +104,7 @@ export const useMapStore = create<MapState>((set) => ({
   setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
   setMapStyleMode: (mode) => set({ mapStyleMode: mode }),
   setIsPickingLocation: (val) => set({ isPickingLocation: val }),
+  setRouteStatus: (status, error = null) => set({ routeStatus: status, routeError: error }),
+  setRoute: (route) => set({ route, routeStatus: 'ready', routeError: null }),
+  clearRoute: () => set({ route: null, routeStatus: 'idle', routeError: null }),
 }));
