@@ -57,16 +57,16 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-emerald-200 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-xs">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto flex flex-wrap lg:flex-nowrap items-center justify-between gap-2.5 sm:gap-3">
         {/* Brand & Logo */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-2">
-          <div className="flex items-center gap-2 cursor-pointer select-none shrink-0">
+        <div className="flex items-center justify-between w-full md:w-auto gap-2 min-w-0">
+          <div className="flex items-center gap-2 cursor-pointer select-none shrink-0 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-lime-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0">
               <Compass className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-lg sm:text-2xl tracking-tight text-emerald-950 font-serif">
+                <span className="font-bold text-base sm:text-2xl tracking-tight text-emerald-950 font-serif">
                   HOLA<span className="text-emerald-600 font-extrabold">MAP</span>
                 </span>
               </div>
@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex md:hidden items-center gap-1.5 shrink-0">
+          <div className="flex lg:hidden items-center justify-end flex-wrap gap-1.5 shrink-0">
             {/* 1. Mobile Survey Pin Button (Chỉ Admin mới có quyền) */}
             {isAuthenticated && isAdmin && (
               <button
@@ -258,7 +258,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="flex-1 w-full max-w-xl lg:max-w-2xl flex items-center">
+        <div className="order-3 basis-full lg:order-none lg:basis-auto flex-1 w-full lg:max-w-2xl flex items-center">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
             <input
@@ -280,7 +280,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Desktop View Mode Switcher, Survey Button & Facebook Link */}
-        <div className="hidden md:flex items-center gap-2.5">
+        <div className="hidden lg:flex items-center gap-2.5">
           {/* Desktop Survey Pin Button (Chỉ Admin mới có quyền) */}
           {isAuthenticated && isAdmin && (
             <button
