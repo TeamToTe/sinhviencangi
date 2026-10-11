@@ -23,8 +23,12 @@ export function resolveImageUrl(url?: string | null): string {
     return trimmed;
   }
 
-  // If relative path from backend uploads
-  if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
+  // If relative path from backend uploads or database-backed image endpoint
+  if (
+    trimmed.startsWith('/uploads/') ||
+    trimmed.startsWith('uploads/') ||
+    trimmed.startsWith('/api/places/')
+  ) {
     const origin = API_BASE_URL.replace(/\/api\/?$/, '');
     const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
     return `${origin}${cleanPath}`;

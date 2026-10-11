@@ -3,8 +3,10 @@ import type { Place } from '../types/place';
 
 export type SurveyStep = 'closed' | 'map_pin' | 'form';
 export type RouteStatus = 'idle' | 'locating' | 'loading' | 'ready' | 'error';
+export type RouteVehicle = 'motorcycle' | 'car';
 
 export interface RoutePlan {
+  vehicle: RouteVehicle;
   origin: [number, number]; // [lng, lat]
   destination: [number, number]; // [lng, lat]
   coordinates: [number, number][]; // [lat, lng] for Leaflet

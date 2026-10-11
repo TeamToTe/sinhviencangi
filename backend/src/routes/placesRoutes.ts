@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { placesService, detectAreaFromCoordinates } from '../services/placesService.js';
+import { placesService, detectAreaFromCoordinates, getPlaceImage } from '../services/placesService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import type { FilterParams, CreatePlaceDto, CreateReviewDto } from '../types/place.js';
 
@@ -78,6 +78,29 @@ placesRouter.get('/', async (req: Request, res: Response): Promise<void> => {
 
     const places = await placesService.getPlaces(filters);
     res.json(places);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
+
+// GET /api/places/:id/images/:index - Stream persistent database images lazily.
+placesRouter.get('/:id/images/:index', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const index = Number(req.params.index);
+    if (!Number.isInteger(index) || index < 0) {
+      res.status(400).json({ error: 'Invalid image index' });
+      return;
+    }
+
+    const image = await getPlaceImage(id, index);
+    if (!image) {
+      res.status(404).json({ error: 'Not Found', message: 'Không tìm thấy ảnh địa điểm.' });
+      return;
+    }
+
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.type(image.mimeType).send(image.buffer);
   } catch (err: any) {
     res.status(500).json({ error: 'Server error', message: err.message });
   }

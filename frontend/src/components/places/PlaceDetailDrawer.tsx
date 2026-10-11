@@ -10,7 +10,6 @@ import {
   Heart,
   Phone,
   MessageCircle,
-  Navigation,
   Share2,
   AlertTriangle,
   ShieldCheck,
@@ -22,11 +21,14 @@ import {
   Sparkles,
   Trash2,
   LoaderCircle,
+  Bike,
+  CarFront,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { getDrivingRoute } from '../../services/routingService';
+import { getRoute } from '../../services/routingService';
+import type { RouteVehicle } from '../../stores/useMapStore';
 
 function formatDistance(meters: number): string {
   return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
@@ -63,6 +65,7 @@ export const PlaceDetailDrawer: React.FC = () => {
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOpeningDirections, setIsOpeningDirections] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<RouteVehicle>('motorcycle');
 
   const handleDeletePlace = async () => {
     if (!selectedPlace) return;
@@ -96,7 +99,8 @@ export const PlaceDetailDrawer: React.FC = () => {
     }
   };
 
-  const handleOpenDirections = () => {
+  const handleOpenDirections = (vehicle: RouteVehicle) => {
+    setSelectedVehicle(vehicle);
     const destination: [number, number] = [
       selectedPlace.coordinates.lng,
       selectedPlace.coordinates.lat,
@@ -107,7 +111,7 @@ export const PlaceDetailDrawer: React.FC = () => {
       setIsOpeningDirections(true);
       setRouteStatus('loading');
       try {
-        const nextRoute = await getDrivingRoute(origin, destination);
+        const nextRoute = await getRoute(origin, destination, vehicle);
         setRoute(nextRoute);
       } catch (error) {
         setRouteStatus(
@@ -285,6 +289,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                     <img
                       src={resolveImageUrl(img)}
                       alt="thumb"
+                      loading="lazy"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src = FALLBACK_PLACE_IMAGE;
                       }}
@@ -331,7 +336,7 @@ export const PlaceDetailDrawer: React.FC = () => {
           </div>
 
           {/* Action Buttons (Call, Zalo, Directions) */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {selectedPlace.phone ? (
               <a
                 href={`tel:${selectedPlace.phone}`}
@@ -365,16 +370,34 @@ export const PlaceDetailDrawer: React.FC = () => {
             )}
 
             <button
-              onClick={handleOpenDirections}
+              onClick={() => handleOpenDirections('motorcycle')}
               disabled={isOpeningDirections}
-              className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold text-xs transition-all shadow-md shadow-orange-500/20 disabled:cursor-wait"
+              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl text-white font-bold text-xs transition-all shadow-md disabled:cursor-wait ${
+                selectedVehicle === 'motorcycle' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-slate-700 hover:bg-slate-800'
+              } disabled:bg-orange-300`}
+              title="Ưu tiên đường không vào cao tốc"
             >
-              {isOpeningDirections ? (
+              {isOpeningDirections && selectedVehicle === 'motorcycle' ? (
                 <LoaderCircle className="w-4 h-4 mb-1 animate-spin" />
               ) : (
-                <Navigation className="w-4 h-4 mb-1" />
+                <Bike className="w-4 h-4 mb-1" />
               )}
-              <span>{isOpeningDirections ? 'Đang định vị...' : 'Chỉ đường'}</span>
+              <span>Xe máy</span>
+            </button>
+            <button
+              onClick={() => handleOpenDirections('car')}
+              disabled={isOpeningDirections}
+              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl text-white font-bold text-xs transition-all shadow-md disabled:cursor-wait ${
+                selectedVehicle === 'car' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-slate-700 hover:bg-slate-800'
+              } disabled:bg-orange-300`}
+              title="Tính tuyến đường dành cho ô tô"
+            >
+              {isOpeningDirections && selectedVehicle === 'car' ? (
+                <LoaderCircle className="w-4 h-4 mb-1 animate-spin" />
+              ) : (
+                <CarFront className="w-4 h-4 mb-1" />
+              )}
+              <span>Ô tô</span>
             </button>
           </div>
 
