@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Activity,
   MapPin,
@@ -17,11 +17,14 @@ import {
   Phone,
   ExternalLink,
   ShieldCheck,
+  Camera,
 } from 'lucide-react';
 import type { Place, ReportItem, PlaceCategory } from '../../types/place';
 import { placesService } from '../../services/placesService';
 import { useMapStore } from '../../stores/useMapStore';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { uploadReviewImage, validateImageFile } from '../../services/storageService';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 interface AdminDashboardProps {
   places: Place[];
@@ -132,6 +135,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       if (onPlaceDeleted) onPlaceDeleted(place.id);
     } catch (err) {
       console.error('Failed to delete place:', err);
+    }
+  };
+
+  // Admin Change Cover Photo in Edit Modal
+  const adminEditCoverInputRef = useRef<HTMLInputElement>(null);
+  const [isAdminUploadingCover, setIsAdminUploadingCover] = useState(false);
+
+  const handleAdminChangeCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingPlace) return;
+
+    const check = validateImageFile(file);
+    if (!check.valid) {
+      alert(check.error);
+      if (adminEditCoverInputRef.current) adminEditCoverInputRef.current.value = '';
+      return;
+    }
+
+    setIsAdminUploadingCover(true);
+    try {
+      const uploadRes = await uploadReviewImage(file, editingPlace.id, 'reviews');
+      const updatedPhotos = [uploadRes.url, ...(editingPlace.photos?.length > 1 ? editingPlace.photos.slice(1) : [])];
+      setEditingPlace({
+        ...editingPlace,
+        photos: updatedPhotos,
+      });
+      alert('Đã tải ảnh bìa mới thành công! Hãy bấm "Lưu thay đổi" để áp dụng.');
+    } catch (err: any) {
+      alert(`Lỗi tải ảnh: ${err.message || 'Không thể upload'}`);
+    } finally {
+      setIsAdminUploadingCover(false);
+      if (adminEditCoverInputRef.current) adminEditCoverInputRef.current.value = '';
     }
   };
 
@@ -853,6 +888,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <form onSubmit={handleSaveEditPlace} className="p-6 space-y-4 overflow-y-auto text-xs">
+              {/* Cover Photo UI */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Ảnh bìa địa điểm</label>
+                <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0 relative shadow-2xs">
+                    <img
+                      src={resolveImageUrl(editingPlace.photos?.[0])}
+                      alt={editingPlace.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <input
+                      ref={adminEditCoverInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif"
+                      className="hidden"
+                      onChange={handleAdminChangeCover}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => adminEditCoverInputRef.current?.click()}
+                      disabled={isAdminUploadingCover}
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-1.5 border border-slate-300 shadow-2xs cursor-pointer transition-colors disabled:opacity-60"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{isAdminUploadingCover ? 'Đang tải lên...' : 'Tải ảnh bìa mới'}</span>
+                    </button>
+                    <span className="text-[10px] text-slate-500 block">Tối đa 5MB • Tự động nén WebP siêu nhẹ</span>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Tên địa điểm *</label>
                 <input

@@ -119,7 +119,7 @@ async function testBackend() {
       'GET /api/places/nearby locates the newly pinned spot within 500m radius'
     );
 
-    // Test 7: Add Review (POST /api/places/:id/reviews)
+    // Test 7: Add Review with images (POST /api/places/:id/reviews)
     const reviewRes = await apiFetch(`/api/places/${newPlaceId}/reviews`, {
       method: 'POST',
       body: JSON.stringify({
@@ -128,11 +128,32 @@ async function testBackend() {
         studentBatch: 'K18 FPTU',
         rating: 5,
         comment: 'Đã ghé thử quán theo chấm trên bản đồ, trà hoa quả siêu ngon!',
+        images: ['https://example.com/test-review-image.webp'],
       }),
     });
     assert(
-      reviewRes.status === 201 && reviewRes.data.authorName === 'Đào Thế Việt',
-      'POST /api/places/:id/reviews successfully adds a student review'
+      reviewRes.status === 201 &&
+        reviewRes.data.authorName === 'Đào Thế Việt' &&
+        Array.isArray(reviewRes.data.images) &&
+        reviewRes.data.images[0] === 'https://example.com/test-review-image.webp',
+      'POST /api/places/:id/reviews successfully adds a student review with images'
+    );
+
+    // Test 7b: Guardrail rejects invalid image format (POST /api/places/:id/reviews)
+    const invalidImageRes = await apiFetch(`/api/places/${newPlaceId}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify({
+        placeId: newPlaceId,
+        authorName: 'Đào Thế Việt',
+        studentBatch: 'K18 FPTU',
+        rating: 5,
+        comment: 'Thử gửi file không phải ảnh',
+        images: ['data:application/pdf;base64,JVBERi0xLjQK...'],
+      }),
+    });
+    assert(
+      invalidImageRes.status === 400,
+      'POST /api/places/:id/reviews guardrail rejects non-image payload'
     );
 
     // Test 8: Submit Report (POST /api/reports)
@@ -309,7 +330,32 @@ async function testBackend() {
       'GET /api/auth/users rejects non-admin token with 403 Forbidden'
     );
 
-    // Test 21: Protected Deletion - unauthenticated request rejected
+    // Test 21a: Protected Cover Update - unauthenticated request rejected
+    const unauthCoverRes = await apiFetch(`/api/places/${newPlaceId}/cover`, {
+      method: 'PATCH',
+      body: JSON.stringify({ coverUrl: 'https://example.com/new-cover.webp' }),
+    });
+    assert(
+      unauthCoverRes.status === 401,
+      'PATCH /api/places/:id/cover rejects unauthenticated request with 401'
+    );
+
+    // Test 21b: Protected Cover Update - Admin updates cover photo successfully
+    const adminCoverRes = await apiFetch(`/api/places/${newPlaceId}/cover`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({ coverUrl: 'https://example.com/new-cover.webp' }),
+    });
+    assert(
+      adminCoverRes.status === 200 &&
+        adminCoverRes.data.photos &&
+        adminCoverRes.data.photos[0] === 'https://example.com/new-cover.webp',
+      'PATCH /api/places/:id/cover updates place cover photo successfully'
+    );
+
+    // Test 22: Protected Deletion - unauthenticated request rejected
     const unauthDeleteRes = await apiFetch(`/api/places/${newPlaceId}`, {
       method: 'DELETE',
     });
@@ -318,7 +364,7 @@ async function testBackend() {
       'DELETE /api/places/:id rejects unauthenticated request with 401'
     );
 
-    // Test 22: Protected Deletion - Admin deletes place successfully
+    // Test 23: Protected Deletion - Admin deletes place successfully
     const adminDeleteRes = await apiFetch(`/api/places/${newPlaceId}`, {
       method: 'DELETE',
       headers: {

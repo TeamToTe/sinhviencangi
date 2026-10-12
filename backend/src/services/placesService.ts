@@ -142,9 +142,38 @@ function parseArrayField(val: any): string[] {
   return [];
 }
 
+const VIETNAMESE_CATEGORY_MAP: Record<string, PlaceCategory> = {
+  'ẩm thực': 'food_drink',
+  'ăn uống': 'food_drink',
+  'food_drink': 'food_drink',
+  'nhà trọ & chung cư mini': 'boarding_house',
+  'nhà trọ': 'boarding_house',
+  'boarding_house': 'boarding_house',
+  'dịch vụ học tập & đời sống': 'services',
+  'dịch vụ': 'services',
+  'services': 'services',
+  'y tế & sức khỏe': 'pharmacy',
+  'y tế': 'pharmacy',
+  'pharmacy': 'pharmacy',
+  'giải trí & thể thao': 'entertainment',
+  'giải trí': 'entertainment',
+  'entertainment': 'entertainment',
+  'grocery': 'grocery',
+  'siêu thị & tạp hóa': 'grocery',
+  'campus': 'campus',
+  'trường & điểm đón bus': 'campus',
+};
+
+export function normalizeCategory(categoryName?: string): PlaceCategory {
+  if (!categoryName) return 'boarding_house';
+  const lower = categoryName.toLowerCase().trim();
+  return VIETNAMESE_CATEGORY_MAP[lower] || 'boarding_house';
+}
+
 export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
-  const catKey = (row.category_name || 'boarding_house') as PlaceCategory;
+  const catKey = normalizeCategory(row.category_name);
   const meta = CATEGORY_MAP[catKey] || CATEGORY_MAP['boarding_house'];
+  const isBoarding = meta.id === 'boarding_house';
 
   const lat = Number(row.latitude) || 21.0185;
   const lng = Number(row.longitude) || 105.5345;
@@ -175,6 +204,13 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
         )
       : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'];
 
+  let badgeText: string | undefined = undefined;
+  if (isBoarding) {
+    badgeText = row.room_status === 'available' ? 'Còn phòng' : (row.room_status === 'full' ? 'Hết phòng' : undefined);
+  } else if (meta.id === 'food_drink' && row.min_price) {
+    badgeText = `${Math.round(row.min_price / 1000)}k`;
+  }
+
   return {
     id: String(row.id),
     name: row.name || 'Địa điểm không tên',
@@ -194,12 +230,12 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
     distanceToFPT: `${formatDistance(distFPT)} (Cổng ĐH FPT)`,
     distanceToVNU: `${formatDistance(distVNU)} (KTX ĐHQG)`,
     priceInfo:
-      row.rent_price || row.min_price
+      (row.rent_price || row.min_price)
         ? {
-            amount: row.rent_price || row.min_price || 0,
-            unit: 'tháng',
-            electricity: row.electricity_price,
-            water: row.water_price ? parseInt(String(row.water_price), 10) || undefined : undefined,
+            amount: isBoarding ? (row.rent_price || row.min_price || 0) : (row.min_price || row.rent_price || 0),
+            unit: isBoarding ? 'tháng' : 'suất',
+            electricity: isBoarding ? row.electricity_price : undefined,
+            water: isBoarding ? (row.water_price ? parseInt(String(row.water_price), 10) || undefined : undefined) : undefined,
           }
         : undefined,
     phone: row.phone,
@@ -211,9 +247,9 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
     reviewCount: reviews.length,
     reviews,
     isVerified: true,
-    isAvailable: row.room_status ? row.room_status !== 'full' : true,
+    isAvailable: isBoarding ? (row.room_status ? row.room_status !== 'full' : true) : true,
     openingHours: row.opening_hours,
-    badgeText: row.room_status === 'available' ? 'Còn phòng' : undefined,
+    badgeText,
     gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
     contributorName: row.contributor_name || undefined,
   };
@@ -288,6 +324,7 @@ export const placesService = {
           studentBatch: 'Sinh viên FPTU/VNU',
           rating: rev.rating,
           comment: rev.content,
+          images: parseArrayField(rev.images),
           createdAt: rev.created_at ? new Date(rev.created_at).toISOString().split('T')[0] : '',
         });
       }
@@ -342,6 +379,7 @@ export const placesService = {
       studentBatch: 'Sinh viên FPTU/VNU',
       rating: rev.rating,
       comment: rev.content,
+      images: parseArrayField(rev.images),
       createdAt: rev.created_at ? new Date(rev.created_at).toISOString().split('T')[0] : '',
     }));
 
@@ -524,6 +562,52 @@ export const placesService = {
   },
 
   /**
+   * Update place cover photo (Admin only)
+   */
+  async updatePlaceCover(id: string | number, coverUrl: string): Promise<Place | null> {
+    const targetId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
+    const currentRes = await db.query('SELECT images FROM places WHERE id = $1', [targetId]);
+    if (currentRes.rows.length === 0) return null;
+
+    const existingImages = parseArrayField(currentRes.rows[0].images);
+    const updatedImages = [coverUrl, ...(existingImages.length > 1 ? existingImages.slice(1) : [])];
+    const imagesVal = db.isPostgres ? updatedImages : JSON.stringify(updatedImages);
+
+    await db.query('UPDATE places SET images = $1 WHERE id = $2', [imagesVal, targetId]);
+    return await this.getPlaceById(id);
+  },
+
+  /**
+   * Update place information (Admin only)
+   */
+  async updatePlace(id: string | number, updateData: Partial<any>): Promise<Place | null> {
+    const targetId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
+    const current = await this.getPlaceById(id);
+    if (!current) return null;
+
+    if (updateData.coverUrl) {
+      await this.updatePlaceCover(id, updateData.coverUrl);
+    }
+
+    if (Array.isArray(updateData.photos) && updateData.photos.length > 0) {
+      const imagesVal = db.isPostgres ? updateData.photos : JSON.stringify(updateData.photos);
+      await db.query('UPDATE places SET images = $1 WHERE id = $2', [imagesVal, targetId]);
+    }
+
+    if (updateData.name || updateData.address || updateData.phone || updateData.shortDescription) {
+      const name = updateData.name || current.name;
+      const address = updateData.address || current.address;
+      const phone = updateData.phone || current.phone;
+      await db.query(
+        'UPDATE places SET name = COALESCE($1, name), address = COALESCE($2, address), phone = COALESCE($3, phone) WHERE id = $4',
+        [name, address, phone, targetId]
+      );
+    }
+
+    return await this.getPlaceById(id);
+  },
+
+  /**
    * Find places nearby a coordinate (Spatial Haversine calculation)
    */
   async getNearbyPlaces(lat: number, lng: number, radiusMeters: number = 1000): Promise<Place[]> {
@@ -554,11 +638,14 @@ export const placesService = {
       }
     }
 
+    const reviewImages = Array.isArray(dto.images) ? dto.images : [];
+    const imagesVal = db.isPostgres ? reviewImages : JSON.stringify(reviewImages);
+
     const ins = await db.query(
-      `INSERT INTO reviews (place_id, contribution_id, author_name, rating, content)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, created_at`,
-      [targetPlaceId, contribId, dto.authorName || 'Sinh viên Hòa Lạc', dto.rating, dto.comment]
+      `INSERT INTO reviews (place_id, contribution_id, author_name, rating, content, images)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, created_at, images`,
+      [targetPlaceId, contribId, dto.authorName || 'Sinh viên Hòa Lạc', dto.rating, dto.comment, imagesVal]
     );
 
     const newRevId = ins.rows[0]?.id;
@@ -572,6 +659,7 @@ export const placesService = {
       studentBatch: dto.studentBatch || 'Sinh viên FPTU/VNU',
       rating: dto.rating,
       comment: dto.comment,
+      images: parseArrayField(ins.rows[0]?.images || reviewImages),
       createdAt,
     };
   },

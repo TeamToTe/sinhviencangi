@@ -28,6 +28,7 @@ import {
 import { useMapStore } from '../../stores/useMapStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { placesService } from '../../services/placesService';
+import { validateImageFile } from '../../services/storageService';
 import { resolveImageUrl } from '../../utils/imageUrl';
 import type { PlaceCategory, Place } from '../../types/place';
 
@@ -245,8 +246,24 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const rawFiles = Array.from(files).slice(0, 5 - photos.length);
+    const fileList: File[] = [];
+
+    for (const f of rawFiles) {
+      const check = validateImageFile(f);
+      if (!check.valid) {
+        alert(check.error);
+      } else {
+        fileList.push(f);
+      }
+    }
+
+    if (fileList.length === 0) {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setIsUploadingPhoto(true);
-    const fileList = Array.from(files).slice(0, 5 - photos.length);
 
     Promise.all(
       fileList.map((file) => {
@@ -261,6 +278,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
       const valid = base64Strings.filter(Boolean);
       setPhotos((prev) => [...prev, ...valid]);
       setIsUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     });
   };
 

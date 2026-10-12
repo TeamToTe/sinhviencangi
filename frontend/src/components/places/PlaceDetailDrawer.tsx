@@ -23,11 +23,14 @@ import {
   LoaderCircle,
   Bike,
   CarFront,
+  Camera,
+  Plus,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { getRoute } from '../../services/routingService';
+import { uploadReviewImages, uploadReviewImage, validateImageFile } from '../../services/storageService';
 import type { RouteVehicle } from '../../stores/useMapStore';
 
 function formatDistance(meters: number): string {
@@ -61,11 +64,90 @@ export const PlaceDetailDrawer: React.FC = () => {
   const [reviewBatch, setReviewBatch] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
+  const [reviewImages, setReviewImages] = useState<File[]>([]);
+  const [reviewImagePreviews, setReviewImagePreviews] = useState<string[]>([]);
+  const [uploadProgressText, setUploadProgressText] = useState('');
+  const [previewModalImage, setPreviewModalImage] = useState<string | null>(null);
+  const reviewFileInputRef = React.useRef<HTMLInputElement>(null);
+  const coverFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isUpdatingCover, setIsUpdatingCover] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOpeningDirections, setIsOpeningDirections] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<RouteVehicle>('motorcycle');
+
+  const handleUpdateCoverPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedPlace) return;
+
+    const check = validateImageFile(file);
+    if (!check.valid) {
+      alert(check.error);
+      if (coverFileInputRef.current) coverFileInputRef.current.value = '';
+      return;
+    }
+
+    setIsUpdatingCover(true);
+    try {
+      const uploadRes = await uploadReviewImage(file, selectedPlace.id, 'reviews');
+      const updated = await placesService.updateCoverPhoto(selectedPlace.id, uploadRes.url);
+
+      const newPhotos = updated?.photos || [uploadRes.url, ...(selectedPlace.photos.length > 1 ? selectedPlace.photos.slice(1) : [])];
+      setSelectedPlace({
+        ...selectedPlace,
+        photos: newPhotos,
+      });
+      alert('Đã cập nhật ảnh bìa thành công!');
+    } catch (err: any) {
+      console.error('[PlaceDetailDrawer] Failed to update cover photo:', err);
+      alert(`Không thể cập nhật ảnh bìa: ${err.message || 'Lỗi hệ thống'}`);
+    } finally {
+      setIsUpdatingCover(false);
+      if (coverFileInputRef.current) coverFileInputRef.current.value = '';
+    }
+  };
+
+  const handleSelectReviewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const remainingSlots = 3 - reviewImages.length;
+    if (remainingSlots <= 0) {
+      alert('Tối đa 3 ảnh cho mỗi đánh giá!');
+      return;
+    }
+    const incomingFiles = Array.from(files).slice(0, remainingSlots);
+    const validFiles: File[] = [];
+
+    for (const file of incomingFiles) {
+      const check = validateImageFile(file);
+      if (!check.valid) {
+        alert(check.error);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (validFiles.length === 0) {
+      if (reviewFileInputRef.current) reviewFileInputRef.current.value = '';
+      return;
+    }
+
+    const newFiles = [...reviewImages, ...validFiles];
+    setReviewImages(newFiles);
+
+    const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
+    setReviewImagePreviews((prev) => [...prev, ...newPreviews]);
+    if (reviewFileInputRef.current) {
+      reviewFileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveReviewImage = (index: number) => {
+    URL.revokeObjectURL(reviewImagePreviews[index]);
+    setReviewImages((prev) => prev.filter((_, i) => i !== index));
+    setReviewImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleDeletePlace = async () => {
     if (!selectedPlace) return;
@@ -159,23 +241,46 @@ export const PlaceDetailDrawer: React.FC = () => {
     if (!reviewName || !reviewComment) return;
 
     setIsSubmittingReview(true);
+    setUploadProgressText(reviewImages.length > 0 ? 'Đang nén & tải ảnh lên Supabase...' : '');
     try {
-      await placesService.addReview({
+      let uploadedUrls: string[] = [];
+      if (reviewImages.length > 0) {
+        const results = await uploadReviewImages(
+          reviewImages,
+          selectedPlace.id,
+          (cur, total) => setUploadProgressText(`Đang tải ảnh ${cur}/${total}...`)
+        );
+        uploadedUrls = results.map((r) => r.url);
+      }
+
+      const createdReview = await placesService.addReview({
         placeId: selectedPlace.id,
         authorName: reviewName,
         studentBatch: reviewBatch || 'K18 FPTU',
         rating: reviewRating,
         comment: reviewComment,
+        images: uploadedUrls,
+      });
+
+      // Update place in local state immediately so user sees their review and photos
+      setSelectedPlace({
+        ...selectedPlace,
+        reviews: [createdReview, ...(selectedPlace.reviews || [])],
+        reviewCount: (selectedPlace.reviewCount || selectedPlace.reviews.length) + 1,
       });
 
       setReviewSuccessMsg('Cảm ơn bạn! Đánh giá đã được thêm thành công.');
       setReviewComment('');
       setReviewName('');
+      setReviewImages([]);
+      setReviewImagePreviews([]);
       setTimeout(() => setReviewSuccessMsg(''), 4000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Không thể gửi đánh giá: ${err.message || 'Lỗi hệ thống'}`);
     } finally {
       setIsSubmittingReview(false);
+      setUploadProgressText('');
     }
   };
 
@@ -254,7 +359,7 @@ export const PlaceDetailDrawer: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 text-sm text-gray-700 custom-scrollbar">
           {/* Photo Gallery */}
           <div className="space-y-2">
-            <div className="w-full h-48 sm:h-52 rounded-2xl overflow-hidden bg-gray-100 shadow-inner relative">
+            <div className="w-full h-48 sm:h-52 rounded-2xl overflow-hidden bg-gray-100 shadow-inner relative group">
               <img
                 src={resolveImageUrl(selectedPlace.photos[activePhotoIdx] || selectedPlace.photos[0])}
                 alt={selectedPlace.name}
@@ -263,6 +368,39 @@ export const PlaceDetailDrawer: React.FC = () => {
                 }}
                 className="w-full h-full object-cover"
               />
+
+              {/* Admin Change Cover Photo Button */}
+              {isAdmin && (
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+                  <input
+                    ref={coverFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif"
+                    className="hidden"
+                    onChange={handleUpdateCoverPhoto}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => coverFileInputRef.current?.click()}
+                    disabled={isUpdatingCover}
+                    className="px-2.5 py-1.5 rounded-xl bg-black/70 hover:bg-black/90 text-white text-[11px] font-bold backdrop-blur-md flex items-center gap-1.5 shadow-lg border border-white/20 transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+                    title="Admin: Cập nhật ảnh bìa địa điểm"
+                  >
+                    {isUpdatingCover ? (
+                      <>
+                        <LoaderCircle className="w-3.5 h-3.5 animate-spin text-lime-400" />
+                        <span>Đang tải...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="w-3.5 h-3.5 text-lime-400" />
+                        <span>Đổi ảnh bìa</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
               {selectedPlace.isAvailable !== undefined && (
                 <span
                   className={`absolute bottom-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-xl backdrop-blur-md shadow-md ${
@@ -523,7 +661,7 @@ export const PlaceDetailDrawer: React.FC = () => {
               {selectedPlace.reviews.map((r) => (
                 <div
                   key={r.id}
-                  className="bg-gray-50/80 rounded-2xl p-3 border border-gray-100 space-y-1"
+                  className="bg-gray-50/80 rounded-2xl p-3 border border-gray-100 space-y-2"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -544,6 +682,26 @@ export const PlaceDetailDrawer: React.FC = () => {
                     <RatingStars rating={r.rating} size={11} showText={false} />
                   </div>
                   <p className="text-xs text-gray-600 pl-8">{r.comment}</p>
+                  {r.images && r.images.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1 pl-8">
+                      {r.images.map((imgUrl, imgIdx) => (
+                        <div
+                          key={imgIdx}
+                          onClick={() => setPreviewModalImage(resolveImageUrl(imgUrl))}
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:opacity-90 hover:ring-2 hover:ring-emerald-500 transition-all bg-gray-100 relative group shadow-2xs"
+                        >
+                          <img
+                            src={resolveImageUrl(imgUrl)}
+                            alt={`Ảnh review ${imgIdx + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = FALLBACK_PLACE_IMAGE;
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -587,7 +745,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                       key={star}
                       type="button"
                       onClick={() => setReviewRating(star)}
-                      className="text-amber-400 text-base"
+                      className="text-amber-400 text-base cursor-pointer"
                     >
                       {star <= reviewRating ? '★' : '☆'}
                     </button>
@@ -604,13 +762,71 @@ export const PlaceDetailDrawer: React.FC = () => {
                 className="w-full px-2.5 py-1.5 rounded-xl bg-white border border-gray-200 text-xs focus:outline-hidden focus:border-emerald-500"
               />
 
+              {/* Photo Upload for Review */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-700 flex items-center gap-1">
+                    <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                    Thêm ảnh thực tế (tối đa 3 ảnh):
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-100/60 px-1.5 py-0.5 rounded-md">
+                    Tối đa 5MB • Nén WebP
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {reviewImagePreviews.map((previewUrl, idx) => (
+                    <div key={idx} className="relative w-14 h-14 rounded-xl overflow-hidden border border-gray-200 shadow-xs group">
+                      <img src={previewUrl} alt={`preview ${idx}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveReviewImage(idx)}
+                        className="absolute top-0.5 right-0.5 p-0.5 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors cursor-pointer"
+                        title="Xóa ảnh"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {reviewImages.length < 3 && (
+                    <button
+                      type="button"
+                      onClick={() => reviewFileInputRef.current?.click()}
+                      className="w-14 h-14 rounded-xl border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-white hover:bg-emerald-50/50 flex flex-col items-center justify-center text-emerald-600 transition-all cursor-pointer"
+                      title="Chọn ảnh chụp"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span className="text-[9px] font-bold mt-0.5">Thêm ảnh</span>
+                    </button>
+                  )}
+                  <input
+                    ref={reviewFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,image/avif"
+                    multiple
+                    className="hidden"
+                    onChange={handleSelectReviewImages}
+                  />
+                </div>
+              </div>
+
               <button
                 type="submit"
                 disabled={isSubmittingReview}
-                className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer disabled:opacity-70"
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>{isSubmittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}</span>
+                {isSubmittingReview ? (
+                  <>
+                    <LoaderCircle className="w-3.5 h-3.5 animate-spin" />
+                    <span>{uploadProgressText || 'Đang gửi...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Gửi đánh giá</span>
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -645,6 +861,32 @@ export const PlaceDetailDrawer: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Image Preview Modal */}
+      {previewModalImage && (
+        <div
+          className="fixed inset-0 z-60 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setPreviewModalImage(null)}
+        >
+          <div
+            className="relative max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden bg-black shadow-2xl flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={previewModalImage}
+              alt="Ảnh đánh giá phóng to"
+              className="w-full h-auto max-h-[85vh] object-contain"
+            />
+            <button
+              onClick={() => setPreviewModalImage(null)}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/90 text-white transition-colors cursor-pointer"
+              title="Đóng xem ảnh"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -11,22 +11,49 @@ export const MapLegend: React.FC = () => {
 
   return (
     <div className="absolute bottom-12 left-3 sm:bottom-6 sm:left-4 z-[950] select-none">
-      <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 overflow-hidden max-w-[220px] sm:max-w-[240px] transition-all duration-300">
-        {/* Toggle Bar */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 bg-emerald-900 text-white text-xs font-black tracking-wider uppercase cursor-pointer"
-        >
-          <div className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-lime-400" />
-            <span>Chú giải Bản đồ</span>
-          </div>
-          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-        </button>
+      {/* Khi đóng: Nút icon trên mobile & nút pill ôm vừa chữ (không bị dài) trên desktop */}
+      {!isExpanded && (
+        <>
+          {/* Mobile: Chỉ 1 icon gọn gàng */}
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="sm:hidden w-10 h-10 bg-emerald-900 text-lime-400 rounded-2xl shadow-xl border border-emerald-700/80 flex items-center justify-center cursor-pointer active:scale-95 transition-all hover:bg-emerald-800"
+            title="Chú giải bản đồ"
+            aria-label="Chú giải bản đồ"
+          >
+            <Layers className="w-5 h-5 text-lime-400" />
+          </button>
 
-        {/* Legend Content */}
-        {isExpanded && (
-          <div className="p-3 space-y-2 max-h-64 overflow-y-auto text-xs animate-in slide-in-from-bottom-2">
+          {/* Desktop: Nút gọn gàng vừa vặn chữ, không bị kéo dài */}
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="hidden sm:inline-flex items-center gap-2 px-3 py-2 bg-emerald-900 text-white rounded-2xl shadow-xl border border-emerald-700/80 cursor-pointer hover:bg-emerald-800 transition-all active:scale-95 text-xs font-black tracking-wider uppercase"
+            title="Mở chú giải bản đồ"
+          >
+            <Layers className="w-4 h-4 text-lime-400 shrink-0" />
+            <span>Chú giải bản đồ</span>
+            <ChevronUp className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+          </button>
+        </>
+      )}
+
+      {/* Khi mở: Bảng danh mục mở rộng (hiển thị trên cả mobile & desktop) */}
+      {isExpanded && (
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-emerald-200/80 overflow-hidden w-[220px] sm:w-[230px] transition-all duration-300 animate-in fade-in zoom-in-95">
+          {/* Header Bar thu gọn */}
+          <button
+            onClick={() => setIsExpanded(false)}
+            className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 bg-emerald-900 text-white text-xs font-black tracking-wider uppercase cursor-pointer hover:bg-emerald-800 transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-lime-400 shrink-0" />
+              <span>Chú giải Bản đồ</span>
+            </div>
+            <ChevronDown className="w-4 h-4 shrink-0 text-emerald-300" />
+          </button>
+
+          {/* Nội dung danh mục */}
+          <div className="p-3 space-y-2 max-h-64 overflow-y-auto text-xs">
             <div className="space-y-1.5">
               {CATEGORIES.map((cat) => {
                 const isSelected = category === cat.id;
@@ -54,17 +81,17 @@ export const MapLegend: React.FC = () => {
 
             <div className="pt-2 border-t border-gray-100 text-[10px] text-gray-600 space-y-0.5">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
                 <span>Điểm đã xác thực sinh viên</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
                 <span>FPT Top Pick / Khuyến nghị</span>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -41,6 +41,14 @@ export const Header: React.FC = () => {
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const viewMenuRef = useRef<HTMLDivElement>(null);
 
+  // Lấy từ cuối cùng của tên thật (loại bỏ phần chú thích trong ngoặc đơn như (Nhóm trưởng), (Phó nhóm)...)
+  const getShortName = (fullName?: string) => {
+    if (!fullName) return '';
+    const cleanName = fullName.replace(/\s*\([^)]*\)/g, '').trim();
+    const parts = cleanName.split(/\s+/).filter(Boolean);
+    return parts.length > 0 ? parts[parts.length - 1] : fullName;
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (viewMenuRef.current && !viewMenuRef.current.contains(event.target as Node)) {
@@ -57,20 +65,20 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-white/95 backdrop-blur-xl border-b border-emerald-200/80 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-[0_8px_30px_rgba(6,78,59,0.08)]">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(280px,1fr)_auto] items-center gap-2.5 sm:gap-3">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 sm:gap-3">
         {/* Brand & Logo */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-2 min-w-0">
-          <div className="flex items-center gap-2 cursor-pointer select-none shrink-0 min-w-0">
+        <div className="flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-2 cursor-pointer select-none shrink-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-lime-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0">
               <Compass className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base sm:text-2xl tracking-tight text-emerald-950 font-serif">
-                  HOLA<span className="text-emerald-600 font-extrabold">MAP</span>
+                <span className="font-bold text-base sm:text-2xl tracking-tight text-emerald-950 font-serif whitespace-nowrap">
+                  Sinh viên <span className="text-emerald-600 font-extrabold">cần gì</span>
                 </span>
               </div>
-              <p className="hidden sm:block text-[12px] sm:text-[13px] text-gray-600 font-normal font-serif tracking-tight">
+              <p className="hidden sm:block text-[12px] sm:text-[13px] text-gray-600 font-normal font-serif tracking-tight whitespace-nowrap">
                 Bản đồ dịch vụ khu vực FPTU - VNU
               </p>
             </div>
@@ -258,7 +266,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="order-2 col-span-full lg:order-none lg:col-span-1 flex-1 w-full min-w-0 lg:max-w-2xl flex items-center">
+        <div className="flex-1 min-w-0 md:max-w-md lg:max-w-xl mx-0 md:mx-2 flex items-center">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
             <input
@@ -280,23 +288,23 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Desktop View Mode Switcher, Survey Button & Facebook Link */}
-        <div className="hidden lg:flex items-center gap-2.5">
+        <div className="hidden lg:flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Desktop Survey Pin Button (Chỉ Admin mới có quyền) */}
           {isAuthenticated && isAdmin && (
             <button
               onClick={() => setSurveyStep('map_pin')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
               title="Chấm điểm khảo sát thực địa bằng GPS"
             >
               <MapPin className="w-3.5 h-3.5 text-amber-300" />
-              <span>+ Chấm Địa Điểm</span>
+              <span>Chấm điểm</span>
             </button>
           )}
 
-          <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-2xl border border-gray-200">
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl border border-gray-200 shrink-0">
             <button
               onClick={() => setActiveTab('map')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'map'
                   ? 'bg-white text-emerald-800 shadow-xs'
                   : 'text-gray-700 hover:text-gray-900'
@@ -307,7 +315,7 @@ export const Header: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('list')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'list'
                   ? 'bg-white text-emerald-800 shadow-xs'
                   : 'text-gray-700 hover:text-gray-900'
@@ -318,7 +326,7 @@ export const Header: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('favorites')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold relative transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold relative transition-all cursor-pointer ${
                 activeTab === 'favorites'
                   ? 'bg-white text-rose-600 shadow-xs'
                   : 'text-gray-700 hover:text-gray-900'
@@ -332,57 +340,51 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </button>
-            <button
-              onClick={() => {
-                if (isAuthenticated) {
-                  setActiveTab('admin');
-                } else {
-                  setLoginModalOpen(true);
-                }
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'admin'
-                  ? 'bg-white text-amber-900 shadow-xs ring-1 ring-amber-300'
-                  : 'text-gray-700 hover:text-gray-900'
-              }`}
-              title="Trang quản trị hệ thống"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-              <span>Trang Admin</span>
-            </button>
+            {/* Tab Trang Admin chỉ hiển thị nếu là Admin hoặc đang ở tab admin */}
+            {isAuthenticated && (
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'admin'
+                    ? 'bg-white text-amber-900 shadow-xs ring-1 ring-amber-300'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+                title="Trang quản trị hệ thống"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                <span>Admin</span>
+              </button>
+            )}
           </div>
 
           <a
             href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-blue-50/90 hover:bg-blue-100 text-blue-700 hover:text-blue-800 border border-blue-200/90 text-xs font-semibold transition-all hover:shadow-sm shrink-0 group cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-blue-50/90 hover:bg-blue-100 text-[#1877F2] border border-blue-200/90 text-xs font-semibold transition-all hover:shadow-xs shrink-0 group cursor-pointer"
             title="Theo dõi chúng mình trên Facebook"
           >
-            <div className="w-5 h-5 rounded-full bg-[#1877F2] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-110 transition-transform">
-              <FacebookIcon className="w-3 h-3 fill-current" />
-            </div>
-            <span className="whitespace-nowrap font-medium">Theo dõi chúng mình</span>
+            <FacebookIcon className="w-3.5 h-3.5 fill-current" />
+            <span className="hidden xl:inline whitespace-nowrap font-medium text-[11px]">Fanpage</span>
           </a>
 
           {/* Desktop Auth / Admin Button */}
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-1.5 bg-emerald-50/90 border border-emerald-300/80 pl-2.5 pr-1.5 py-1 rounded-2xl shadow-xs">
+            <div className="flex items-center gap-1.5 bg-emerald-50/90 border border-emerald-300/80 pl-2.5 pr-1.5 py-1 rounded-2xl shadow-xs shrink-0">
               <button
                 onClick={() => setActiveTab('admin')}
-                className="flex items-center gap-1.5 text-xs hover:opacity-85 transition-opacity cursor-pointer"
-                title="Bấm để vào Trang Quản Trị"
+                className="flex items-center gap-1 text-xs hover:opacity-85 transition-opacity cursor-pointer"
+                title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để vào Trang Quản Trị`}
               >
-                <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span className="font-black text-emerald-950 max-w-[120px] truncate" title={user.fullName}>
-                  {user.fullName}
+                <span className="font-bold text-emerald-950 text-xs">
+                  {getShortName(user.fullName)}
                 </span>
                 <span
-                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${
+                  className={`text-[9px] font-black px-1.5 py-0.5 rounded-md ${
                     isAdmin ? 'bg-amber-400 text-amber-950' : 'bg-emerald-200 text-emerald-900'
                   }`}
                 >
-                  {isAdmin ? 'Admin' : 'Khảo sát'}
+                  {isAdmin ? 'Admin' : 'KS'}
                 </span>
               </button>
               <button
@@ -396,7 +398,7 @@ export const Header: React.FC = () => {
           ) : (
             <button
               onClick={() => setLoginModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
               title="Đăng nhập Admin / Thành viên khảo sát"
             >
               <Lock className="w-3.5 h-3.5 text-emerald-700" />

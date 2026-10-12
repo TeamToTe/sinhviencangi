@@ -26,6 +26,7 @@ export interface Review {
   studentBatch?: string; // e.g., 'K17 FPTU', 'QH-2022 VNU'
   rating: number; // 1 to 5
   comment: string;
+  images?: string[];
   createdAt: string;
 }
 
@@ -125,6 +126,7 @@ export interface CreateReviewDto {
   studentBatch?: string;
   rating: number;
   comment: string;
+  images?: string[];
 }
 
 export interface CreatePlaceDto {

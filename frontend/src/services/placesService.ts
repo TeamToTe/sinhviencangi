@@ -595,6 +595,36 @@ export const placesService = {
   },
 
   /**
+   * Update cover photo of a place (Admin only)
+   */
+  async updateCoverPhoto(id: string, coverUrl: string): Promise<Place> {
+    const idx = MOCK_PLACES.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      const existing = MOCK_PLACES[idx].photos || [];
+      const updatedPhotos = [coverUrl, ...(existing.length > 1 ? existing.slice(1) : [])];
+      MOCK_PLACES[idx] = {
+        ...MOCK_PLACES[idx],
+        photos: updatedPhotos,
+      };
+    }
+
+    if (!USE_MOCK_DATA) {
+      try {
+        const res = await request<Place>(`/places/${id}/cover`, {
+          method: 'PATCH',
+          body: JSON.stringify({ coverUrl }),
+        });
+        if (res) return res;
+      } catch (err) {
+        console.warn('[PlacesService] Backend updateCoverPhoto error:', err);
+        throw err;
+      }
+    }
+
+    return MOCK_PLACES[idx];
+  },
+
+  /**
    * Submit a student review
    */
   async addReview(dto: CreateReviewDto): Promise<Review> {
@@ -604,6 +634,7 @@ export const placesService = {
       studentBatch: dto.studentBatch || 'Sinh viên Hòa Lạc',
       rating: dto.rating,
       comment: dto.comment,
+      images: dto.images || [],
       createdAt: new Date().toISOString().split('T')[0],
     };
 

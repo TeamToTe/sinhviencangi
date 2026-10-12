@@ -67,6 +67,7 @@ export async function runMigrations(): Promise<void> {
           author_name VARCHAR(100),
           rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
           content TEXT NOT NULL,
+          images TEXT[] DEFAULT '{}',
           created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
@@ -89,6 +90,7 @@ export async function runMigrations(): Promise<void> {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMPTZ;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
       ALTER TABLE reviews ADD COLUMN IF NOT EXISTS author_name VARCHAR(100);
+      ALTER TABLE reviews ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
     `);
   } else {
     // SQLite Schema
@@ -152,6 +154,7 @@ export async function runMigrations(): Promise<void> {
           author_name VARCHAR(100),
           rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
           content TEXT NOT NULL,
+          images TEXT DEFAULT '[]',
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -173,6 +176,11 @@ export async function runMigrations(): Promise<void> {
     // Ensure gps_accuracy column exists if table pre-existed
     try {
       await db.exec('ALTER TABLE places ADD COLUMN gps_accuracy REAL;');
+    } catch {
+      // Column already exists, safe to ignore
+    }
+    try {
+      await db.exec('ALTER TABLE reviews ADD COLUMN images TEXT;');
     } catch {
       // Column already exists, safe to ignore
     }

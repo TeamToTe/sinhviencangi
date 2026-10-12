@@ -26,6 +26,7 @@ export interface Review {
   studentBatch?: string;
   rating: number;
   comment: string;
+  images?: string[];
   createdAt: string;
 }
 
@@ -145,6 +146,7 @@ export interface CreateReviewDto {
   studentBatch?: string;
   rating: number;
   comment: string;
+  images?: string[];
   contributorName?: string;
 }
 
