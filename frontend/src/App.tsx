@@ -5,7 +5,6 @@ import { useFilterStore } from './stores/useFilterStore';
 import { useMapStore } from './stores/useMapStore';
 import { Header } from './components/layout/Header';
 import { CategoryBar } from './components/filter/CategoryBar';
-import { Sidebar } from './components/layout/Sidebar';
 import { MapLibreView } from './components/map/MapLibreView';
 import { PlaceDetailDrawer } from './components/places/PlaceDetailDrawer';
 import { PlaceReportModal } from './components/places/PlaceReportModal';
@@ -85,7 +84,7 @@ export const App: React.FC = () => {
       : places;
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#f4fbf3] text-gray-800 font-serif antialiased">
+    <div className="flex flex-col h-screen h-[100dvh] w-screen overflow-hidden bg-[#f4fbf3] text-gray-800 font-serif antialiased">
       {/* 1. Fixed Top Header */}
       <Header />
 
@@ -184,16 +183,13 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* Map View & 3-Column Layout */}
+        {/* Map View & Fullscreen Layout */}
         <div
           className={`flex-1 flex h-full w-full relative overflow-hidden ${
             activeTab === 'map' ? 'flex' : 'hidden'
           }`}
         >
-          {/* Cột Trái: Danh sách gợi ý địa điểm (Desktop only) */}
-          <Sidebar places={places} isLoading={isLoading} />
-
-          {/* Cột Giữa: Khung hình bản đồ tương tác */}
+          {/* Khung hình bản đồ tương tác toàn màn hình */}
           <div className="flex-1 h-full relative overflow-hidden">
             {/* Floating Filter Bar centered on top of map */}
             <div className="absolute top-2.5 sm:top-3 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-[900] pointer-events-auto max-w-full sm:max-w-4xl">

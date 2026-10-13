@@ -91,8 +91,8 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
             />
           </button>
 
-          {/* Availability Badge */}
-          {place.isAvailable !== undefined && (
+          {/* Availability Badge (Only for Boarding Houses / Nhà trọ) */}
+          {place.category === 'boarding_house' && place.isAvailable !== undefined && (
             <div className="absolute bottom-2.5 left-2.5">
               {place.isAvailable ? (
                 <span className="bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs flex items-center gap-1">

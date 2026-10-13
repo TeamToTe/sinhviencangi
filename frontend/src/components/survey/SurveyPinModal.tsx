@@ -310,9 +310,29 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     setIsSubmitting(true);
 
     try {
-      const parsedMinPrice = minPrice ? parseInt(minPrice.replace(/\D/g, ''), 10) : 0;
-      const parsedMaxPrice = maxPrice ? parseInt(maxPrice.replace(/\D/g, ''), 10) : 0;
+      let parsedMinPrice = minPrice ? parseInt(minPrice.replace(/\D/g, ''), 10) : 0;
+      let parsedMaxPrice = maxPrice ? parseInt(maxPrice.replace(/\D/g, ''), 10) : 0;
       const parsedRentPrice = rentPrice ? parseInt(rentPrice.replace(/\D/g, ''), 10) : 0;
+
+      // Hỗ trợ nhập tắt (ví dụ nhập 15 thay vì 15000 cho các quán ăn, dịch vụ)
+      if (parsedMinPrice > 0 && parsedMinPrice < 1000 && category !== 'boarding_house') {
+        parsedMinPrice *= 1000;
+      }
+      if (parsedMaxPrice > 0 && parsedMaxPrice < 1000 && category !== 'boarding_house') {
+        parsedMaxPrice *= 1000;
+      }
+
+      let effectiveMinPrice = parsedMinPrice || parsedRentPrice;
+      let effectiveMaxPrice = parsedMaxPrice || parsedRentPrice;
+
+      // Đảm bảo không vi phạm check constraint (min_price <= max_price)
+      if (effectiveMinPrice > 0 && effectiveMaxPrice > 0 && effectiveMinPrice > effectiveMaxPrice) {
+        [effectiveMinPrice, effectiveMaxPrice] = [effectiveMaxPrice, effectiveMinPrice];
+      } else if (effectiveMinPrice > 0 && (effectiveMaxPrice === 0 || effectiveMaxPrice < effectiveMinPrice)) {
+        effectiveMaxPrice = effectiveMinPrice;
+      } else if (effectiveMaxPrice > 0 && effectiveMinPrice === 0) {
+        effectiveMinPrice = effectiveMaxPrice;
+      }
 
       const payload = {
         name: name.trim(),
@@ -325,8 +345,8 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
         longitude: lng,
         gpsAccuracy: undefined,
         contributorName: surveyor,
-        minPrice: parsedMinPrice || parsedRentPrice,
-        maxPrice: parsedMaxPrice || parsedRentPrice,
+        minPrice: effectiveMinPrice,
+        maxPrice: effectiveMaxPrice,
         rentPrice: parsedRentPrice,
         electricityPrice: parseInt(electricityPrice, 10) || 3500,
         waterPrice,

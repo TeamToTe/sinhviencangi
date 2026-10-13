@@ -470,8 +470,29 @@ export const placesService = {
       }
     }
 
-    const minPrice = dto.minPrice ?? dto.priceInfo?.amount ?? 0;
-    const maxPrice = dto.maxPrice ?? dto.priceInfo?.amount ?? 0;
+    let minPrice = dto.minPrice ?? dto.priceInfo?.amount ?? 0;
+    let maxPrice = dto.maxPrice ?? dto.priceInfo?.amount ?? 0;
+
+    // Tự động chuyển đổi nếu nhập số tắt (ví dụ 15 -> 15000)
+    if (minPrice > 0 && minPrice < 1000 && catName !== 'boarding_house') {
+      minPrice *= 1000;
+    }
+    if (maxPrice > 0 && maxPrice < 1000 && catName !== 'boarding_house') {
+      maxPrice *= 1000;
+    }
+
+    // Đảm bảo tuân thủ check constraint check_price trong PostgreSQL (min_price <= max_price)
+    if (minPrice > 0 && maxPrice > 0 && minPrice > maxPrice) {
+      // Trường hợp người dùng vô tình nhập ngược giá thấp nhất và cao nhất
+      [minPrice, maxPrice] = [maxPrice, minPrice];
+    } else if (minPrice > 0 && (maxPrice === 0 || maxPrice < minPrice)) {
+      // Trường hợp chỉ nhập giá thấp nhất mà không nhập giá cao nhất
+      maxPrice = minPrice;
+    } else if (maxPrice > 0 && minPrice === 0) {
+      // Trường hợp chỉ nhập giá cao nhất
+      minPrice = maxPrice;
+    }
+
     const rentPrice = dto.rentPrice ?? (catName === 'boarding_house' ? minPrice : 0);
     const electricityPrice = dto.electricityPrice ?? dto.priceInfo?.electricity ?? 0;
     const waterPrice = dto.waterPrice ? String(dto.waterPrice) : dto.priceInfo?.water ? `${dto.priceInfo.water}/khối` : '';
@@ -546,6 +567,14 @@ export const placesService = {
    * Delete place (Admin only action)
    */
   async deletePlace(id: string | number): Promise<boolean> {
+    if (db.isPostgres) {
+      const isUuid = typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      const isNumeric = !isNaN(Number(id));
+      if (!isUuid && !isNumeric) {
+        // Not a valid DB identifier (e.g. pin-1791855070191)
+        return false;
+      }
+    }
     const targetId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
     try {
       await db.query('DELETE FROM reviews WHERE place_id = $1', [targetId]);

@@ -809,6 +809,20 @@ export const placesService = {
    * Delete place (Admin only)
    */
   async deletePlace(id: string): Promise<boolean> {
+    // If it's a local/temporary mock pin (e.g. pin-1791855070191)
+    const isMockOrLocalId =
+      id.startsWith('pin-') ||
+      id.startsWith('mock-') ||
+      (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) && isNaN(Number(id)));
+
+    if (isMockOrLocalId) {
+      const idx = MOCK_PLACES.findIndex((p) => p.id === id);
+      if (idx !== -1) {
+        MOCK_PLACES.splice(idx, 1);
+      }
+      return true;
+    }
+
     if (!USE_MOCK_DATA) {
       try {
         const res = await request<{ success: boolean }>(`/places/${id}`, {
@@ -823,6 +837,8 @@ export const placesService = {
             await supabase.from('reports').delete().eq('place_id', id);
             const { error: supaErr } = await supabase.from('places').delete().eq('id', id);
             if (!supaErr) {
+              const idx = MOCK_PLACES.findIndex((p) => p.id === id);
+              if (idx !== -1) MOCK_PLACES.splice(idx, 1);
               return true;
             }
           } catch (supaCatch) {

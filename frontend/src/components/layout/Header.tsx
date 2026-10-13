@@ -5,7 +5,6 @@ import {
   List,
   Map as MapIcon,
   X,
-  Compass,
   MapPin,
   ShieldCheck,
   LogOut,
@@ -16,6 +15,7 @@ import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
 import { useFavoritesStore } from '../../stores/useFavoritesStore';
 import { useAuthStore } from '../../stores/useAuthStore';
+import webIcon from '../../assets/icon.png';
 
 const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg
@@ -40,6 +40,8 @@ export const Header: React.FC = () => {
 
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const viewMenuRef = useRef<HTMLDivElement>(null);
+  const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+  const adminMenuRef = useRef<HTMLDivElement>(null);
 
   // Lấy từ cuối cùng của tên thật (loại bỏ phần chú thích trong ngoặc đơn như (Nhóm trưởng), (Phó nhóm)...)
   const getShortName = (fullName?: string) => {
@@ -49,32 +51,43 @@ export const Header: React.FC = () => {
     return parts.length > 0 ? parts[parts.length - 1] : fullName;
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsAdminMenuOpen(false);
+    if (activeTab === 'admin') {
+      setActiveTab('map');
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (viewMenuRef.current && !viewMenuRef.current.contains(event.target as Node)) {
         setIsViewMenuOpen(false);
       }
+      if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
+        setIsAdminMenuOpen(false);
+      }
     };
-    if (isViewMenuOpen) {
+    if (isViewMenuOpen || isAdminMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isViewMenuOpen]);
+  }, [isViewMenuOpen, isAdminMenuOpen]);
 
   return (
     <header className="bg-white/95 backdrop-blur-xl border-b border-emerald-200/80 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-[0_8px_30px_rgba(6,78,59,0.08)]">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 sm:gap-3">
         {/* Brand & Logo */}
-        <div className="flex items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center justify-between gap-2.5 sm:gap-4 shrink-0">
           <div className="flex items-center gap-2 cursor-pointer select-none shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-lime-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0">
-              <Compass className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0 bg-white flex items-center justify-center p-0.5">
+              <img src={webIcon} alt="Sinh viên cần gì" className="w-full h-full object-contain" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base sm:text-2xl tracking-tight text-emerald-950 font-serif whitespace-nowrap">
+              <div className="flex items-center gap-1.5 leading-normal">
+                <span className="font-bold text-[15px] sm:text-2xl tracking-tight text-emerald-950 font-serif whitespace-nowrap">
                   Sinh viên <span className="text-emerald-600 font-extrabold">cần gì</span>
                 </span>
               </div>
@@ -85,20 +98,8 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex lg:hidden items-center justify-end flex-wrap gap-1.5 shrink-0">
-            {/* 1. Mobile Survey Pin Button (Chỉ Admin mới có quyền) */}
-            {isAuthenticated && isAdmin && (
-              <button
-                onClick={() => setSurveyStep('map_pin')}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white font-black text-xs shadow-xs cursor-pointer shrink-0"
-                title="Chấm điểm khảo sát thực địa bằng GPS"
-              >
-                <MapPin className="w-3.5 h-3.5 text-amber-300" />
-                <span>Chấm</span>
-              </button>
-            )}
-
-            {/* 2. Mobile View Switcher - Gộp thành 1 ô, danh sách trượt xuống */}
+          <div className="flex lg:hidden items-center justify-end flex-nowrap gap-1.5 shrink-0 ml-auto">
+            {/* 1. Mobile View Switcher - Gộp thành 1 ô, danh sách trượt xuống */}
             <div className="relative shrink-0" ref={viewMenuRef}>
               <button
                 onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
@@ -227,6 +228,18 @@ export const Header: React.FC = () => {
               )}
             </div>
 
+            {/* 2. Mobile Survey Pin Button (Chỉ Admin mới có quyền) */}
+            {isAuthenticated && isAdmin && (
+              <button
+                onClick={() => setSurveyStep('map_pin')}
+                className="p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white shadow-xs cursor-pointer shrink-0 flex items-center justify-center border border-emerald-500/80"
+                title="Chấm điểm khảo sát thực địa bằng GPS"
+                aria-label="Chấm điểm GPS"
+              >
+                <MapPin className="w-4 h-4 text-amber-300" />
+              </button>
+            )}
+
             {/* 3. Mobile Facebook Link */}
             <a
               href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
@@ -240,19 +253,81 @@ export const Header: React.FC = () => {
 
             {/* 4. Mobile Admin / Auth Button */}
             {isAuthenticated && user ? (
-              <button
-                onClick={() => setActiveTab('admin')}
-                className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs shrink-0 ${
-                  activeTab === 'admin'
-                    ? 'bg-amber-400 text-amber-950 border-amber-500 ring-2 ring-amber-300'
-                    : isAdmin
-                    ? 'bg-amber-100/90 text-amber-900 border-amber-300'
-                    : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
-                }`}
-                title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để vào Trang Quản Trị`}
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-700" />
-              </button>
+              <div className="relative shrink-0" ref={adminMenuRef}>
+                <button
+                  onClick={() => setIsAdminMenuOpen((prev) => !prev)}
+                  className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs shrink-0 ${
+                    isAdminMenuOpen || activeTab === 'admin'
+                      ? 'bg-amber-400 text-amber-950 border-amber-500 ring-2 ring-amber-300'
+                      : isAdmin
+                      ? 'bg-amber-100/90 text-amber-900 border-amber-300'
+                      : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
+                  }`}
+                  title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để xem tuỳ chọn`}
+                  aria-expanded={isAdminMenuOpen}
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-800" />
+                </button>
+
+                {/* Dropdown hiện bên dưới khi bấm */}
+                {isAdminMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-[1200]"
+                      onClick={() => setIsAdminMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-2 w-38 bg-white rounded-2xl shadow-2xl border border-amber-200/80 p-1.5 z-[1300] animate-in fade-in slide-in-from-top-2 duration-150 space-y-1">
+                      {/* Tên người dùng */}
+                      <div className="px-2.5 py-1.5 border-b border-gray-100 flex items-center justify-between gap-1">
+                        <span className="text-xs font-bold text-gray-800 truncate">
+                          {getShortName(user.fullName) || user.fullName}
+                        </span>
+                        <span
+                          className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
+                            isAdmin ? 'bg-amber-400 text-amber-950' : 'bg-emerald-200 text-emerald-900'
+                          }`}
+                        >
+                          {isAdmin ? 'Admin' : 'KS'}
+                        </span>
+                      </div>
+
+                      {/* Chuyển trang Quản trị / Bản đồ */}
+                      {activeTab !== 'admin' ? (
+                        <button
+                          onClick={() => {
+                            setActiveTab('admin');
+                            setIsAdminMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition-all cursor-pointer"
+                        >
+                          <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+                          <span>Trang Admin</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setActiveTab('map');
+                            setIsAdminMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-900 transition-all cursor-pointer"
+                        >
+                          <MapIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>Về Bản đồ</span>
+                        </button>
+                      )}
+
+                      {/* Nút Đăng xuất với ký hiệu mũi tên */}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all cursor-pointer border-t border-gray-100"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               <button
                 onClick={() => setLoginModalOpen(true)}
@@ -388,7 +463,7 @@ export const Header: React.FC = () => {
                 </span>
               </button>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="p-1 rounded-xl hover:bg-emerald-100 text-gray-500 hover:text-rose-600 transition-colors cursor-pointer"
                 title="Đăng xuất"
               >

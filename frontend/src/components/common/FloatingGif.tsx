@@ -15,17 +15,17 @@ export const FloatingGif: React.FC = () => {
     return (
       <button
         onClick={() => setIsVisible(true)}
-        className="fixed bottom-12 sm:bottom-4 right-3 sm:right-4 z-[990] bg-white/95 hover:bg-white text-gray-600 hover:text-emerald-700 p-2.5 rounded-full shadow-lg border border-emerald-200 transition-all hover:scale-110 active:scale-95 cursor-pointer text-xs flex items-center justify-center"
+        className="fixed bottom-12 right-3 sm:bottom-8 sm:right-4 z-[950] w-10 h-10 bg-white/95 hover:bg-white text-emerald-700 hover:text-emerald-900 rounded-2xl shadow-xl border border-emerald-200 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
         title="Hiện bé mèo"
         aria-label="Hiện bé mèo"
       >
-        <Sparkles className="w-4 h-4 text-emerald-600" />
+        <Sparkles className="w-5 h-5 text-emerald-600" />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-12 sm:bottom-4 right-3 sm:right-4 z-[990] select-none pointer-events-auto">
+    <div className="fixed bottom-12 right-3 sm:bottom-8 sm:right-4 z-[950] select-none pointer-events-auto">
       {/* Container with shadow & hover interaction */}
       <div className="relative bg-white/95 backdrop-blur-xs p-1.5 rounded-2xl shadow-xl border border-emerald-200/80 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
         {/* Nút X đóng bé mèo - luôn hiển thị nổi bật dễ bấm */}

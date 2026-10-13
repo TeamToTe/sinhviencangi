@@ -10,7 +10,7 @@ export const MapLegend: React.FC = () => {
   const { category, setCategory } = useFilterStore();
 
   return (
-    <div className="absolute bottom-12 left-3 sm:bottom-6 sm:left-4 z-[950] select-none">
+    <div className="absolute bottom-12 left-3 sm:bottom-8 sm:left-4 z-[950] select-none">
       {/* Khi đóng: Nút icon trên mobile & nút pill ôm vừa chữ (không bị dài) trên desktop */}
       {!isExpanded && (
         <>
