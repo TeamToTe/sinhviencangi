@@ -6,9 +6,6 @@ import {
   Map as MapIcon,
   X,
   MapPin,
-  ShieldCheck,
-  LogOut,
-  Lock,
   ChevronDown,
 } from 'lucide-react';
 import { useFilterStore } from '../../stores/useFilterStore';
@@ -36,45 +33,24 @@ export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery } = useFilterStore();
   const { activeTab, setActiveTab, setSurveyStep } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
-  const { user, isAuthenticated, isAdmin, setLoginModalOpen, logout } = useAuthStore();
+  const { isAuthenticated, isAdmin } = useAuthStore();
 
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const viewMenuRef = useRef<HTMLDivElement>(null);
-  const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
-  const adminMenuRef = useRef<HTMLDivElement>(null);
-
-  // Lấy từ cuối cùng của tên thật (loại bỏ phần chú thích trong ngoặc đơn như (Nhóm trưởng), (Phó nhóm)...)
-  const getShortName = (fullName?: string) => {
-    if (!fullName) return '';
-    const cleanName = fullName.replace(/\s*\([^)]*\)/g, '').trim();
-    const parts = cleanName.split(/\s+/).filter(Boolean);
-    return parts.length > 0 ? parts[parts.length - 1] : fullName;
-  };
-
-  const handleLogout = () => {
-    logout();
-    setIsAdminMenuOpen(false);
-    if (activeTab === 'admin') {
-      setActiveTab('map');
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (viewMenuRef.current && !viewMenuRef.current.contains(event.target as Node)) {
         setIsViewMenuOpen(false);
       }
-      if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
-        setIsAdminMenuOpen(false);
-      }
     };
-    if (isViewMenuOpen || isAdminMenuOpen) {
+    if (isViewMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isViewMenuOpen, isAdminMenuOpen]);
+  }, [isViewMenuOpen]);
 
   return (
     <header className="bg-white/95 backdrop-blur-xl border-b border-emerald-200/80 sticky top-0 z-[1100] px-3 sm:px-6 py-2.5 shadow-[0_8px_30px_rgba(6,78,59,0.08)]">
@@ -200,29 +176,6 @@ export const Header: React.FC = () => {
                       )}
                     </button>
 
-                    <button
-                      onClick={() => {
-                        if (isAuthenticated) {
-                          setActiveTab('admin');
-                        } else {
-                          setLoginModalOpen(true);
-                        }
-                        setIsViewMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        activeTab === 'admin'
-                          ? 'bg-amber-50 text-amber-900 font-black'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Trang Admin</span>
-                      </div>
-                      {activeTab === 'admin' && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                      )}
-                    </button>
                   </div>
                 </>
               )}
@@ -251,92 +204,6 @@ export const Header: React.FC = () => {
               <FacebookIcon className="w-4 h-4" />
             </a>
 
-            {/* 4. Mobile Admin / Auth Button */}
-            {isAuthenticated && user ? (
-              <div className="relative shrink-0" ref={adminMenuRef}>
-                <button
-                  onClick={() => setIsAdminMenuOpen((prev) => !prev)}
-                  className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-all shadow-xs shrink-0 ${
-                    isAdminMenuOpen || activeTab === 'admin'
-                      ? 'bg-amber-400 text-amber-950 border-amber-500 ring-2 ring-amber-300'
-                      : isAdmin
-                      ? 'bg-amber-100/90 text-amber-900 border-amber-300'
-                      : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
-                  }`}
-                  title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để xem tuỳ chọn`}
-                  aria-expanded={isAdminMenuOpen}
-                >
-                  <ShieldCheck className="w-4 h-4 text-emerald-800" />
-                </button>
-
-                {/* Dropdown hiện bên dưới khi bấm */}
-                {isAdminMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[1200]"
-                      onClick={() => setIsAdminMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 top-full mt-2 w-38 bg-white rounded-2xl shadow-2xl border border-amber-200/80 p-1.5 z-[1300] animate-in fade-in slide-in-from-top-2 duration-150 space-y-1">
-                      {/* Tên người dùng */}
-                      <div className="px-2.5 py-1.5 border-b border-gray-100 flex items-center justify-between gap-1">
-                        <span className="text-xs font-bold text-gray-800 truncate">
-                          {getShortName(user.fullName) || user.fullName}
-                        </span>
-                        <span
-                          className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
-                            isAdmin ? 'bg-amber-400 text-amber-950' : 'bg-emerald-200 text-emerald-900'
-                          }`}
-                        >
-                          {isAdmin ? 'Admin' : 'KS'}
-                        </span>
-                      </div>
-
-                      {/* Chuyển trang Quản trị / Bản đồ */}
-                      {activeTab !== 'admin' ? (
-                        <button
-                          onClick={() => {
-                            setActiveTab('admin');
-                            setIsAdminMenuOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition-all cursor-pointer"
-                        >
-                          <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
-                          <span>Trang Admin</span>
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setActiveTab('map');
-                            setIsAdminMenuOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-900 transition-all cursor-pointer"
-                        >
-                          <MapIcon className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>Về Bản đồ</span>
-                        </button>
-                      )}
-
-                      {/* Nút Đăng xuất với ký hiệu mũi tên */}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all cursor-pointer border-t border-gray-100"
-                      >
-                        <LogOut className="w-4 h-4 text-rose-600 shrink-0" />
-                        <span>Đăng xuất</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={() => setLoginModalOpen(true)}
-                className="p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200 flex items-center justify-center cursor-pointer shadow-xs shrink-0"
-                title="Đăng nhập Admin / Khảo sát"
-              >
-                <Lock className="w-4 h-4 text-emerald-700" />
-              </button>
-            )}
           </div>
         </div>
 
@@ -415,21 +282,6 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </button>
-            {/* Tab Trang Admin chỉ hiển thị nếu là Admin hoặc đang ở tab admin */}
-            {isAuthenticated && (
-              <button
-                onClick={() => setActiveTab('admin')}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'admin'
-                    ? 'bg-white text-amber-900 shadow-xs ring-1 ring-amber-300'
-                    : 'text-gray-700 hover:text-gray-900'
-                }`}
-                title="Trang quản trị hệ thống"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                <span>Admin</span>
-              </button>
-            )}
           </div>
 
           <a
@@ -443,43 +295,6 @@ export const Header: React.FC = () => {
             <span className="hidden xl:inline whitespace-nowrap font-medium text-[11px]">Fanpage</span>
           </a>
 
-          {/* Desktop Auth / Admin Button */}
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-1.5 bg-emerald-50/90 border border-emerald-300/80 pl-2.5 pr-1.5 py-1 rounded-2xl shadow-xs shrink-0">
-              <button
-                onClick={() => setActiveTab('admin')}
-                className="flex items-center gap-1 text-xs hover:opacity-85 transition-opacity cursor-pointer"
-                title={`${user.fullName} (${isAdmin ? 'Admin' : 'Khảo sát'}) - Bấm để vào Trang Quản Trị`}
-              >
-                <span className="font-bold text-emerald-950 text-xs">
-                  {getShortName(user.fullName)}
-                </span>
-                <span
-                  className={`text-[9px] font-black px-1.5 py-0.5 rounded-md ${
-                    isAdmin ? 'bg-amber-400 text-amber-950' : 'bg-emerald-200 text-emerald-900'
-                  }`}
-                >
-                  {isAdmin ? 'Admin' : 'KS'}
-                </span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="p-1 rounded-xl hover:bg-emerald-100 text-gray-500 hover:text-rose-600 transition-colors cursor-pointer"
-                title="Đăng xuất"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setLoginModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 border border-gray-200 hover:border-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
-              title="Đăng nhập Admin / Thành viên khảo sát"
-            >
-              <Lock className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Admin</span>
-            </button>
-          )}
         </div>
       </div>
     </header>

@@ -57,7 +57,7 @@ export const PlaceDetailDrawer: React.FC = () => {
     clearRoute,
   } = useMapStore();
   const { isFavorite, toggleFavorite } = useFavoritesStore();
-  const { isAdmin, setLoginModalOpen } = useAuthStore();
+  const { isAdmin } = useAuthStore();
 
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [reviewName, setReviewName] = useState('');
@@ -850,14 +850,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                 <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                 <span>{isDeleting ? 'Đang xóa...' : 'Xóa vĩnh viễn địa điểm (Admin)'}</span>
               </button>
-            ) : (
-              <button
-                onClick={() => setLoginModalOpen(true)}
-                className="text-[11px] text-gray-700 hover:text-emerald-700 font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <span>Bạn là Admin? Đăng nhập để xóa/sửa địa điểm</span>
-              </button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

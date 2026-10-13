@@ -18,6 +18,8 @@ import { useFavoritesStore } from './stores/useFavoritesStore';
 import { FloatingGif } from './components/common/FloatingGif';
 import { Sparkles, Heart, Search } from 'lucide-react';
 
+const ADMIN_PATH = '/admin';
+
 export const App: React.FC = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -40,11 +42,37 @@ export const App: React.FC = () => {
 
   const { activeTab, setActiveTab } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
-  const { checkAuth } = useAuthStore();
+  const { checkAuth, isAdmin, setLoginModalOpen } = useAuthStore();
+  const [isAdminRoute, setIsAdminRoute] = useState(() =>
+    window.location.pathname.replace(/\/+$/, '') === ADMIN_PATH
+  );
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // The admin area is intentionally reachable only by directly visiting /admin.
+  // This hides the entry point from the public UI; backend role checks remain the
+  // actual authorization boundary.
+  useEffect(() => {
+    const syncRoute = () => {
+      setIsAdminRoute(window.location.pathname.replace(/\/+$/, '') === ADMIN_PATH);
+    };
+
+    window.addEventListener('popstate', syncRoute);
+    return () => window.removeEventListener('popstate', syncRoute);
+  }, []);
+
+  useEffect(() => {
+    if (isAdminRoute) {
+      setActiveTab('admin');
+      if (!isAdmin) setLoginModalOpen(true);
+      return;
+    }
+
+    setLoginModalOpen(false);
+    if (activeTab === 'admin') setActiveTab('map');
+  }, [activeTab, isAdmin, isAdminRoute, setActiveTab, setLoginModalOpen]);
 
   // Load places whenever filters change
   useEffect(() => {
@@ -91,7 +119,7 @@ export const App: React.FC = () => {
       {/* 2. Main Workspace */}
       <main className="flex-1 flex relative overflow-hidden">
         {/* Admin Dashboard Page */}
-        {activeTab === 'admin' ? (
+        {activeTab === 'admin' && isAdmin ? (
           <AdminDashboard
             places={places}
             onPlaceUpdated={handlePlaceCreated}
