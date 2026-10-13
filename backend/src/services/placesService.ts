@@ -11,6 +11,7 @@ import type {
   CreateReviewDto,
   FilterParams,
   Place,
+  PlaceApprovalStatus,
   PlaceCategory,
   Review,
   SurveyStats,
@@ -61,9 +62,14 @@ async function readUploadAsDataUri(uploadPath: string): Promise<string | null> {
 
 export async function getPlaceImage(
   placeId: string,
-  imageIndex: number
+  imageIndex: number,
+  includeUnapproved: boolean = false
 ): Promise<{ mimeType: string; buffer: Buffer } | null> {
-  const result = await db.query('SELECT images FROM places WHERE id = $1', [placeId]);
+  const result = await db.query(
+    `SELECT images FROM places
+     WHERE id = $1${includeUnapproved ? '' : " AND COALESCE(approval_status, 'approved') = 'approved'"}`,
+    [placeId]
+  );
   const images = parseArrayField(result.rows[0]?.images);
   const image = images[imageIndex];
   if (!image) return null;
@@ -252,6 +258,7 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
     badgeText,
     gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
     contributorName: row.contributor_name || undefined,
+    approvalStatus: (row.approval_status || 'approved') as PlaceApprovalStatus,
   };
 }
 
@@ -265,7 +272,7 @@ export const placesService = {
       FROM places p
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN contributions cont ON p.contribution_id = cont.id
-      WHERE 1=1
+      WHERE COALESCE(p.approval_status, 'approved') = 'approved'
     `;
     const params: any[] = [];
     let pIdx = 1;
@@ -357,14 +364,14 @@ export const placesService = {
   /**
    * Get single place by ID with full reviews
    */
-  async getPlaceById(id: string | number): Promise<Place | null> {
+  async getPlaceById(id: string | number, includeUnapproved: boolean = false): Promise<Place | null> {
     const placeId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
     const sql = `
       SELECT p.*, c.name as category_name, cont.contributor_name
       FROM places p
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN contributions cont ON p.contribution_id = cont.id
-      WHERE p.id = $1
+      WHERE p.id = $1${includeUnapproved ? '' : " AND COALESCE(p.approval_status, 'approved') = 'approved'"}
     `;
     const res = await db.query(sql, [placeId]);
     if (res.rows.length === 0) {
@@ -389,7 +396,10 @@ export const placesService = {
   /**
    * Create a new place (Supports "Chấm vào bản đồ" - Map Pinning!)
    */
-  async createPlace(dto: CreatePlaceDto): Promise<Place> {
+  async createPlace(
+    dto: CreatePlaceDto,
+    approvalStatus: PlaceApprovalStatus = 'approved'
+  ): Promise<Place> {
     const lat = Number(dto.coordinates?.lat ?? dto.latitude);
     const lng = Number(dto.coordinates?.lng ?? dto.longitude);
 
@@ -512,8 +522,8 @@ export const placesService = {
         category_id, contribution_id, name, area, address,
         latitude, longitude, min_price, max_price, rent_price,
         electricity_price, water_price, room_status, opening_hours,
-        phone, amenities, images, gps_accuracy
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+        phone, amenities, images, gps_accuracy, approval_status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       RETURNING id
     `;
 
@@ -536,6 +546,7 @@ export const placesService = {
       amenitiesVal,
       imagesVal,
       gpsAccuracy,
+      approvalStatus,
     ]);
 
     const newId = insRes.rows[0]?.id;
@@ -555,12 +566,47 @@ export const placesService = {
       );
     }
 
-    const createdPlace = await this.getPlaceById(newId);
+    const createdPlace = await this.getPlaceById(newId, true);
     if (!createdPlace) {
       throw new Error('Lỗi khi lấy dữ liệu địa điểm vừa tạo.');
     }
 
     return createdPlace;
+  },
+
+  /** Admin-only queue of guest submissions. */
+  async getPlaceSubmissions(): Promise<Place[]> {
+    const res = await db.query(`
+      SELECT p.*, c.name as category_name, cont.contributor_name
+      FROM places p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN contributions cont ON p.contribution_id = cont.id
+      WHERE COALESCE(p.approval_status, 'approved') = 'pending'
+      ORDER BY p.created_at DESC, p.id DESC
+    `);
+
+    const places: Place[] = [];
+    for (const row of res.rows) {
+      const place = await this.getPlaceById(row.id, true);
+      if (place) places.push(place);
+    }
+    return places;
+  },
+
+  /** Admin-only transition for a guest submission. */
+  async updatePlaceApprovalStatus(
+    id: string | number,
+    approvalStatus: Extract<PlaceApprovalStatus, 'approved' | 'rejected'>
+  ): Promise<Place | null> {
+    const targetId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
+    const updated = await db.query(
+      `UPDATE places
+       SET approval_status = $1, updated_at = ${db.isPostgres ? 'NOW()' : "datetime('now')"}
+       WHERE id = $2 AND COALESCE(approval_status, 'approved') = 'pending'`,
+      [approvalStatus, targetId]
+    );
+    if (updated.rowCount === 0) return null;
+    return this.getPlaceById(id, true);
   },
 
   /**
@@ -658,6 +704,10 @@ export const placesService = {
    */
   async addReview(placeId: string | number, dto: CreateReviewDto): Promise<Review> {
     const targetPlaceId = db.isPostgres ? String(placeId) : (isNaN(Number(placeId)) ? placeId : Number(placeId));
+    const approvedPlace = await this.getPlaceById(placeId);
+    if (!approvedPlace) {
+      throw new Error('Chỉ có thể gửi đánh giá cho địa điểm đã được duyệt.');
+    }
     let contribId: any = null;
 
     if (dto.contributorName) {
@@ -719,6 +769,7 @@ export const placesService = {
       SELECT c.name, COUNT(p.id) as place_count
       FROM categories c
       LEFT JOIN places p ON p.category_id = c.id
+        AND COALESCE(p.approval_status, 'approved') = 'approved'
       GROUP BY c.name
     `);
 
@@ -741,6 +792,7 @@ export const placesService = {
       SELECT c.id, c.contributor_name, COUNT(p.id) as place_count
       FROM contributions c
       LEFT JOIN places p ON p.contribution_id = c.id
+        AND COALESCE(p.approval_status, 'approved') = 'approved'
       GROUP BY c.id, c.contributor_name
       ORDER BY place_count DESC, c.id ASC
     `);
@@ -749,6 +801,7 @@ export const placesService = {
     const placesRes = await db.query(`
       SELECT contribution_id, name FROM places
       WHERE contribution_id IS NOT NULL
+        AND COALESCE(approval_status, 'approved') = 'approved'
       ORDER BY id DESC
     `);
     const recentMap = new Map<number, string[]>();
@@ -805,8 +858,15 @@ export const placesService = {
    * Overall Survey KPIs and Statistics
    */
   async getSurveyStats(): Promise<SurveyStats> {
-    const placesRes = await db.query('SELECT COUNT(*) as count FROM places');
-    const reviewsRes = await db.query('SELECT COUNT(*) as count FROM reviews');
+    const placesRes = await db.query(
+      "SELECT COUNT(*) as count FROM places WHERE COALESCE(approval_status, 'approved') = 'approved'"
+    );
+    const reviewsRes = await db.query(`
+      SELECT COUNT(*) as count
+      FROM reviews r
+      INNER JOIN places p ON p.id = r.place_id
+      WHERE COALESCE(p.approval_status, 'approved') = 'approved'
+    `);
     const catsRes = await db.query('SELECT COUNT(*) as count FROM categories');
     const contribsRes = await db.query('SELECT COUNT(*) as count FROM contributions');
 
@@ -818,6 +878,7 @@ export const placesService = {
       SELECT c.name, COUNT(p.id) as count
       FROM categories c
       LEFT JOIN places p ON p.category_id = c.id
+        AND COALESCE(p.approval_status, 'approved') = 'approved'
       GROUP BY c.name
     `);
     const byCategory: Record<string, number> = {};
@@ -830,6 +891,7 @@ export const placesService = {
       SELECT area, COUNT(id) as count
       FROM places
       WHERE area IS NOT NULL
+        AND COALESCE(approval_status, 'approved') = 'approved'
       GROUP BY area
     `);
     const byArea: Record<string, number> = {};
@@ -842,6 +904,7 @@ export const placesService = {
       SELECT c.contributor_name, COUNT(p.id) as count
       FROM contributions c
       LEFT JOIN places p ON p.contribution_id = c.id
+        AND COALESCE(p.approval_status, 'approved') = 'approved'
       GROUP BY c.contributor_name
       ORDER BY count DESC
     `);

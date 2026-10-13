@@ -91,6 +91,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     flyToCoordinates,
   } = useMapStore();
   const { user, isAuthenticated, isAdmin } = useAuthStore();
+  const isGuestSubmission = !isAuthenticated || !isAdmin;
 
   // Form State
   const [surveyor, setSurveyor] = useState<string>(() => {
@@ -344,7 +345,8 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
         latitude: lat,
         longitude: lng,
         gpsAccuracy: undefined,
-        contributorName: surveyor,
+        contributorName: isGuestSubmission ? undefined : surveyor,
+        isGuestSubmission,
         minPrice: effectiveMinPrice,
         maxPrice: effectiveMaxPrice,
         rentPrice: parsedRentPrice,
@@ -362,7 +364,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
       const newPlace = await placesService.createPlace(payload);
 
       setSubmitSuccess(true);
-      if (onPlaceCreated) {
+      if (newPlace.approvalStatus === 'approved' && onPlaceCreated) {
         onPlaceCreated(newPlace);
       }
 
@@ -386,8 +388,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
     }
   };
 
-  // Chỉ admin mới có quyền thực hiện chấm điểm khảo sát
-  if (surveyStep === 'closed' || !isAuthenticated || !isAdmin) return null;
+  if (surveyStep === 'closed') return null;
 
   // Step 1: Grab / Be Map Pinning Bottom Sheet
   if (surveyStep === 'map_pin') {
@@ -493,14 +494,16 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="font-extrabold text-sm sm:text-lg tracking-tight font-serif truncate">
-                  Chấm Điểm Khảo Sát Thực Địa
+                  {isGuestSubmission ? 'Đề Xuất Địa Điểm Mới' : 'Chấm Điểm Khảo Sát Thực Địa'}
                 </h2>
                 <span className="text-[10px] bg-amber-400 text-emerald-950 font-black px-2 py-0.5 rounded-full shrink-0 uppercase tracking-wider">
                   Bản đồ
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-emerald-100 font-sans truncate">
-                Thu thập dữ liệu thực tế tại Hòa Lạc (ConnectHub - Nhóm 2)
+                {isGuestSubmission
+                  ? 'Đề xuất sẽ chỉ hiển thị sau khi Admin kiểm duyệt'
+                  : 'Thu thập dữ liệu thực tế tại Hòa Lạc (ConnectHub - Nhóm 2)'}
               </p>
             </div>
           </div>
@@ -522,8 +525,14 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-center gap-3 animate-in fade-in">
                 <Check className="w-6 h-6 text-emerald-600 shrink-0" />
                 <div>
-                  <p className="font-bold text-sm">Đã chấm địa điểm thành công!</p>
-                  <p className="text-xs text-emerald-700">Dữ liệu đã được lưu trực tiếp vào bản đồ.</p>
+                  <p className="font-bold text-sm">
+                    {isGuestSubmission ? 'Đã gửi đề xuất thành công!' : 'Đã chấm địa điểm thành công!'}
+                  </p>
+                  <p className="text-xs text-emerald-700">
+                    {isGuestSubmission
+                      ? 'Admin sẽ kiểm tra trước khi địa điểm xuất hiện công khai trên bản đồ.'
+                      : 'Dữ liệu đã được lưu trực tiếp vào bản đồ.'}
+                  </p>
                 </div>
               </div>
             )}
@@ -605,23 +614,29 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               )}
             </div>
 
-            {/* 2. Surveyor & Place Name */}
+            {/* 2. Submitter & Place Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  Người thực hiện khảo sát (*)
+                  {isGuestSubmission ? 'Người gửi đề xuất' : 'Người thực hiện khảo sát (*)'}
                 </label>
-                <select
-                  value={surveyor}
-                  onChange={(e) => handleSurveyorChange(e.target.value)}
-                  className="w-full px-3 py-2.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-sm sm:text-xs font-medium text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
-                >
-                  {SURVEYORS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                {isGuestSubmission ? (
+                  <div className="min-h-10 px-3 py-2.5 sm:py-2 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-900 flex items-center">
+                    Gửi ẩn danh — thông tin sẽ chờ Admin duyệt.
+                  </div>
+                ) : (
+                  <select
+                    value={surveyor}
+                    onChange={(e) => handleSurveyorChange(e.target.value)}
+                    className="w-full px-3 py-2.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-sm sm:text-xs font-medium text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {SURVEYORS.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
@@ -893,7 +908,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  Đánh giá nhanh của bạn (*)
+                  {isGuestSubmission ? 'Đánh giá nhanh của bạn (*)' : 'Đánh giá khảo sát (*)'}
                 </label>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -935,7 +950,9 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
           <div className="shrink-0 bg-white border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between gap-3 shadow-lg">
             <div className="text-[11px] text-gray-500 hidden sm:flex items-center gap-1.5 font-sans">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Khảo sát bởi: <strong className="text-gray-700">{surveyor}</strong></span>
+              <span>
+                {isGuestSubmission ? 'Đề xuất sẽ chờ Admin duyệt trước khi công khai.' : <>Khảo sát bởi: <strong className="text-gray-700">{surveyor}</strong></>}
+              </span>
             </div>
 
             <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
@@ -952,7 +969,13 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                 className="flex-2 sm:flex-initial flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/30 transition-all cursor-pointer disabled:opacity-50"
               >
                 <Upload className="w-4 h-4" />
-                <span>{isSubmitting ? 'Đang lưu...' : 'Lưu & Chấm Lên Bản Đồ'}</span>
+                <span>
+                  {isSubmitting
+                    ? 'Đang gửi...'
+                    : isGuestSubmission
+                    ? 'Gửi Đề Xuất Chờ Duyệt'
+                    : 'Lưu & Chấm Lên Bản Đồ'}
+                </span>
               </button>
             </div>
           </div>

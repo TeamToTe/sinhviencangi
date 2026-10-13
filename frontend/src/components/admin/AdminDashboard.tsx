@@ -40,13 +40,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const { setActiveTab, setSurveyStep, flyToPlace } = useMapStore();
   const { user, isAdmin } = useAuthStore();
 
-  const [activeAdminSection, setActiveAdminSection] = useState<'traffic' | 'places' | 'reports'>('traffic');
+  const [activeAdminSection, setActiveAdminSection] = useState<'traffic' | 'places' | 'submissions' | 'reports'>('traffic');
 
   // Reports state
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [reportFilter, setReportFilter] = useState<'all' | 'pending' | 'resolved'>('all');
   const [resolvingReportId, setResolvingReportId] = useState<string | null>(null);
   const [adminResolveNote, setAdminResolveNote] = useState<string>('');
+  const [submissions, setSubmissions] = useState<Place[]>([]);
+  const [reviewingSubmissionId, setReviewingSubmissionId] = useState<string | null>(null);
 
   // Places search & management
   const [placeSearch, setPlaceSearch] = useState('');
@@ -64,6 +66,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newPlacePrice, setNewPlacePrice] = useState('2500000');
   const [newPlacePhone, setNewPlacePhone] = useState('');
 
+  const returnToMap = () => {
+    window.history.pushState({}, '', '/');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    setActiveTab('map');
+  };
+
   // Load reports
   const loadReports = async () => {
     try {
@@ -74,8 +82,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  const loadSubmissions = async () => {
+    try {
+      const data = await placesService.getPlaceSubmissions();
+      setSubmissions(data);
+    } catch (err) {
+      console.error('Failed to load guest submissions:', err);
+    }
+  };
+
   useEffect(() => {
     loadReports();
+    loadSubmissions();
   }, []);
 
   // Filtered reports
@@ -86,6 +104,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const pendingReportsCount = reports.filter((r) => r.status === 'pending').length;
   const resolvedReportsCount = reports.filter((r) => r.status === 'resolved').length;
+
+  const handleReviewSubmission = async (place: Place, approvalStatus: 'approved' | 'rejected') => {
+    setReviewingSubmissionId(place.id);
+    try {
+      const updated = await placesService.reviewPlaceSubmission(place.id, approvalStatus);
+      if (approvalStatus === 'approved' && onPlaceUpdated) onPlaceUpdated(updated);
+      await loadSubmissions();
+    } catch (err) {
+      console.error('Failed to review guest submission:', err);
+    } finally {
+      setReviewingSubmissionId(null);
+    }
+  };
 
   // Filtered places
   const filteredPlaces = places.filter((p) => {
@@ -222,7 +253,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setActiveTab('map')}
+              onClick={returnToMap}
               className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold shrink-0"
               title="Quay lại bản đồ"
             >
@@ -284,6 +315,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {pendingReportsCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">
                   {pendingReportsCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveAdminSection('submissions')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap relative ${
+                activeAdminSection === 'submissions'
+                  ? 'bg-white text-emerald-800 shadow-xs font-black'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-violet-600" />
+              <span>Đề xuất chờ duyệt</span>
+              {submissions.length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-violet-600 text-white text-[9px] font-black flex items-center justify-center">
+                  {submissions.length}
                 </span>
               )}
             </button>
@@ -624,7 +672,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <button
                               onClick={() => {
                                 flyToPlace(place);
-                                setActiveTab('map');
+                                returnToMap();
                               }}
                               className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
                               title="Xem vị trí trên bản đồ"
@@ -659,7 +707,78 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         )}
 
         {/* ========================================================================= */}
-        {/* MODULE 3: KIỂM SOÁT BÁO CÁO SAI LỆCH (REPORTS & MARK AS RESOLVED)          */}
+        {/* MODULE 3: DUYỆT ĐỀ XUẤT ĐỊA ĐIỂM TỪ GUEST                                */}
+        {/* ========================================================================= */}
+        {activeAdminSection === 'submissions' && (
+          <div className="space-y-5 animate-in fade-in duration-150">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-violet-200 shadow-xs">
+              <div>
+                <h3 className="text-base font-black text-slate-900">Đề xuất địa điểm từ khách</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Các đề xuất này chưa xuất hiện trên bản đồ. Duyệt để công khai, hoặc từ chối để giữ chúng ẩn.
+                </p>
+              </div>
+              <span className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-violet-100 text-violet-800 text-xs font-black">
+                {submissions.length} chờ duyệt
+              </span>
+            </div>
+
+            {submissions.length === 0 ? (
+              <div className="py-16 text-center bg-white rounded-3xl border border-dashed border-slate-300 space-y-2">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+                <h4 className="font-black text-slate-800 text-sm">Không có đề xuất nào chờ duyệt</h4>
+                <p className="text-xs text-slate-400">Các đề xuất mới từ guest sẽ xuất hiện tại đây.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {submissions.map((place) => (
+                  <article key={place.id} className="bg-white rounded-3xl border border-violet-200 shadow-xs overflow-hidden">
+                    <div className="p-5 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h4 className="font-black text-slate-900 text-base truncate">{place.name}</h4>
+                          <p className="text-xs text-slate-500 mt-1">{place.categoryLabel} · {place.areaName}</p>
+                        </div>
+                        <span className="shrink-0 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-black">Chờ duyệt</span>
+                      </div>
+
+                      {place.photos[0] && (
+                        <img src={place.photos[0]} alt={place.name} className="w-full h-36 object-cover rounded-2xl border border-slate-100" />
+                      )}
+
+                      <div className="text-xs text-slate-700 space-y-1.5 bg-slate-50 rounded-2xl p-3.5">
+                        <p><strong>Địa chỉ:</strong> {place.address}</p>
+                        <p><strong>Tọa độ:</strong> {place.coordinates.lat.toFixed(5)}, {place.coordinates.lng.toFixed(5)}</p>
+                        {place.phone && <p><strong>Liên hệ:</strong> {place.phone}</p>}
+                        {place.reviews[0]?.comment && <p><strong>Nhận xét:</strong> {place.reviews[0].comment}</p>}
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => handleReviewSubmission(place, 'approved')}
+                          disabled={reviewingSubmissionId === place.id}
+                          className="flex-1 px-3 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <Check className="w-4 h-4" /> Duyệt & công khai
+                        </button>
+                        <button
+                          onClick={() => handleReviewSubmission(place, 'rejected')}
+                          disabled={reviewingSubmissionId === place.id}
+                          className="px-3 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-black transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                          Từ chối
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* MODULE 4: KIỂM SOÁT BÁO CÁO SAI LỆCH (REPORTS & MARK AS RESOLVED)          */}
         {/* ========================================================================= */}
         {activeAdminSection === 'reports' && (
           <div className="space-y-6 animate-in fade-in duration-150">
@@ -812,7 +931,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <button
                               onClick={() => {
                                 flyToPlace(targetPlace);
-                                setActiveTab('map');
+                                returnToMap();
                               }}
                               className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 border border-slate-200"
                             >

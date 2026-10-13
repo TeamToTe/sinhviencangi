@@ -7,6 +7,8 @@ export type PlaceCategory =
   | 'entertainment'   // Bida, net, thể thao
   | 'campus';         // ĐH FPT, ĐHQG, Điểm đón xe bus
 
+export type PlaceApprovalStatus = 'pending' | 'approved' | 'rejected';
+
 export interface Coordinates {
   lng: number;
   lat: number;
@@ -74,6 +76,7 @@ export interface Place {
   badgeText?: string;    // e.g., 'HOT', 'Mới xây', 'Giá rẻ', 'FPT Pick'
   gpsAccuracy?: number;
   contributorName?: string;
+  approvalStatus?: PlaceApprovalStatus;
 }
 
 export interface CategoryMeta {
@@ -154,6 +157,8 @@ export interface CreatePlaceDto {
   contributorName?: string;
   rating?: number;
   reviewContent?: string;
+  /** Used only for the mock/offline presentation path; server approval is authoritative. */
+  isGuestSubmission?: boolean;
 }
 
 export interface ContributorProgress {

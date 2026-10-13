@@ -7,6 +7,8 @@ export type PlaceCategory =
   | 'entertainment'   // Bida, net, thể thao
   | 'campus';         // ĐH FPT, ĐHQG, Điểm đón xe bus
 
+export type PlaceApprovalStatus = 'pending' | 'approved' | 'rejected';
+
 export interface Coordinates {
   lng: number;
   lat: number;
@@ -76,6 +78,7 @@ export interface Place {
   badgeText?: string;
   gpsAccuracy?: number;
   contributorName?: string;
+  approvalStatus?: PlaceApprovalStatus;
 }
 
 export interface CategoryMeta {
@@ -138,6 +141,8 @@ export interface CreatePlaceDto {
   reviewContent?: string;
   shortDescription?: string;
   fullDescription?: string;
+  /** UI hint only; the server determines the actual approval status from the JWT. */
+  isGuestSubmission?: boolean;
 }
 
 export interface CreateReviewDto {
