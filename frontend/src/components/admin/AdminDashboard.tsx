@@ -254,11 +254,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={returnToMap}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold shrink-0"
+              className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-extrabold shrink-0 shadow-xs"
               title="Quay lại bản đồ"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Bản đồ</span>
+              <ArrowLeft className="w-4 h-4 text-emerald-700" />
+              <span>Quay lại bản đồ</span>
             </button>
             <div>
               <div className="flex items-center gap-2">

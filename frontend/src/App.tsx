@@ -18,7 +18,16 @@ import { useFavoritesStore } from './stores/useFavoritesStore';
 import { FloatingGif } from './components/common/FloatingGif';
 import { Sparkles, Heart, Search } from 'lucide-react';
 
-const ADMIN_PATH = '/admin';
+const isAdminPath = (pathname: string): boolean => {
+  const normalized = pathname.replace(/\/+$/, '').toLowerCase();
+  return (
+    normalized === '/admin' ||
+    normalized === '\\admin' ||
+    normalized === '/%5cadmin' ||
+    normalized.endsWith('/admin') ||
+    normalized.endsWith('\\admin')
+  );
+};
 
 export const App: React.FC = () => {
   const [places, setPlaces] = useState<Place[]>([]);
@@ -44,35 +53,44 @@ export const App: React.FC = () => {
   const { favoriteIds } = useFavoritesStore();
   const { checkAuth, isAdmin, setLoginModalOpen } = useAuthStore();
   const [isAdminRoute, setIsAdminRoute] = useState(() =>
-    window.location.pathname.replace(/\/+$/, '') === ADMIN_PATH
+    isAdminPath(window.location.pathname)
   );
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  // The admin area is intentionally reachable only by directly visiting /admin.
-  // This hides the entry point from the public UI; backend role checks remain the
-  // actual authorization boundary.
+  // Sync route on browser navigation or custom popstate
   useEffect(() => {
     const syncRoute = () => {
-      setIsAdminRoute(window.location.pathname.replace(/\/+$/, '') === ADMIN_PATH);
+      setIsAdminRoute(isAdminPath(window.location.pathname));
     };
 
     window.addEventListener('popstate', syncRoute);
     return () => window.removeEventListener('popstate', syncRoute);
   }, []);
 
+  // When route changes to admin, switch activeTab to admin
   useEffect(() => {
     if (isAdminRoute) {
       setActiveTab('admin');
       if (!isAdmin) setLoginModalOpen(true);
-      return;
+    } else {
+      setLoginModalOpen(false);
+      if (activeTab === 'admin') {
+        setActiveTab('map');
+      }
     }
+  }, [isAdminRoute, isAdmin, setActiveTab, setLoginModalOpen]);
 
-    setLoginModalOpen(false);
-    if (activeTab === 'admin') setActiveTab('map');
-  }, [activeTab, isAdmin, isAdminRoute, setActiveTab, setLoginModalOpen]);
+  // When user switches away from admin tab, immediately synchronize the URL back to '/'
+  // so the user is never trapped in admin mode.
+  useEffect(() => {
+    if (activeTab !== 'admin' && isAdminPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/');
+      setIsAdminRoute(false);
+    }
+  }, [activeTab]);
 
   // Load places whenever filters change
   useEffect(() => {

@@ -370,6 +370,32 @@ async function testBackend() {
       'Approved proposal becomes visible through the public place API'
     );
 
+    // Test 23: Admin Reports Management
+    const unauthReportsRes = await apiFetch('/api/reports');
+    assert(
+      unauthReportsRes.status === 401,
+      'GET /api/reports rejects unauthenticated request with 401'
+    );
+
+    const adminReportsRes = await apiFetch('/api/reports', {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    assert(
+      adminReportsRes.status === 200 && Array.isArray(adminReportsRes.data) && adminReportsRes.data.length > 0,
+      'GET /api/reports returns list of reported issues to authenticated Admin'
+    );
+    const targetReport = adminReportsRes.data[0];
+
+    const patchReportRes = await apiFetch(`/api/reports/${targetReport.id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: JSON.stringify({ status: 'resolved', adminNote: 'Đã xác minh và cập nhật.' }),
+    });
+    assert(
+      patchReportRes.status === 200 && patchReportRes.data.success === true,
+      'PATCH /api/reports/:id marks report as resolved by Admin'
+    );
+
     // Test 23a: Protected Cover Update - unauthenticated request rejected
     const unauthCoverRes = await apiFetch(`/api/places/${submittedPlaceId}/cover`, {
       method: 'PATCH',
