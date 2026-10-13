@@ -74,10 +74,13 @@ export async function runMigrations(): Promise<void> {
 
       CREATE TABLE IF NOT EXISTS reports (
           id BIGSERIAL PRIMARY KEY,
-          place_id UUID REFERENCES places(id) ON DELETE CASCADE,
+          place_id BIGINT REFERENCES places(id) ON DELETE CASCADE,
           reason VARCHAR(50) NOT NULL,
           note TEXT,
           contact_email VARCHAR(255),
+          status VARCHAR(20) NOT NULL DEFAULT 'pending',
+          admin_note TEXT,
+          resolved_at TIMESTAMPTZ,
           created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
@@ -95,6 +98,11 @@ export async function runMigrations(): Promise<void> {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
       ALTER TABLE reviews ADD COLUMN IF NOT EXISTS author_name VARCHAR(100);
       ALTER TABLE reviews ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+      ALTER TABLE reports ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'pending';
+      ALTER TABLE reports ADD COLUMN IF NOT EXISTS admin_note TEXT;
+      ALTER TABLE reports ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMPTZ;
+      UPDATE reports SET status = 'pending' WHERE status IS NULL;
+      CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
     `);
   } else {
     // SQLite Schema
@@ -169,6 +177,9 @@ export async function runMigrations(): Promise<void> {
           reason VARCHAR(50) NOT NULL,
           note TEXT,
           contact_email VARCHAR(255),
+          status VARCHAR(20) NOT NULL DEFAULT 'pending',
+          admin_note TEXT,
+          resolved_at DATETIME,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -192,6 +203,26 @@ export async function runMigrations(): Promise<void> {
     await db.exec('CREATE INDEX IF NOT EXISTS idx_places_approval_status ON places(approval_status);');
     try {
       await db.exec('ALTER TABLE reviews ADD COLUMN images TEXT;');
+    } catch {
+      // Column already exists, safe to ignore
+    }
+    try {
+      await db.exec("ALTER TABLE reports ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'pending';");
+    } catch {
+      // Column already exists, safe to ignore
+    }
+    try {
+      await db.exec('ALTER TABLE reports ADD COLUMN admin_note TEXT;');
+    } catch {
+      // Column already exists, safe to ignore
+    }
+    try {
+      await db.exec('ALTER TABLE reports ADD COLUMN resolved_at DATETIME;');
+    } catch {
+      // Column already exists, safe to ignore
+    }
+    try {
+      await db.exec('CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);');
     } catch {
       // Column already exists, safe to ignore
     }

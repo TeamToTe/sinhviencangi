@@ -13,6 +13,7 @@ import type {
   Place,
   PlaceApprovalStatus,
   PlaceCategory,
+  ReportItem,
   Review,
   SurveyStats,
   SurveyTemplate,
@@ -758,6 +759,61 @@ export const placesService = {
       success: true,
       message: 'Cảm ơn bạn! Báo cáo đã được ghi nhận.',
     };
+  },
+
+  /**
+   * Get all reports for Admin dashboard
+   */
+  async getReports(): Promise<ReportItem[]> {
+    const REASON_LABELS: Record<string, string> = {
+      wrong_info: 'Sai địa chỉ / vị trí',
+      wrong_price: 'Sai giá phòng',
+      wrong_phone: 'Sai số điện thoại',
+      closed: 'Đã đóng cửa',
+      other: 'Lý do khác',
+    };
+
+    const res = await db.query(`
+      SELECT r.*, p.name as place_name
+      FROM reports r
+      LEFT JOIN places p ON r.place_id = p.id
+      ORDER BY r.created_at DESC, r.id DESC
+    `);
+
+    return res.rows.map((row: any) => ({
+      id: String(row.id),
+      placeId: String(row.place_id || ''),
+      placeName: row.place_name || 'Địa điểm không xác định',
+      reason: row.reason,
+      reasonLabel: REASON_LABELS[row.reason] || 'Báo cáo khác',
+      note: row.note,
+      contactEmail: row.contact_email || undefined,
+      status: (row.status || 'pending') as 'pending' | 'resolved',
+      createdAt: row.created_at ? new Date(row.created_at).toISOString().replace('T', ' ').substring(0, 16) : '',
+      resolvedAt: row.resolved_at ? new Date(row.resolved_at).toISOString().replace('T', ' ').substring(0, 16) : undefined,
+      adminNote: row.admin_note || undefined,
+    }));
+  },
+
+  /**
+   * Update report status (Admin action)
+   */
+  async updateReportStatus(
+    reportId: string | number,
+    status: 'pending' | 'resolved',
+    adminNote?: string
+  ): Promise<boolean> {
+    const targetId = db.isPostgres ? String(reportId) : (isNaN(Number(reportId)) ? reportId : Number(reportId));
+    const nowExpr = db.isPostgres ? 'NOW()' : "datetime('now')";
+    const resolvedAtSql = status === 'resolved' ? nowExpr : 'NULL';
+
+    const sql = `
+      UPDATE reports
+      SET status = $1, admin_note = $2, resolved_at = ${resolvedAtSql}
+      WHERE id = $3
+    `;
+    const res = await db.query(sql, [status, adminNote || null, targetId]);
+    return res.rowCount > 0;
   },
 
   /**

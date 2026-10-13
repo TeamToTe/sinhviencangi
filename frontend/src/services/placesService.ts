@@ -602,7 +602,7 @@ export const placesService = {
     if (!USE_MOCK_DATA) {
       try {
         const res = await request<ReportItem[]>('/reports');
-        if (Array.isArray(res) && res.length > 0) return res;
+        if (Array.isArray(res)) return res;
       } catch (err) {
         console.warn('[PlacesService] Backend getReports error:', err);
       }

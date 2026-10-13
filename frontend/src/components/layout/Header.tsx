@@ -7,6 +7,8 @@ import {
   X,
   MapPin,
   ChevronDown,
+  ShieldCheck,
+  LogOut,
 } from 'lucide-react';
 import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
@@ -29,14 +31,42 @@ const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' 
   </svg>
 );
 
+function getShortName(fullName?: string): string {
+  if (!fullName) return 'Admin';
+  const parts = fullName.trim().split(/\s+/);
+  return parts[parts.length - 1];
+}
+
 export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery } = useFilterStore();
   const { activeTab, setActiveTab, setSurveyStep } = useMapStore();
   const { favoriteIds } = useFavoritesStore();
-  const { isAuthenticated, isAdmin } = useAuthStore();
+  const { isAuthenticated, isAdmin, user, logout } = useAuthStore();
 
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const viewMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleTabChange = (tab: 'map' | 'list' | 'favorites') => {
+    const isAtAdmin = window.location.pathname.replace(/\/+$/, '').toLowerCase().includes('admin');
+    if (isAtAdmin) {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+    setActiveTab(tab);
+    setIsViewMenuOpen(false);
+  };
+
+  const handleOpenAdmin = () => {
+    window.history.pushState({}, '', '/admin');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    setActiveTab('admin');
+    setIsViewMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleTabChange('map');
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -57,8 +87,12 @@ export const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 sm:gap-3">
         {/* Brand & Logo */}
         <div className="flex items-center justify-between gap-2.5 sm:gap-4 shrink-0">
-          <div className="flex items-center gap-2 cursor-pointer select-none shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0 bg-white flex items-center justify-center p-0.5">
+          <div
+            onClick={() => handleTabChange('map')}
+            className="flex items-center gap-2 cursor-pointer select-none shrink-0 group"
+            title="Quay về Bản đồ"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl overflow-hidden shadow-md shadow-emerald-500/20 ring-2 ring-emerald-200 shrink-0 bg-white flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform">
               <img src={webIcon} alt="Sinh viên cần gì" className="w-full h-full object-contain" />
             </div>
             <div>
@@ -115,10 +149,7 @@ export const Header: React.FC = () => {
                   />
                   <div className="absolute right-0 top-full mt-2 w-36 bg-white rounded-2xl shadow-2xl border border-emerald-200/80 p-1.5 z-[1300] animate-in fade-in slide-in-from-top-2 duration-150 space-y-1">
                     <button
-                      onClick={() => {
-                        setActiveTab('map');
-                        setIsViewMenuOpen(false);
-                      }}
+                      onClick={() => handleTabChange('map')}
                       className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         activeTab === 'map'
                           ? 'bg-emerald-50 text-emerald-800 font-black'
@@ -135,10 +166,7 @@ export const Header: React.FC = () => {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveTab('list');
-                        setIsViewMenuOpen(false);
-                      }}
+                      onClick={() => handleTabChange('list')}
                       className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         activeTab === 'list'
                           ? 'bg-emerald-50 text-emerald-800 font-black'
@@ -155,10 +183,7 @@ export const Header: React.FC = () => {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveTab('favorites');
-                        setIsViewMenuOpen(false);
-                      }}
+                      onClick={() => handleTabChange('favorites')}
                       className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         activeTab === 'favorites'
                           ? 'bg-rose-50 text-rose-700 font-black'
@@ -176,10 +201,56 @@ export const Header: React.FC = () => {
                       )}
                     </button>
 
+                    {/* Chỉ Admin đã đăng nhập mới thấy mục Trang Admin & Đăng xuất */}
+                    {isAuthenticated && isAdmin && (
+                      <>
+                        <button
+                          onClick={handleOpenAdmin}
+                          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            activeTab === 'admin'
+                              ? 'bg-amber-100 text-amber-950 font-black'
+                              : 'text-amber-800 hover:bg-amber-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Trang Admin</span>
+                          </div>
+                          {activeTab === 'admin' && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                          )}
+                        </button>
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all cursor-pointer border-t border-gray-100"
+                        >
+                          <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                          <span>Đăng xuất ({getShortName(user?.fullName)})</span>
+                        </button>
+                      </>
+                    )}
+
                   </div>
                 </>
               )}
             </div>
+
+            {/* Mobile Admin Quick Access Button (Chỉ Admin đã đăng nhập mới thấy) */}
+            {isAuthenticated && isAdmin && (
+              <button
+                onClick={handleOpenAdmin}
+                className={`p-2 rounded-xl transition-all cursor-pointer shrink-0 flex items-center justify-center border shadow-xs ${
+                  activeTab === 'admin'
+                    ? 'bg-amber-400 text-amber-950 border-amber-500 font-black'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
+                }`}
+                title="Vào Trang Quản Trị"
+                aria-label="Trang Admin"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-800" />
+              </button>
+            )}
 
             {/* Guest submissions are reviewed before they become public. */}
             <button
@@ -240,7 +311,7 @@ export const Header: React.FC = () => {
 
           <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl border border-gray-200 shrink-0">
             <button
-              onClick={() => setActiveTab('map')}
+              onClick={() => handleTabChange('map')}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'map'
                   ? 'bg-white text-emerald-800 shadow-xs'
@@ -251,7 +322,7 @@ export const Header: React.FC = () => {
               <span>Bản đồ</span>
             </button>
             <button
-              onClick={() => setActiveTab('list')}
+              onClick={() => handleTabChange('list')}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'list'
                   ? 'bg-white text-emerald-800 shadow-xs'
@@ -262,7 +333,7 @@ export const Header: React.FC = () => {
               <span>Danh sách</span>
             </button>
             <button
-              onClick={() => setActiveTab('favorites')}
+              onClick={() => handleTabChange('favorites')}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold relative transition-all cursor-pointer ${
                 activeTab === 'favorites'
                   ? 'bg-white text-rose-600 shadow-xs'
@@ -278,6 +349,40 @@ export const Header: React.FC = () => {
               )}
             </button>
           </div>
+
+          {/* Desktop Admin Quick Access & Logout (Chỉ Admin đã đăng nhập mới thấy) */}
+          {isAuthenticated && isAdmin && (
+            <>
+              <button
+                onClick={handleOpenAdmin}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black transition-all cursor-pointer shadow-xs ${
+                  activeTab === 'admin'
+                    ? 'bg-amber-400 text-amber-950 ring-2 ring-amber-300'
+                    : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                }`}
+                title="Vào Trang Quản Trị Hệ Thống"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+                <span>Trang Admin</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 bg-emerald-50/90 border border-emerald-300/80 pl-2.5 pr-1.5 py-1 rounded-2xl shadow-xs shrink-0">
+                <span className="font-bold text-emerald-950 text-xs">
+                  {getShortName(user?.fullName)}
+                </span>
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-amber-400 text-amber-950">
+                  Admin
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="p-1 rounded-xl hover:bg-rose-100 text-gray-500 hover:text-rose-600 transition-colors cursor-pointer ml-0.5"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </>
+          )}
 
           <a
             href="https://www.facebook.com/profile.php?id=61594975707522&locale=vi_VN"
