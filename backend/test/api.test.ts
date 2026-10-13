@@ -71,7 +71,7 @@ async function testBackend() {
       `GET /api/places/${firstPlace.id} returns place details`
     );
 
-    // Test 5: "Chấm vào bản đồ" - Map Pinning (POST /api/places)
+    // Test 5: Guest map submission is created as pending, never public immediately.
     const pinPayload = {
       name: 'Quán Trà Sữa Đóm Đóm - Tân Xã',
       category: 'food_drink',
@@ -90,6 +90,7 @@ async function testBackend() {
       amenities: ['Có điều hòa', 'Wifi miễn phí', 'Thanh toán QR', 'View hồ Tân Xã'],
       photos: ['https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80'],
       contributorName: 'Đặng Cao Cường',
+      approvalStatus: 'approved', // Must be ignored for a guest request.
       rating: 5,
       reviewContent: 'Chấm vào bản đồ test: Quán trà sữa mới view hồ, đồ uống ngon giá sinh viên!',
     };
@@ -102,28 +103,42 @@ async function testBackend() {
     assert(
       pinnedPlace.status === 201 &&
         pinnedPlace.data.name === pinPayload.name &&
-        pinnedPlace.data.coordinates.lat === pinPayload.coordinates.lat,
-      'POST /api/places ("Chấm vào bản đồ") successfully creates new pinned place with coordinates'
+        pinnedPlace.data.coordinates.lat === pinPayload.coordinates.lat &&
+        pinnedPlace.data.approvalStatus === 'pending',
+      'POST /api/places creates a guest proposal with pending approval status'
     );
 
-    const newPlaceId = pinnedPlace.data.id;
+    const submittedPlaceId = pinnedPlace.data.id;
 
-    // Test 6: Nearby places (spatial search for "Chấm vào bản đồ")
+    const unauthenticatedQueue = await apiFetch('/api/places/submissions');
+    assert(
+      unauthenticatedQueue.status === 401,
+      'GET /api/places/submissions rejects unauthenticated users'
+    );
+
+    // Test 6: Pending proposal is hidden from public nearby search.
     const nearby = await apiFetch(
       `/api/places/nearby?lat=${pinPayload.coordinates.lat}&lng=${pinPayload.coordinates.lng}&radius=500`
     );
     assert(
       nearby.status === 200 &&
         Array.isArray(nearby.data) &&
-        nearby.data.some((p: any) => p.id === newPlaceId),
-      'GET /api/places/nearby locates the newly pinned spot within 500m radius'
+        !nearby.data.some((p: any) => p.id === submittedPlaceId),
+      'GET /api/places/nearby hides pending guest proposals'
     );
 
-    // Test 7: Add Review with images (POST /api/places/:id/reviews)
-    const reviewRes = await apiFetch(`/api/places/${newPlaceId}/reviews`, {
+    // Test 7: Pending proposals cannot be loaded through the public detail API.
+    const pendingDetail = await apiFetch(`/api/places/${submittedPlaceId}`);
+    assert(
+      pendingDetail.status === 404,
+      'GET /api/places/:id hides pending guest proposals'
+    );
+
+    // Test 8: Add Review with images (POST /api/places/:id/reviews)
+    const reviewRes = await apiFetch(`/api/places/${firstPlace.id}/reviews`, {
       method: 'POST',
       body: JSON.stringify({
-        placeId: newPlaceId,
+        placeId: firstPlace.id,
         authorName: 'Đào Thế Việt',
         studentBatch: 'K18 FPTU',
         rating: 5,
@@ -139,11 +154,11 @@ async function testBackend() {
       'POST /api/places/:id/reviews successfully adds a student review with images'
     );
 
-    // Test 7b: Guardrail rejects invalid image format (POST /api/places/:id/reviews)
-    const invalidImageRes = await apiFetch(`/api/places/${newPlaceId}/reviews`, {
+    // Test 8b: Guardrail rejects invalid image format (POST /api/places/:id/reviews)
+    const invalidImageRes = await apiFetch(`/api/places/${firstPlace.id}/reviews`, {
       method: 'POST',
       body: JSON.stringify({
-        placeId: newPlaceId,
+        placeId: firstPlace.id,
         authorName: 'Đào Thế Việt',
         studentBatch: 'K18 FPTU',
         rating: 5,
@@ -156,11 +171,11 @@ async function testBackend() {
       'POST /api/places/:id/reviews guardrail rejects non-image payload'
     );
 
-    // Test 8: Submit Report (POST /api/reports)
+    // Test 9: Submit Report (POST /api/reports)
     const reportRes = await apiFetch('/api/reports', {
       method: 'POST',
       body: JSON.stringify({
-        placeId: newPlaceId,
+        placeId: firstPlace.id,
         reason: 'wrong_info',
         note: 'Quán đổi giờ mở cửa từ 09:00',
         contactEmail: 'cuong@fpt.edu.vn',
@@ -171,7 +186,7 @@ async function testBackend() {
       'POST /api/reports successfully records inaccurate data report'
     );
 
-    // Test 9: Filter places by category
+    // Test 10: Filter places by category
     const foodPlaces = await apiFetch('/api/places?category=food_drink');
     assert(
       foodPlaces.status === 200 &&
@@ -179,7 +194,7 @@ async function testBackend() {
       'GET /api/places?category=food_drink filters accurately'
     );
 
-    // Test 10: Contributors with KPI tracking
+    // Test 11: Contributors with KPI tracking
     const contribs = await apiFetch('/api/contributions');
     assert(
       contribs.status === 200 &&
@@ -187,7 +202,7 @@ async function testBackend() {
       'GET /api/contributions returns survey contributors with KPI place count'
     );
 
-    // Test 11: Survey Template
+    // Test 12: Survey Template
     const template = await apiFetch('/api/places/template');
     assert(
       template.status === 200 &&
@@ -197,7 +212,7 @@ async function testBackend() {
       'GET /api/places/template returns full 14-question survey options from Read_me.txt'
     );
 
-    // Test 12: Detect Area from GPS
+    // Test 13: Detect Area from GPS
     const areaDetect = await apiFetch('/api/places/detect-area', {
       method: 'POST',
       body: JSON.stringify({ lat: 21.0185, lng: 105.5345 }),
@@ -207,7 +222,7 @@ async function testBackend() {
       'POST /api/places/detect-area auto-detects "Tân Xã" from GPS coordinates'
     );
 
-    // Test 13: Image Upload (Base64)
+    // Test 14: Image Upload (Base64)
     const uploadRes = await apiFetch('/api/upload', {
       method: 'POST',
       body: JSON.stringify({
@@ -220,7 +235,7 @@ async function testBackend() {
       'POST /api/upload keeps base64 photos in durable database-compatible form'
     );
 
-    // Test 14: Overall Survey Stats & Dashboard
+    // Test 15: Overall Survey Stats & Dashboard
     const statsRes = await apiFetch('/api/stats');
     assert(
       statsRes.status === 200 &&
@@ -231,7 +246,7 @@ async function testBackend() {
       'GET /api/stats returns progress towards 50-places field survey goal'
     );
 
-    // Test 15: Auth - Admin Login (POST /api/auth/login)
+    // Test 16: Auth - Admin Login (POST /api/auth/login)
     const adminLoginRes = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -248,7 +263,7 @@ async function testBackend() {
     );
     const adminToken = adminLoginRes.data.token;
 
-    // Test 16: Auth - Member Admin Login with name+MSSV password
+    // Test 17: Auth - Member Admin Login with name+MSSV password
     const memberLoginRes = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -264,7 +279,7 @@ async function testBackend() {
       'POST /api/auth/login succeeds for member admin with name+MSSV password'
     );
 
-    // Test 16b: Auth - Alias username & case-insensitive password login
+    // Test 17b: Auth - Alias username & case-insensitive password login
     const aliasLoginRes = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -279,7 +294,7 @@ async function testBackend() {
       'POST /api/auth/login succeeds for alias username "cuong" and lowercase password'
     );
 
-    // Test 17: Auth - Invalid Credentials rejected
+    // Test 18: Auth - Invalid Credentials rejected
     const badLoginRes = await apiFetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -292,7 +307,7 @@ async function testBackend() {
       'POST /api/auth/login rejects incorrect password with 401'
     );
 
-    // Test 18: Auth - GET /api/auth/me with Bearer token
+    // Test 19: Auth - GET /api/auth/me with Bearer token
     const meRes = await apiFetch('/api/auth/me', {
       headers: {
         Authorization: `Bearer ${adminToken}`,
@@ -303,7 +318,7 @@ async function testBackend() {
       'GET /api/auth/me returns authenticated user from JWT'
     );
 
-    // Test 19: RBAC - Admin can list all 7 seeded users
+    // Test 20: RBAC - Admin can list all 7 seeded users
     const usersRes = await apiFetch('/api/auth/users', {
       headers: {
         Authorization: `Bearer ${adminToken}`,
@@ -314,7 +329,7 @@ async function testBackend() {
       'GET /api/auth/users (admin only) returns all seeded team accounts'
     );
 
-    // Test 20: RBAC - Non-admin surveyor token is forbidden from listing all users
+    // Test 21: RBAC - Non-admin surveyor token is forbidden from listing all users
     const nonAdminToken = jwt.sign(
       { userId: 999, username: 'testuser', fullName: 'Test Guest', role: 'surveyor' },
       config.jwtSecret,
@@ -330,8 +345,33 @@ async function testBackend() {
       'GET /api/auth/users rejects non-admin token with 403 Forbidden'
     );
 
-    // Test 21a: Protected Cover Update - unauthenticated request rejected
-    const unauthCoverRes = await apiFetch(`/api/places/${newPlaceId}/cover`, {
+    // Test 22: Admin can review the pending proposal.
+    const submissionsRes = await apiFetch('/api/places/submissions', {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    assert(
+      submissionsRes.status === 200 && submissionsRes.data.some((p: any) => p.id === submittedPlaceId),
+      'GET /api/places/submissions shows pending proposals to an admin only'
+    );
+
+    const approvalRes = await apiFetch(`/api/places/${submittedPlaceId}/approval`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: JSON.stringify({ approvalStatus: 'approved' }),
+    });
+    assert(
+      approvalRes.status === 200 && approvalRes.data.approvalStatus === 'approved',
+      'PATCH /api/places/:id/approval publishes a pending proposal'
+    );
+
+    const approvedDetail = await apiFetch(`/api/places/${submittedPlaceId}`);
+    assert(
+      approvedDetail.status === 200 && approvedDetail.data.id === submittedPlaceId,
+      'Approved proposal becomes visible through the public place API'
+    );
+
+    // Test 23a: Protected Cover Update - unauthenticated request rejected
+    const unauthCoverRes = await apiFetch(`/api/places/${submittedPlaceId}/cover`, {
       method: 'PATCH',
       body: JSON.stringify({ coverUrl: 'https://example.com/new-cover.webp' }),
     });
@@ -340,8 +380,8 @@ async function testBackend() {
       'PATCH /api/places/:id/cover rejects unauthenticated request with 401'
     );
 
-    // Test 21b: Protected Cover Update - Admin updates cover photo successfully
-    const adminCoverRes = await apiFetch(`/api/places/${newPlaceId}/cover`, {
+    // Test 23b: Protected Cover Update - Admin updates cover photo successfully
+    const adminCoverRes = await apiFetch(`/api/places/${submittedPlaceId}/cover`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${adminToken}`,
@@ -355,8 +395,8 @@ async function testBackend() {
       'PATCH /api/places/:id/cover updates place cover photo successfully'
     );
 
-    // Test 22: Protected Deletion - unauthenticated request rejected
-    const unauthDeleteRes = await apiFetch(`/api/places/${newPlaceId}`, {
+    // Test 24: Protected Deletion - unauthenticated request rejected
+    const unauthDeleteRes = await apiFetch(`/api/places/${submittedPlaceId}`, {
       method: 'DELETE',
     });
     assert(
@@ -364,8 +404,8 @@ async function testBackend() {
       'DELETE /api/places/:id rejects unauthenticated request with 401'
     );
 
-    // Test 23: Protected Deletion - Admin deletes place successfully
-    const adminDeleteRes = await apiFetch(`/api/places/${newPlaceId}`, {
+    // Test 25: Protected Deletion - Admin deletes place successfully
+    const adminDeleteRes = await apiFetch(`/api/places/${submittedPlaceId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${adminToken}`,

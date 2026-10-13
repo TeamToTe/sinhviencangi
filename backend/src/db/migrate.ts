@@ -56,6 +56,7 @@ export async function runMigrations(): Promise<void> {
           amenities TEXT[],
           images TEXT[],
           gps_accuracy DOUBLE PRECISION,
+          approval_status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
           created_at TIMESTAMPTZ DEFAULT NOW(),
           updated_at TIMESTAMPTZ DEFAULT NOW()
       );
@@ -87,6 +88,9 @@ export async function runMigrations(): Promise<void> {
 
       -- Ensure optional columns exist if table pre-existed
       ALTER TABLE places ADD COLUMN IF NOT EXISTS gps_accuracy DOUBLE PRECISION;
+      ALTER TABLE places ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) NOT NULL DEFAULT 'approved';
+      UPDATE places SET approval_status = 'approved' WHERE approval_status IS NULL;
+      CREATE INDEX IF NOT EXISTS idx_places_approval_status ON places(approval_status);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMPTZ;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
       ALTER TABLE reviews ADD COLUMN IF NOT EXISTS author_name VARCHAR(100);
@@ -143,6 +147,7 @@ export async function runMigrations(): Promise<void> {
           amenities TEXT,
           images TEXT,
           gps_accuracy REAL,
+          approval_status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
@@ -179,6 +184,12 @@ export async function runMigrations(): Promise<void> {
     } catch {
       // Column already exists, safe to ignore
     }
+    try {
+      await db.exec("ALTER TABLE places ADD COLUMN approval_status VARCHAR(20) NOT NULL DEFAULT 'approved' CHECK (approval_status IN ('pending', 'approved', 'rejected')); ");
+    } catch {
+      // Column already exists, safe to ignore
+    }
+    await db.exec('CREATE INDEX IF NOT EXISTS idx_places_approval_status ON places(approval_status);');
     try {
       await db.exec('ALTER TABLE reviews ADD COLUMN images TEXT;');
     } catch {

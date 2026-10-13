@@ -7,6 +7,7 @@ import type {
   CreateReviewDto,
   FilterParams,
   Place,
+  PlaceApprovalStatus,
   PlaceCategory,
   Review,
   ReportItem,
@@ -119,6 +120,7 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     badgeText: badge,
     gpsAccuracy: row.gps_accuracy ? Number(row.gps_accuracy) : undefined,
     contributorName: row.contributor_name || undefined,
+    approvalStatus: (row.approval_status || 'approved') as PlaceApprovalStatus,
   };
 }
 
@@ -176,6 +178,25 @@ function saveStoredReports(reports: ReportItem[]) {
   } catch {}
 }
 
+const MOCK_SUBMISSIONS_KEY = 'hola_map_place_submissions';
+
+function getStoredPlaceSubmissions(): Place[] {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(MOCK_SUBMISSIONS_KEY) : null;
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredPlaceSubmissions(submissions: Place[]) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(MOCK_SUBMISSIONS_KEY, JSON.stringify(submissions));
+    }
+  } catch {}
+}
+
 /**
  * Places Service Layer
  * Supports REST API backend, direct Supabase, and instant Mock Data fallback
@@ -216,7 +237,10 @@ export const placesService = {
       // 2. Try Supabase direct fallback
       if (supabase) {
         try {
-          let query = supabase.from('places').select('*, categories(name), reviews(*)');
+          let query = supabase
+            .from('places')
+            .select('*, categories(name), reviews(*)')
+            .eq('approval_status', 'approved');
 
           if (filters.area && filters.area !== 'all') {
             query = query.ilike('area', `%${filters.area}%`);
@@ -362,6 +386,7 @@ export const placesService = {
             .from('places')
             .select('*, categories(name), reviews(*)')
             .eq('id', id)
+            .eq('approval_status', 'approved')
             .single();
 
           if (!error && data) {
@@ -402,6 +427,8 @@ export const placesService = {
           };
         }
       } catch (err) {
+        // A guest proposal must never look successful if the approval API is unavailable.
+        if (placeData.isGuestSubmission) throw err;
         console.warn('[PlacesService] Backend createPlace error, falling back to local mock:', err);
       }
     }
@@ -450,10 +477,60 @@ export const placesService = {
         : [],
       isVerified: true,
       isAvailable: true,
+      approvalStatus: placeData.isGuestSubmission ? 'pending' : 'approved',
     };
 
-    MOCK_PLACES.unshift(newPlace);
+    if (newPlace.approvalStatus === 'pending') {
+      saveStoredPlaceSubmissions([newPlace, ...getStoredPlaceSubmissions()]);
+    } else {
+      MOCK_PLACES.unshift(newPlace);
+    }
     return newPlace;
+  },
+
+  /** Fetch proposals that are hidden from the public map and visible only to admins. */
+  async getPlaceSubmissions(): Promise<Place[]> {
+    if (!USE_MOCK_DATA) {
+      try {
+        const submissions = await request<Place[]>('/places/submissions');
+        if (Array.isArray(submissions)) {
+          return submissions.map((place) => ({
+            ...place,
+            photos: Array.isArray(place.photos) ? place.photos.map(formatPhotoUrl) : [],
+          }));
+        }
+      } catch (err) {
+        console.warn('[PlacesService] Backend getPlaceSubmissions error:', err);
+      }
+    }
+    return getStoredPlaceSubmissions().filter((place) => place.approvalStatus === 'pending');
+  },
+
+  /** Approve or reject a pending guest proposal. */
+  async reviewPlaceSubmission(
+    id: string,
+    approvalStatus: Extract<PlaceApprovalStatus, 'approved' | 'rejected'>
+  ): Promise<Place> {
+    if (!USE_MOCK_DATA) {
+      const updated = await request<Place>(`/places/${id}/approval`, {
+        method: 'PATCH',
+        body: JSON.stringify({ approvalStatus }),
+      });
+      return {
+        ...updated,
+        photos: Array.isArray(updated.photos) ? updated.photos.map(formatPhotoUrl) : [],
+      };
+    }
+
+    const submissions = getStoredPlaceSubmissions();
+    const index = submissions.findIndex((place) => place.id === id && place.approvalStatus === 'pending');
+    if (index === -1) throw new Error('Không tìm thấy đề xuất đang chờ duyệt.');
+
+    const updated = { ...submissions[index], approvalStatus };
+    submissions[index] = updated;
+    saveStoredPlaceSubmissions(submissions);
+    if (approvalStatus === 'approved') MOCK_PLACES.unshift(updated);
+    return updated;
   },
 
   /**

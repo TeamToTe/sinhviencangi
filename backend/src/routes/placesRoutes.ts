@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { placesService, detectAreaFromCoordinates, getPlaceImage } from '../services/placesService.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
-import type { FilterParams, CreatePlaceDto, CreateReviewDto } from '../types/place.js';
+import { authMiddleware, requireAdmin, type AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import type { FilterParams, CreatePlaceDto, CreateReviewDto, PlaceApprovalStatus } from '../types/place.js';
 
 export const placesRouter = Router();
 
@@ -83,8 +83,18 @@ placesRouter.get('/', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// GET /api/places/submissions (Admin only - pending/rejected guest proposals)
+placesRouter.get('/submissions', requireAdmin, async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const submissions = await placesService.getPlaceSubmissions();
+    res.json(submissions);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
+
 // GET /api/places/:id/images/:index - Stream persistent database images lazily.
-placesRouter.get('/:id/images/:index', async (req: Request, res: Response): Promise<void> => {
+placesRouter.get('/:id/images/:index', authMiddleware, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const index = Number(req.params.index);
@@ -93,7 +103,7 @@ placesRouter.get('/:id/images/:index', async (req: Request, res: Response): Prom
       return;
     }
 
-    const image = await getPlaceImage(id, index);
+    const image = await getPlaceImage(id, index, req.user?.role === 'admin');
     if (!image) {
       res.status(404).json({ error: 'Not Found', message: 'Không tìm thấy ảnh địa điểm.' });
       return;
@@ -121,8 +131,8 @@ placesRouter.get('/:id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// POST /api/places (Chấm vào bản đồ - Thêm địa điểm mới)
-placesRouter.post('/', async (req: Request, res: Response): Promise<void> => {
+// POST /api/places (Guest proposal or immediate Admin place creation)
+placesRouter.post('/', authMiddleware, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const dto: CreatePlaceDto = req.body;
 
@@ -142,10 +152,43 @@ placesRouter.post('/', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const createdPlace = await placesService.createPlace(dto);
+    const isAdmin = req.user?.role === 'admin';
+    // Never accept an approval status or a team contributor name from the client.
+    // A missing/invalid token is a guest submission and must stay pending.
+    const safeDto: CreatePlaceDto = isAdmin
+      ? dto
+      : { ...dto, contributorName: undefined, isGuestSubmission: true };
+    const createdPlace = await placesService.createPlace(safeDto, isAdmin ? 'approved' : 'pending');
     res.status(201).json(createdPlace);
   } catch (err: any) {
     res.status(400).json({ error: 'Bad Request', message: err.message });
+  }
+});
+
+// PATCH /api/places/:id/approval (Admin only)
+placesRouter.patch('/:id/approval', requireAdmin, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const approvalStatus = req.body?.approvalStatus as PlaceApprovalStatus;
+    if (approvalStatus !== 'approved' && approvalStatus !== 'rejected') {
+      res.status(400).json({
+        error: 'Validation Error',
+        message: 'approvalStatus phải là approved hoặc rejected.',
+      });
+      return;
+    }
+
+    const updated = await placesService.updatePlaceApprovalStatus(id, approvalStatus);
+    if (!updated) {
+      res.status(404).json({
+        error: 'Not Found',
+        message: 'Không tìm thấy đề xuất đang chờ duyệt hoặc đề xuất đã được xử lý.',
+      });
+      return;
+    }
+    res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Server error', message: err.message });
   }
 });
 
