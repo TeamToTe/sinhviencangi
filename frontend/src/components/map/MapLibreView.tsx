@@ -425,6 +425,11 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       setViewportTick((v) => v + 1);
     });
 
+    map.on('click', () => {
+      useMapStore.getState().setSelectedPlace(null);
+      useMapStore.getState().setHoveredPlaceId(null);
+    });
+
     mapRef.current = map;
 
     return () => {
@@ -607,7 +612,8 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
             zIndexOffset: isSelected ? 2500 : 10,
           }).addTo(map);
 
-          marker.on('click', () => {
+          marker.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
             setSelectedPlace(place);
           });
 
