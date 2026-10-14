@@ -55,14 +55,27 @@ const VIETNAMESE_CATEGORY_MAP: Record<string, PlaceCategory> = {
   'trường & điểm đón bus': 'campus',
 };
 
-function normalizeCategory(categoryName?: string): PlaceCategory {
+const UUID_TO_CATEGORY: Record<string, PlaceCategory> = {
+  'eab8c4cf-de82-4300-bed0-3af65eb7e0a2': 'food_drink',
+  'f3f2c91d-c41e-4333-8973-b056324033ad': 'pharmacy',
+  '60b335d2-3101-4671-bd05-311679a1e022': 'entertainment',
+  'ed30383e-df58-4505-937c-23cf8a823e2f': 'grocery',
+  '931228be-77ef-4c93-a6b6-2a85c1ccb78f': 'services',
+  '0c819024-7bba-47e8-b547-1459ec48cfff': 'campus',
+  'a112aae5-9750-483b-a9fa-00d04c4915bb': 'boarding_house',
+};
+
+function normalizeCategory(categoryName?: string, categoryId?: string): PlaceCategory {
+  if (categoryId && UUID_TO_CATEGORY[categoryId]) {
+    return UUID_TO_CATEGORY[categoryId];
+  }
   if (!categoryName) return 'boarding_house';
   const lower = categoryName.toLowerCase().trim();
   return VIETNAMESE_CATEGORY_MAP[lower] || 'boarding_house';
 }
 
 function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []): Place {
-  const catKey = normalizeCategory(categoryName);
+  const catKey = normalizeCategory(categoryName, row.category_id);
   const meta = CATEGORY_MAP[catKey] || CATEGORY_MAP['boarding_house'];
   const isBoarding = meta.id === 'boarding_house';
 
