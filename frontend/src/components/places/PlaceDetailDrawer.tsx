@@ -822,6 +822,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Tên *"
+                  maxLength={50}
                   value={reviewName}
                   onChange={(e) => setReviewName(e.target.value)}
                   required
@@ -830,6 +831,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Khóa (K18 FPTU)"
+                  maxLength={50}
                   value={reviewBatch}
                   onChange={(e) => setReviewBatch(e.target.value)}
                   className="w-full px-2.5 py-1.5 rounded-xl bg-white border border-gray-200 text-xs focus:outline-hidden focus:border-emerald-500"
@@ -854,6 +856,7 @@ export const PlaceDetailDrawer: React.FC = () => {
 
               <textarea
                 placeholder="Trải nghiệm của bạn..."
+                maxLength={500}
                 value={reviewComment}
                 onChange={(e) => setReviewComment(e.target.value)}
                 rows={2}

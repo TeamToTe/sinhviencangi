@@ -109,6 +109,7 @@ export const AdminLoginModal: React.FC = () => {
               <input
                 type="text"
                 placeholder="Nhập tên đăng nhập của bạn..."
+                maxLength={50}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -125,6 +126,7 @@ export const AdminLoginModal: React.FC = () => {
               <input
                 type="password"
                 placeholder="Nhập mật khẩu..."
+                maxLength={100}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

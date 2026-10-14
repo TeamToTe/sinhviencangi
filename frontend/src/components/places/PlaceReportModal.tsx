@@ -93,6 +93,7 @@ export const PlaceReportModal: React.FC = () => {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Ví dụ: Phòng này chủ trọ đã tăng giá lên 3.2tr, hoặc SĐT chính xác là 0912..."
                 rows={3}
+                maxLength={500}
                 required
                 className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:outline-hidden focus:border-red-500"
               />
@@ -106,6 +107,7 @@ export const PlaceReportModal: React.FC = () => {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                maxLength={100}
                 placeholder="Để ban quản trị liên hệ xác minh nếu cần"
                 className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:outline-hidden focus:border-red-500"
               />

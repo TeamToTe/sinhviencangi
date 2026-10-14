@@ -571,6 +571,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
+                    maxLength={100}
                     placeholder="Tìm tên, địa chỉ, trọ..."
                     value={placeSearch}
                     onChange={(e) => setPlaceSearch(e.target.value)}
@@ -945,6 +946,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <input
                                   type="text"
                                   placeholder="Ghi chú xử lý (VD: Đã cập nhật giá mới 2.8tr)"
+                                  maxLength={300}
                                   value={adminResolveNote}
                                   onChange={(e) => setAdminResolveNote(e.target.value)}
                                   className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-300 text-xs focus:outline-hidden w-64"
@@ -1041,6 +1043,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <label className="block font-bold text-slate-700 mb-1">Tên địa điểm *</label>
                 <input
                   type="text"
+                  maxLength={120}
                   value={editingPlace.name}
                   onChange={(e) => setEditingPlace({ ...editingPlace, name: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold text-slate-900 focus:outline-hidden focus:border-emerald-500"
@@ -1053,6 +1056,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="block font-bold text-slate-700 mb-1">Khu vực *</label>
                   <input
                     type="text"
+                    maxLength={100}
                     value={editingPlace.areaName}
                     onChange={(e) => setEditingPlace({ ...editingPlace, areaName: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
@@ -1063,6 +1067,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="block font-bold text-slate-700 mb-1">Số điện thoại</label>
                   <input
                     type="text"
+                    maxLength={30}
                     value={editingPlace.phone || ''}
                     onChange={(e) => setEditingPlace({ ...editingPlace, phone: e.target.value })}
                     placeholder="0912..."
@@ -1075,6 +1080,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <label className="block font-bold text-slate-700 mb-1">Địa chỉ chi tiết</label>
                 <input
                   type="text"
+                  maxLength={250}
                   value={editingPlace.address}
                   onChange={(e) => setEditingPlace({ ...editingPlace, address: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
@@ -1122,6 +1128,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <label className="block font-bold text-slate-700 mb-1">Mô tả tóm tắt</label>
                 <textarea
                   value={editingPlace.shortDescription}
+                  maxLength={300}
                   onChange={(e) => setEditingPlace({ ...editingPlace, shortDescription: e.target.value })}
                   rows={2}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
@@ -1173,6 +1180,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <input
                   type="text"
                   placeholder="VD: Nhà Trọ An Bình 2 Tân Xã"
+                  maxLength={120}
                   value={newPlaceName}
                   onChange={(e) => setNewPlaceName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-hidden focus:border-emerald-500"
@@ -1218,6 +1226,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <input
                   type="text"
                   placeholder="Đường Tân Xã, Thạch Thất, Hà Nội"
+                  maxLength={250}
                   value={newPlaceAddress}
                   onChange={(e) => setNewPlaceAddress(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
@@ -1240,6 +1249,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <input
                     type="text"
                     placeholder="0912345678"
+                    maxLength={30}
                     value={newPlacePhone}
                     onChange={(e) => setNewPlacePhone(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
@@ -1252,6 +1262,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="block font-bold text-slate-700 mb-1">Vĩ độ (Lat)</label>
                   <input
                     type="text"
+                    maxLength={20}
                     value={newPlaceLat}
                     onChange={(e) => setNewPlaceLat(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
@@ -1261,6 +1272,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="block font-bold text-slate-700 mb-1">Kinh độ (Lng)</label>
                   <input
                     type="text"
+                    maxLength={20}
                     value={newPlaceLng}
                     onChange={(e) => setNewPlaceLng(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"
