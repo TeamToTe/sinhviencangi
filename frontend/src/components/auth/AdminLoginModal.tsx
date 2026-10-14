@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useMapStore } from '../../stores/useMapStore';
+import { isAdminPath } from '../../utils/routeUtils';
 
 export const AdminLoginModal: React.FC = () => {
   const { isLoginModalOpen, setLoginModalOpen, login, isLoading, error } = useAuthStore();
@@ -20,6 +21,15 @@ export const AdminLoginModal: React.FC = () => {
   const [successMsg, setSuccessMsg] = useState('');
 
   if (!isLoginModalOpen) return null;
+
+  const handleClose = () => {
+    setLoginModalOpen(false);
+    if (isAdminPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      setActiveTab('map');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +42,10 @@ export const AdminLoginModal: React.FC = () => {
         setSuccessMsg('');
         setLoginModalOpen(false);
         setActiveTab('admin');
+        if (!isAdminPath(window.location.pathname)) {
+          window.history.pushState({}, '', '/admin');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
       }, 500);
     }
   };
@@ -39,7 +53,7 @@ export const AdminLoginModal: React.FC = () => {
   return (
     <div
       className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
-      onClick={() => setLoginModalOpen(false)}
+      onClick={handleClose}
     >
       <div
         className="bg-white rounded-3xl shadow-2xl border border-emerald-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
@@ -60,7 +74,7 @@ export const AdminLoginModal: React.FC = () => {
           </div>
           <button
             type="button"
-            onClick={() => setLoginModalOpen(false)}
+            onClick={handleClose}
             className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white cursor-pointer"
           >
             <X className="w-5 h-5" />

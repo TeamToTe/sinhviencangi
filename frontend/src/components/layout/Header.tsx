@@ -14,6 +14,7 @@ import { useFilterStore } from '../../stores/useFilterStore';
 import { useMapStore } from '../../stores/useMapStore';
 import { useFavoritesStore } from '../../stores/useFavoritesStore';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { isAdminPath } from '../../utils/routeUtils';
 import webIcon from '../../assets/icon.png';
 
 const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -47,8 +48,7 @@ export const Header: React.FC = () => {
   const viewMenuRef = useRef<HTMLDivElement>(null);
 
   const handleTabChange = (tab: 'map' | 'list' | 'favorites') => {
-    const isAtAdmin = window.location.pathname.replace(/\/+$/, '').toLowerCase().includes('admin');
-    if (isAtAdmin) {
+    if (isAdminPath(window.location.pathname)) {
       window.history.pushState({}, '', '/');
       window.dispatchEvent(new PopStateEvent('popstate'));
     }

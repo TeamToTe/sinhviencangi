@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Place } from '../types/place';
+import { isAdminPath } from '../utils/routeUtils';
 
 export type SurveyStep = 'closed' | 'map_pin' | 'form';
 export type RouteStatus = 'idle' | 'locating' | 'loading' | 'ready' | 'error';
@@ -57,7 +58,7 @@ export const useMapStore = create<MapState>((set) => ({
   hoveredPlaceId: null,
   center: [105.5252, 21.0135], // FPT University Hoa Lac
   zoom: 15,
-  activeTab: 'map',
+  activeTab: typeof window !== 'undefined' && isAdminPath(window.location.pathname) ? 'admin' : 'map',
   isReportModalOpen: false,
   reportPlaceId: null,
   isSurveyModalOpen: false,
