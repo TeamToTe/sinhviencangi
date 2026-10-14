@@ -25,6 +25,7 @@ import { useMapStore } from '../../stores/useMapStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { uploadReviewImage, validateImageFile } from '../../services/storageService';
 import { resolveImageUrl } from '../../utils/imageUrl';
+import { formatPriceText, getCategoryUnit } from '../../utils/priceUtils';
 
 interface AdminDashboardProps {
   places: Place[];
@@ -639,11 +640,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                         <td className="py-3 px-4 font-bold text-slate-900">
                           {place.priceInfo ? (
-                            <span>
-                              {place.priceInfo.amount >= 1000000
-                                ? `${(place.priceInfo.amount / 1000000).toFixed(1)}tr/${place.priceInfo.unit}`
-                                : `${(place.priceInfo.amount / 1000).toLocaleString('vi-VN')}k/${place.priceInfo.unit}`}
-                            </span>
+                            <span>{formatPriceText(place.priceInfo, place.category)}</span>
                           ) : (
                             <span className="text-slate-400 font-normal">Chưa cập nhật</span>
                           )}
@@ -1095,7 +1092,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         ...editingPlace,
                         priceInfo: editingPlace.priceInfo
                           ? { ...editingPlace.priceInfo, amount: parseInt(e.target.value, 10) || 0 }
-                          : { amount: parseInt(e.target.value, 10) || 0, unit: 'tháng' },
+                          : { amount: parseInt(e.target.value, 10) || 0, unit: getCategoryUnit(editingPlace.category) },
                       })
                     }
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-hidden"

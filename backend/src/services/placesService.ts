@@ -182,6 +182,27 @@ export function normalizeCategory(categoryName?: string): PlaceCategory {
   return VIETNAMESE_CATEGORY_MAP[lower] || 'boarding_house';
 }
 
+export function getCategoryDefaultUnit(category?: string): string {
+  switch (category) {
+    case 'boarding_house':
+      return 'tháng';
+    case 'food_drink':
+      return 'món';
+    case 'entertainment':
+      return 'giờ';
+    case 'services':
+      return 'lần';
+    case 'grocery':
+      return 'món';
+    case 'pharmacy':
+      return 'món';
+    case 'campus':
+      return 'lượt';
+    default:
+      return category === 'boarding_house' ? 'tháng' : 'món';
+  }
+}
+
 export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
   const catKey = normalizeCategory(row.category_name);
   const meta = CATEGORY_MAP[catKey] || CATEGORY_MAP['boarding_house'];
@@ -245,7 +266,7 @@ export function mapRowToPlace(row: any, reviews: Review[] = []): Place {
       (row.rent_price || row.min_price)
         ? {
             amount: isBoarding ? (row.rent_price || row.min_price || 0) : (row.min_price || row.rent_price || 0),
-            unit: isBoarding ? 'tháng' : 'suất',
+            unit: isBoarding ? 'tháng' : getCategoryDefaultUnit(meta.id),
             electricity: isBoarding ? row.electricity_price : undefined,
             water: isBoarding ? (row.water_price ? parseInt(String(row.water_price), 10) || undefined : undefined) : undefined,
           }

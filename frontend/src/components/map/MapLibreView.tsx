@@ -49,7 +49,9 @@ function getSovereigntyMarkerHtml(point: (typeof VIETNAM_SOVEREIGNTY_POINTS)[0])
 }
 
 
-// Format price with proper units
+import { formatPriceText } from '../../utils/priceUtils';
+
+// Format route metrics
 function formatRouteDistance(meters: number): string {
   return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
 }
@@ -57,17 +59,6 @@ function formatRouteDistance(meters: number): string {
 function formatRouteDuration(seconds: number): string {
   const minutes = Math.max(1, Math.round(seconds / 60));
   return minutes < 60 ? `${minutes} phút` : `${Math.floor(minutes / 60)} giờ ${minutes % 60} phút`;
-}
-
-function formatPriceText(priceInfo: { amount: number; unit: string }): string {
-  if (priceInfo.amount >= 1000000) {
-    const val = (priceInfo.amount / 1000000).toFixed(1).replace('.0', '');
-    return `${val}tr/${priceInfo.unit}`;
-  }
-  if (priceInfo.amount >= 1000) {
-    return `${(priceInfo.amount / 1000).toLocaleString('vi-VN')}k/${priceInfo.unit}`;
-  }
-  return `${priceInfo.amount}đ/${priceInfo.unit}`;
 }
 
 // Clean Vector SVG Icons for Markers
@@ -107,7 +98,7 @@ function getMarkerHtml(
   staggerDelay: number
 ): string {
   const priceLabel = place.priceInfo
-    ? formatPriceText(place.priceInfo)
+    ? formatPriceText(place.priceInfo, place.category)
     : `${place.rating}★ (${place.reviewCount})`;
 
   const appearClass = isFirstMount ? 'marker-appear' : '';

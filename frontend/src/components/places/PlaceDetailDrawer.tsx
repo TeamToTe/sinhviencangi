@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
+import { getCategoryUnit } from '../../utils/priceUtils';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { getRoute } from '../../services/routingService';
 import { uploadReviewImages, uploadReviewImage, validateImageFile } from '../../services/storageService';
@@ -567,12 +568,12 @@ export const PlaceDetailDrawer: React.FC = () => {
             <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200/80 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider">
-                  Bảng giá & Chi phí
+                  {selectedPlace.category === 'boarding_house' ? 'Giá phòng & Chi phí' : 'Bảng giá tham khảo'}
                 </span>
                 <span className="text-sm font-black text-amber-950">
                   {selectedPlace.priceInfo.amount.toLocaleString('vi-VN')}đ
                   <span className="text-xs font-normal text-gray-700">
-                    /{selectedPlace.priceInfo.unit}
+                    /{getCategoryUnit(selectedPlace.category, selectedPlace.priceInfo.unit)}
                   </span>
                 </span>
               </div>
