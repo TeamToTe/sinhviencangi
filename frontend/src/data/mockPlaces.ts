@@ -77,8 +77,9 @@ export const MOCK_PLACES: Place[] = [
     distanceToFPT: '0m (Tại trường)',
     distanceToVNU: '1.5km',
     photos: [
-      'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLc6UHzcVUxsuYcgzA9Ok7zepWv0UitY_GonV2IMz8FyzOGLIY8sBhBR1M9gE-cUyfVEK_iImgAVmr3Z0JNhEGd3m3DbYceTuKld7uUC4MKG1WuGFibdKQCcsicy50SxmJJpUNRaDQ=w1000-h750-k-no',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLd1NEusH0wgaxaIzQx99im5Mb6cpwumiUO4E6NtZW-Lk8qo6eidCpG4bWBaOTufVccNEoerIPRSEQoIInT-T9vlRGiynxHSimfMsop43Q9CV4ituWr_hElthHqk2MJ-2ZNPuyU9xw=w1000-h750-k-no',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLcaQQ-1njVtGZiAhIkqQ5QBFzVLcgpNczniuzAZDwzgDOOP-XJV79Gpq8wJIT9iDpOGxWw_rr9tKxncmXy_ZNuzsiYoYocJXZsNFYTiDJ-v7GgHgt7qCMpCXDawLcgGleEOOd4J=w1000-h750-k-no',
     ],
     tags: ['Wifi miễn phí', 'Sân bóng', 'Ký túc xá', 'ATM', 'Căn tin'],
     amenities: [
@@ -649,7 +650,7 @@ export const MOCK_PLACES: Place[] = [
     },
     phone: '0915667788',
     photos: [
-      'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLfjeq34z1WMaaz8KRD5yGRmn3DB8JAxvSXFaDtTlvZD_g5Du9AWoFpD5ipsRaBAe_V2ZrzG2obX3rLyJQbVBKF-pN-9iIdRPVOEc7-cE90vI1bpmiGaoXHe8aBAey1lLom3kgbad9dvkU9f=w1000-h750-k-no',
     ],
     tags: ['Cơm tấm sườn bì', 'Ăn trưa', 'Canh free', 'Trục ĐT420'],
     amenities: [
@@ -694,7 +695,7 @@ export const MOCK_PLACES: Place[] = [
     },
     phone: '0978665544',
     photos: [
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLfzoVxkoTq2VMyiS8Hk3Ly47B1FVFoWAj0O_3BK5CSRy6wssD_4NsHfJz0JG9YmjnQqzIXOAlUk_3oMH9wF3IVVdhx2z0ktYK8KyHg78rub2leBMxzAvTMqbWWhE9oGiGfIDJQIiMpCNcSG=w1000-h750-k-no',
     ],
     tags: ['Gà đồi', 'Cá sông', 'Lẩu gia đình', 'Ven hồ thoáng mát', 'Trục QL21'],
     amenities: [
@@ -777,7 +778,8 @@ export const MOCK_PLACES: Place[] = [
     distanceToFPT: '1.8km',
     phone: '02433689999',
     photos: [
-      'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=800&auto=format&fit=crop&q=80',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLfl2ysYpVbGryLxIzKgNktTOev7-aBrV34L6R5XhLxS7lMevHaOAkuF2pc0qIuvaBsTLwZ6_BownTgNXZXVqIZjvYSm8ajTLTTzJp8fGE_RVk_5kRII966IgK4XtG59jCIzF7M=w1000-h750-k-no',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLemH4YNk4osB--Hixyxtce51XG4SfC_h9cnDgcAaVCietvMmOyJmtYy5EYyHTrAt60dtPi4LCRpvzV-JzM4xbRiowOdvdiPB5O-nC14UAP41V7WRjR4Akd9cX4cx6xCy8FuzkZGMYRECX52=w1000-h750-k-no',
     ],
     tags: ['HEAD Honda chính hãng', 'Bảo dưỡng xe máy', 'Thay dầu nhớt', 'Cứu hộ QL21'],
     amenities: [
@@ -822,7 +824,7 @@ export const MOCK_PLACES: Place[] = [
     },
     phone: '0989368368',
     photos: [
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLf2fH8JPsTMy7QXqPP-OTqEXHMyaVAyT0aqjZ-wQfFW_HJ5FBYn1LTXB0SV1glp6ygVVScMgHlhmjvgq_ZAZrXR9bOzXI6rhaum-AMldROWYtctTgAcxQmOmvjWz_PEwO0gn-dcww=w1000-h750-k-no',
     ],
     tags: ['Sân thảm tiêu chuẩn', 'Đèn LED chống chói', 'Giao lưu cầu lông', 'Thuê vợt'],
     amenities: [

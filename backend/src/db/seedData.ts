@@ -289,7 +289,11 @@ export const INITIAL_PLACES = [
     opening_hours: '24/7',
     phone: '02473001866',
     amenities: ['Wifi Campus', 'Thư viện triệu đô', 'Sân bóng đá & bóng rổ', 'Hồ sen check-in', 'Điểm xe bus 74, 88, 107'],
-    images: ['https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=80'],
+    images: [
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLc6UHzcVUxsuYcgzA9Ok7zepWv0UitY_GonV2IMz8FyzOGLIY8sBhBR1M9gE-cUyfVEK_iImgAVmr3Z0JNhEGd3m3DbYceTuKld7uUC4MKG1WuGFibdKQCcsicy50SxmJJpUNRaDQ=w1000-h750-k-no',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLd1NEusH0wgaxaIzQx99im5Mb6cpwumiUO4E6NtZW-Lk8qo6eidCpG4bWBaOTufVccNEoerIPRSEQoIInT-T9vlRGiynxHSimfMsop43Q9CV4ituWr_hElthHqk2MJ-2ZNPuyU9xw=w1000-h750-k-no',
+      'https://lh3.googleusercontent.com/grass-cs/AABkmLcaQQ-1njVtGZiAhIkqQ5QBFzVLcgpNczniuzAZDwzgDOOP-XJV79Gpq8wJIT9iDpOGxWw_rr9tKxncmXy_ZNuzsiYoYocJXZsNFYTiDJ-v7GgHgt7qCMpCXDawLcgGleEOOd4J=w1000-h750-k-no'
+    ],
     reviews: [
       { author: 'Ngô Quang Huy', rating: 5, content: 'Tâm điểm của toàn khu vực Hòa Lạc, kiến trúc xanh hiện đại.' }
     ]

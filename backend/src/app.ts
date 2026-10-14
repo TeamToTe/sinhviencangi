@@ -17,10 +17,12 @@ export function createApp(): Express {
   // Security: Hide server technology header
   app.disable('x-powered-by');
 
-  // Security: Basic protective HTTP response headers
+  // Security: HTTP response headers
   app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     next();
   });
@@ -31,10 +33,27 @@ export function createApp(): Express {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  // CORS configuration
+  // CORS configuration: Explicit allowlist, block wildcard reflection with credentials
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:4173',
+    'http://127.0.0.1:3000',
+    ...(config.corsOrigin && config.corsOrigin !== '*' ? config.corsOrigin.split(',').map((s) => s.trim()) : []),
+  ];
+
   app.use(
     cors({
-      origin: config.corsOrigin === '*' ? true : config.corsOrigin,
+      origin: (requestOrigin, callback) => {
+        // Allow server-to-server or curl/mobile requests without Origin header
+        if (!requestOrigin) return callback(null, true);
+        if (allowedOrigins.includes(requestOrigin)) {
+          return callback(null, true);
+        }
+        return callback(new Error('CORS not allowed by policy'), false);
+      },
       credentials: true,
     })
   );
