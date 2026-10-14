@@ -549,9 +549,12 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
     if (!mapRef.current) return;
     const map = mapRef.current;
 
-    // Filter places to avoid overlap / collisions on screen
+    // Filter places to avoid overlap / collisions on screen (only approved places)
+    const approvedPlaces = places.filter(
+      (p) => !p.approvalStatus || p.approvalStatus === 'approved'
+    );
     const visiblePlaces = getVisiblePlacesWithoutOverlap(
-      places,
+      approvedPlaces,
       map,
       selectedPlace?.id,
       hoveredPlaceId

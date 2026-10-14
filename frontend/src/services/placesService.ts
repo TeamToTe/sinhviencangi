@@ -310,7 +310,7 @@ export const placesService = {
 
     // 3. Default Mock Data logic
     await new Promise((resolve) => setTimeout(resolve, 50));
-    let result = [...MOCK_PLACES];
+    let result = [...MOCK_PLACES].filter((p) => !p.approvalStatus || p.approvalStatus === 'approved');
 
     if (filters.category && filters.category !== 'all') {
       result = result.filter((p) => p.category === filters.category);

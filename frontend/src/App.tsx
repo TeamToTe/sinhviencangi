@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import type { Place } from './types/place';
 import { placesService } from './services/placesService';
 import { useFilterStore } from './stores/useFilterStore';
@@ -13,27 +13,21 @@ import { PlaceCard } from './components/places/PlaceCard';
 import { AdminLoginModal } from './components/auth/AdminLoginModal';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { useAuthStore } from './stores/useAuthStore';
+import { isAdminPath } from './utils/routeUtils';
 
 import { useFavoritesStore } from './stores/useFavoritesStore';
 import { FloatingGif } from './components/common/FloatingGif';
 import { Sparkles, Heart, Search } from 'lucide-react';
-
-const isAdminPath = (pathname: string): boolean => {
-  const normalized = pathname.replace(/\/+$/, '').toLowerCase();
-  return (
-    normalized === '/admin' ||
-    normalized === '\\admin' ||
-    normalized === '/%5cadmin' ||
-    normalized.endsWith('/admin') ||
-    normalized.endsWith('\\admin')
-  );
-};
 
 export const App: React.FC = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handlePlaceCreated = (newPlace: Place) => {
+    // Only places with approved status are published directly to the public map
+    if (newPlace.approvalStatus && newPlace.approvalStatus !== 'approved') {
+      return;
+    }
     setPlaces((prev) => [newPlace, ...prev.filter((p) => p.id !== newPlace.id)]);
   };
 
@@ -60,21 +54,37 @@ export const App: React.FC = () => {
     checkAuth();
   }, [checkAuth]);
 
-  // Sync route on browser navigation or custom popstate
+  // Keep route synced with browser popstate
   useEffect(() => {
-    const syncRoute = () => {
-      setIsAdminRoute(isAdminPath(window.location.pathname));
+    const handlePopState = () => {
+      const atAdmin = isAdminPath(window.location.pathname);
+      setIsAdminRoute(atAdmin);
+      if (atAdmin) {
+        setActiveTab('admin');
+        if (!isAdmin) {
+          setLoginModalOpen(true);
+        }
+      } else {
+        setLoginModalOpen(false);
+        if (activeTab === 'admin') {
+          setActiveTab('map');
+        }
+      }
     };
 
-    window.addEventListener('popstate', syncRoute);
-    return () => window.removeEventListener('popstate', syncRoute);
-  }, []);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isAdmin, activeTab, setActiveTab, setLoginModalOpen]);
 
-  // When route changes to admin, switch activeTab to admin
+  // When route changes to admin, ensure tab and login modal states align
   useEffect(() => {
     if (isAdminRoute) {
       setActiveTab('admin');
-      if (!isAdmin) setLoginModalOpen(true);
+      if (!isAdmin) {
+        setLoginModalOpen(true);
+      } else {
+        setLoginModalOpen(false);
+      }
     } else {
       setLoginModalOpen(false);
       if (activeTab === 'admin') {
@@ -83,14 +93,13 @@ export const App: React.FC = () => {
     }
   }, [isAdminRoute, isAdmin, setActiveTab, setLoginModalOpen]);
 
-  // When user switches away from admin tab, immediately synchronize the URL back to '/'
-  // so the user is never trapped in admin mode.
+  // When user is currently in admin tab but explicitly switches away, update URL to '/'
   useEffect(() => {
-    if (activeTab !== 'admin' && isAdminPath(window.location.pathname)) {
+    if (activeTab !== 'admin' && isAdminRoute) {
       window.history.pushState({}, '', '/');
       setIsAdminRoute(false);
     }
-  }, [activeTab]);
+  }, [activeTab, isAdminRoute]);
 
   // Load places whenever filters change
   useEffect(() => {
@@ -110,7 +119,10 @@ export const App: React.FC = () => {
       })
       .then((data) => {
         if (isMounted) {
-          setPlaces(data);
+          const approvedOnly = data.filter(
+            (p) => !p.approvalStatus || p.approvalStatus === 'approved'
+          );
+          setPlaces(approvedOnly);
           setIsLoading(false);
         }
       })
@@ -119,15 +131,20 @@ export const App: React.FC = () => {
         if (isMounted) setIsLoading(false);
       });
 
-    return () => {
-      isMounted = false;
-    };
-  }, [category, searchQuery, area, minPrice, maxPrice, tags, onlyAvailable, sortBy]);
+  return () => {
+    isMounted = false;
+  };
+}, [category, searchQuery, area, minPrice, maxPrice, tags, onlyAvailable, sortBy]);
+
+  const approvedPlaces = useMemo(
+    () => places.filter((p) => !p.approvalStatus || p.approvalStatus === 'approved'),
+    [places]
+  );
 
   const displayedListPlaces =
     activeTab === 'favorites'
-      ? places.filter((p) => favoriteIds.includes(p.id))
-      : places;
+      ? approvedPlaces.filter((p) => favoriteIds.includes(p.id))
+      : approvedPlaces;
 
   return (
     <div className="flex flex-col h-screen h-[100dvh] w-screen overflow-hidden bg-[#f4fbf3] text-gray-800 font-serif antialiased">
@@ -242,7 +259,7 @@ export const App: React.FC = () => {
               <CategoryBar />
             </div>
 
-            <MapLibreView places={places} isLoading={isLoading} />
+            <MapLibreView places={approvedPlaces} isLoading={isLoading} />
           </div>
 
           {/* Cột Phải: Bảng chi tiết pop-up khi bấm vào địa điểm */}
