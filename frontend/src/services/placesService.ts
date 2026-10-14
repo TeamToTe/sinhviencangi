@@ -17,6 +17,7 @@ import type {
 import { request, USE_MOCK_DATA } from './apiClient';
 import { supabase } from './supabaseClient';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { getCategoryUnit } from '../utils/priceUtils';
 
 const CATEGORY_MAP: Record<string, { id: PlaceCategory; label: string; color: string; icon: string }> = {
   'boarding_house': { id: 'boarding_house', label: 'Nhà trọ & CCMN', color: '#ea580c', icon: 'Home' },
@@ -96,7 +97,7 @@ function mapDbRowToPlace(row: any, categoryName?: string, reviews: Review[] = []
     distanceToVNU: 'Gần VNU',
     priceInfo: (row.rent_price || row.min_price) ? {
       amount: (isBoarding ? row.rent_price : (row.min_price || row.rent_price)) || 0,
-      unit: isBoarding ? 'tháng' : 'suất',
+      unit: getCategoryUnit(meta.id),
       electricity: isBoarding ? row.electricity_price : undefined,
       water: isBoarding ? (row.water_price ? parseInt(row.water_price, 10) || undefined : undefined) : undefined,
     } : undefined,
@@ -453,7 +454,10 @@ export const placesService = {
       },
       distanceToFPT: 'Gần FPTU',
       distanceToVNU: 'Gần VNU',
-      priceInfo: placeData.priceInfo,
+      priceInfo: placeData.priceInfo || ((placeData.minPrice || placeData.rentPrice) ? {
+        amount: placeData.rentPrice || placeData.minPrice || 0,
+        unit: getCategoryUnit(placeData.category),
+      } : undefined),
       phone: placeData.phone,
       photos: placeData.photos || ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'],
       tags: placeData.amenities || [],

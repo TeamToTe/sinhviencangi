@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
+import { getCategoryUnit } from '../../utils/priceUtils';
 
 interface PlaceCardProps {
   place: Place;
@@ -170,11 +171,13 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
         <div>
           {place.priceInfo ? (
             <div>
-              <span className="text-[10px] text-gray-600 block">Giá tham khảo</span>
+              <span className="text-[10px] text-gray-600 block">
+                {place.category === 'boarding_house' ? 'Giá thuê' : 'Giá tham khảo'}
+              </span>
               <span className="font-extrabold text-sm text-amber-900">
                 {place.priceInfo.amount.toLocaleString('vi-VN')}đ
                 <span className="text-[11px] font-normal text-gray-700 ml-0.5">
-                  /{place.priceInfo.unit}
+                  /{getCategoryUnit(place.category, place.priceInfo.unit)}
                 </span>
               </span>
             </div>

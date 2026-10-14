@@ -646,6 +646,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                 <input
                   type="text"
                   placeholder="VD: Quán Cơm Tấm K18, Happy House Tân Xã..."
+                  maxLength={120}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -699,6 +700,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
               <input
                 type="text"
                 placeholder="VD: Số 20 Ngõ 3 Thôn 2 Tân Xã, Thạch Thất, Hà Nội"
+                maxLength={250}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 className="w-full px-3 py-2.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-sm sm:text-xs font-medium text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
@@ -744,6 +746,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                     <input
                       type="text"
                       placeholder="25000/khối"
+                      maxLength={50}
                       value={waterPrice}
                       onChange={(e) => setWaterPrice(e.target.value)}
                       className="w-full px-2.5 py-2 sm:py-1.5 rounded-lg border border-gray-300 bg-white text-sm sm:text-xs"
@@ -803,6 +806,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                 <input
                   type="text"
                   placeholder="VD: 07:00 - 22:00 hoặc 24/7"
+                  maxLength={100}
                   value={openingHours}
                   onChange={(e) => setOpeningHours(e.target.value)}
                   className="w-full px-3 py-2.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-sm sm:text-xs font-medium"
@@ -816,6 +820,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                 <input
                   type="text"
                   placeholder="VD: 0987123456"
+                  maxLength={30}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-3 py-2.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-sm sm:text-xs font-medium"
@@ -937,6 +942,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                 <textarea
                   rows={2}
                   placeholder="VD: Bác chủ quán thân thiện, cơm thêm miễn phí, đông vào tầm 12h trưa..."
+                  maxLength={1000}
                   value={reviewContent}
                   onChange={(e) => setReviewContent(e.target.value)}
                   required

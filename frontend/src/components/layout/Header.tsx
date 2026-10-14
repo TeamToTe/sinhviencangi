@@ -282,6 +282,7 @@ export const Header: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
             <input
               type="text"
+              maxLength={100}
               placeholder="Tìm trọ Tân Xã, quán cơm tấm, hiệu thuốc, cứu hộ xe..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

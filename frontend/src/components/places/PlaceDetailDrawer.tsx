@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { resolveImageUrl, FALLBACK_PLACE_IMAGE } from '../../utils/imageUrl';
+import { getCategoryUnit } from '../../utils/priceUtils';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { getRoute } from '../../services/routingService';
 import { uploadReviewImages, uploadReviewImage, validateImageFile } from '../../services/storageService';
@@ -76,6 +77,75 @@ export const PlaceDetailDrawer: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOpeningDirections, setIsOpeningDirections] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<RouteVehicle>('motorcycle');
+
+  // Mobile swipe down to dismiss
+  const [dragOffsetY, setDragOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartY = React.useRef<number | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    setDragOffsetY(0);
+    setIsDragging(false);
+    touchStartY.current = null;
+  }, [selectedPlace?.id]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - touchStartY.current;
+    if (diff > 0) {
+      setDragOffsetY(diff);
+    } else {
+      setDragOffsetY(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (dragOffsetY > 80) {
+      setDragOffsetY(window.innerHeight || 800);
+      setTimeout(() => {
+        setSelectedPlace(null);
+        setDragOffsetY(0);
+        setIsDragging(false);
+      }, 200);
+    } else {
+      setDragOffsetY(0);
+      setIsDragging(false);
+    }
+    touchStartY.current = null;
+  };
+
+  const handleContentTouchStart = (e: React.TouchEvent) => {
+    if (scrollContainerRef.current && scrollContainerRef.current.scrollTop <= 0) {
+      touchStartY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleContentTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    if (scrollContainerRef.current && scrollContainerRef.current.scrollTop <= 0) {
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - touchStartY.current;
+      if (diff > 10) {
+        setIsDragging(true);
+        setDragOffsetY(diff - 10);
+      }
+    }
+  };
+
+  const handleContentTouchEnd = () => {
+    if (isDragging) {
+      handleTouchEnd();
+    } else {
+      touchStartY.current = null;
+    }
+  };
 
   const handleUpdateCoverPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -289,18 +359,41 @@ export const PlaceDetailDrawer: React.FC = () => {
       {/* Mobile Backdrop */}
       <div
         onClick={() => setSelectedPlace(null)}
+        style={{
+          opacity: dragOffsetY > 0 ? Math.max(0, 1 - dragOffsetY / 300) : undefined,
+        }}
         className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[2040] md:hidden animate-in fade-in duration-200"
       />
 
       {/* Detail Panel: Bottom Sheet on Mobile, Right Panel on Desktop */}
-      <div className="fixed inset-x-0 bottom-0 top-[15%] sm:top-[10%] md:relative md:inset-auto md:top-auto md:bottom-auto w-full md:w-[380px] lg:w-[430px] h-[85%] sm:h-[90%] md:h-full bg-white rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-emerald-200/80 flex flex-col shrink-0 z-[2050] shadow-2xl md:shadow-none animate-in slide-in-from-bottom md:slide-in-from-right duration-300 overflow-hidden">
-        {/* Mobile Drag Indicator */}
-        <div className="pt-2 pb-1 bg-emerald-50/70 flex justify-center md:hidden shrink-0">
-          <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+      <div
+        style={{
+          transform:
+            dragOffsetY > 0 && typeof window !== 'undefined' && window.innerWidth < 768
+              ? `translateY(${dragOffsetY}px)`
+              : undefined,
+          transition: isDragging ? 'none' : 'transform 200ms ease-out',
+        }}
+        className="fixed inset-x-0 bottom-0 top-[15%] sm:top-[10%] md:relative md:inset-auto md:top-auto md:bottom-auto w-full md:w-[380px] lg:w-[430px] h-[85%] sm:h-[90%] md:h-full bg-white rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-emerald-200/80 flex flex-col shrink-0 z-[2050] shadow-2xl md:shadow-none animate-in slide-in-from-bottom md:slide-in-from-right duration-300 overflow-hidden"
+      >
+        {/* Mobile Drag Indicator / Swipe handle */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="pt-2.5 pb-2 bg-emerald-50/70 flex flex-col items-center justify-center md:hidden shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
+        >
+          <div className="w-12 h-1.5 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors" />
+          <span className="text-[9px] text-gray-500 mt-1 font-medium">Vuốt xuống để đóng</span>
         </div>
 
         {/* Panel Header */}
-        <div className="p-3 sm:p-3.5 border-b border-gray-100 flex items-center justify-between bg-emerald-50/70 shrink-0">
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="p-3 sm:p-3.5 border-b border-gray-100 flex items-center justify-between bg-emerald-50/70 shrink-0 touch-none select-none"
+        >
           <div className="flex items-center gap-2">
             <span
               className="w-3 h-3 rounded-full"
@@ -356,7 +449,13 @@ export const PlaceDetailDrawer: React.FC = () => {
         </div>
 
         {/* Panel Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 text-sm text-gray-700 custom-scrollbar">
+        <div
+          ref={scrollContainerRef}
+          onTouchStart={handleContentTouchStart}
+          onTouchMove={handleContentTouchMove}
+          onTouchEnd={handleContentTouchEnd}
+          className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 text-sm text-gray-700 custom-scrollbar"
+        >
           {/* Photo Gallery */}
           <div className="space-y-2">
             <div className="w-full h-48 sm:h-52 rounded-2xl overflow-hidden bg-gray-100 shadow-inner relative group">
@@ -567,12 +666,12 @@ export const PlaceDetailDrawer: React.FC = () => {
             <div className="bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200/80 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider">
-                  Bảng giá & Chi phí
+                  {selectedPlace.category === 'boarding_house' ? 'Giá phòng & Chi phí' : 'Bảng giá tham khảo'}
                 </span>
                 <span className="text-sm font-black text-amber-950">
                   {selectedPlace.priceInfo.amount.toLocaleString('vi-VN')}đ
                   <span className="text-xs font-normal text-gray-700">
-                    /{selectedPlace.priceInfo.unit}
+                    /{getCategoryUnit(selectedPlace.category, selectedPlace.priceInfo.unit)}
                   </span>
                 </span>
               </div>
@@ -723,6 +822,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Tên *"
+                  maxLength={50}
                   value={reviewName}
                   onChange={(e) => setReviewName(e.target.value)}
                   required
@@ -731,6 +831,7 @@ export const PlaceDetailDrawer: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Khóa (K18 FPTU)"
+                  maxLength={50}
                   value={reviewBatch}
                   onChange={(e) => setReviewBatch(e.target.value)}
                   className="w-full px-2.5 py-1.5 rounded-xl bg-white border border-gray-200 text-xs focus:outline-hidden focus:border-emerald-500"
@@ -755,6 +856,7 @@ export const PlaceDetailDrawer: React.FC = () => {
 
               <textarea
                 placeholder="Trải nghiệm của bạn..."
+                maxLength={500}
                 value={reviewComment}
                 onChange={(e) => setReviewComment(e.target.value)}
                 rows={2}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import type { Place } from './types/place';
 import { placesService } from './services/placesService';
 import { useFilterStore } from './stores/useFilterStore';
@@ -17,7 +17,7 @@ import { isAdminPath } from './utils/routeUtils';
 
 import { useFavoritesStore } from './stores/useFavoritesStore';
 import { FloatingGif } from './components/common/FloatingGif';
-import { Sparkles, Heart, Search } from 'lucide-react';
+import { Sparkles, Heart, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [places, setPlaces] = useState<Place[]>([]);
@@ -146,6 +146,41 @@ export const App: React.FC = () => {
       ? approvedPlaces.filter((p) => favoriteIds.includes(p.id))
       : approvedPlaces;
 
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 12;
+
+  // Reset to page 1 whenever filters or tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [category, searchQuery, area, minPrice, maxPrice, tags, onlyAvailable, sortBy, activeTab]);
+
+  const totalPages = Math.max(1, Math.ceil(displayedListPlaces.length / ITEMS_PER_PAGE));
+  const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedPlaces = useMemo(() => {
+    const start = (validCurrentPage - 1) * ITEMS_PER_PAGE;
+    return displayedListPlaces.slice(start, start + ITEMS_PER_PAGE);
+  }, [displayedListPlaces, validCurrentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    listContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPageNumbers = (current: number, total: number): (number | string)[] => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total];
+    }
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  };
+
   return (
     <div className="flex flex-col h-screen h-[100dvh] w-screen overflow-hidden bg-[#f4fbf3] text-gray-800 font-serif antialiased">
       {/* 1. Fixed Top Header */}
@@ -164,6 +199,7 @@ export const App: React.FC = () => {
           <>
             {/* List View & Favorites Tab */}
             <div
+              ref={listContainerRef}
               className={`flex-1 overflow-y-auto p-3 sm:p-6 max-w-5xl mx-auto w-full space-y-4 custom-scrollbar pb-16 ${
                 activeTab === 'map' ? 'hidden' : 'block'
               }`}
@@ -238,11 +274,62 @@ export const App: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {displayedListPlaces.map((place) => (
-                <PlaceCard key={place.id} place={place} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {paginatedPlaces.map((place) => (
+                  <PlaceCard key={place.id} place={place} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-emerald-100">
+                  <span className="text-xs text-gray-600">
+                    Hiển thị <span className="font-bold text-emerald-950">{(validCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-bold text-emerald-950">{Math.min(validCurrentPage * ITEMS_PER_PAGE, displayedListPlaces.length)}</span> trên <span className="font-bold text-emerald-950">{displayedListPlaces.length}</span> địa điểm
+                  </span>
+
+                  <div className="flex items-center gap-1.5 select-none">
+                    <button
+                      onClick={() => handlePageChange(validCurrentPage - 1)}
+                      disabled={validCurrentPage === 1}
+                      className="p-2 rounded-xl border border-emerald-200/80 bg-white hover:bg-emerald-50 text-gray-700 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-all shadow-2xs"
+                      title="Trang trước"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    {getPageNumbers(validCurrentPage, totalPages).map((p, idx) =>
+                      typeof p === 'number' ? (
+                        <button
+                          key={p}
+                          onClick={() => handlePageChange(p)}
+                          className={`min-w-8 h-8 px-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer ${
+                            validCurrentPage === p
+                              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                              : 'bg-white border border-emerald-200/80 text-gray-700 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ) : (
+                        <span key={`dots-${idx}`} className="px-1 text-gray-400 text-xs">
+                          ...
+                        </span>
+                      )
+                    )}
+
+                    <button
+                      onClick={() => handlePageChange(validCurrentPage + 1)}
+                      disabled={validCurrentPage === totalPages}
+                      className="p-2 rounded-xl border border-emerald-200/80 bg-white hover:bg-emerald-50 text-gray-700 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed transition-all shadow-2xs"
+                      title="Trang sau"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
