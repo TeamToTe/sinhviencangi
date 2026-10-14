@@ -50,7 +50,12 @@ export async function saveBase64Image(dataUri: string): Promise<string> {
 
 async function readUploadAsDataUri(uploadPath: string): Promise<string | null> {
   if (!uploadPath.startsWith('/uploads/')) return null;
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
   const filePath = path.resolve(process.cwd(), uploadPath.slice(1));
+  // Security: Prevent path traversal attacks
+  if (!filePath.startsWith(uploadsDir + path.sep) && filePath !== uploadsDir) {
+    return null;
+  }
   try {
     const buffer = await fs.promises.readFile(filePath);
     const extension = path.extname(filePath).toLowerCase();

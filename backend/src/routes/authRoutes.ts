@@ -1,11 +1,12 @@
 import { Router, Response } from 'express';
 import { authService } from '../services/authService.js';
 import { requireAuth, requireAdmin, AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { loginRateLimiter } from '../middleware/rateLimiter.js';
 
 export const authRouter = Router();
 
 // POST /api/auth/login
-authRouter.post('/login', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+authRouter.post('/login', loginRateLimiter, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { username, password } = req.body;
     const result = await authService.login(username, password);

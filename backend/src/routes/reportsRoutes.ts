@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { placesService } from '../services/placesService.js';
 import { requireAdmin, type AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { reportRateLimiter } from '../middleware/rateLimiter.js';
 import type { CreateReportDto } from '../types/place.js';
 
 export const reportsRouter = Router();
@@ -16,7 +17,7 @@ reportsRouter.get('/', requireAdmin, async (_req: AuthenticatedRequest, res: Res
 });
 
 // POST /api/reports (Public - Submit report about place data error)
-reportsRouter.post('/', async (req: Request, res: Response): Promise<void> => {
+reportsRouter.post('/', reportRateLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const dto: CreateReportDto = req.body;
     if (!dto.reason || !dto.note) {

@@ -14,6 +14,17 @@ import { config } from './config.js';
 export function createApp(): Express {
   const app = express();
 
+  // Security: Hide server technology header
+  app.disable('x-powered-by');
+
+  // Security: Basic protective HTTP response headers
+  app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    next();
+  });
+
   // Ensure uploads directory exists
   const uploadDir = path.resolve(process.cwd(), 'uploads');
   if (!fs.existsSync(uploadDir)) {
