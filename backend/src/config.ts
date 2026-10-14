@@ -13,3 +13,7 @@ export const config = {
   dbType: process.env.DATABASE_URL ? 'postgres' : 'sqlite',
   jwtSecret: process.env.JWT_SECRET || 'connecthub-hola-map-jwt-super-secret-2026',
 };
+
+if (config.nodeEnv === 'production' && !process.env.JWT_SECRET) {
+  console.warn('⚠️ [SECURITY WARNING] JWT_SECRET is not configured in production! Please set JWT_SECRET in environment variables.');
+}

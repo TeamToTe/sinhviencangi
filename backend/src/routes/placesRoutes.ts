@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { placesService, detectAreaFromCoordinates, getPlaceImage } from '../services/placesService.js';
 import { authMiddleware, requireAdmin, type AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { placeProposalRateLimiter, reviewRateLimiter } from '../middleware/rateLimiter.js';
 import type { FilterParams, CreatePlaceDto, CreateReviewDto, PlaceApprovalStatus } from '../types/place.js';
 
 export const placesRouter = Router();
@@ -132,7 +133,7 @@ placesRouter.get('/:id', async (req: Request, res: Response): Promise<void> => {
 });
 
 // POST /api/places (Guest proposal or immediate Admin place creation)
-placesRouter.post('/', authMiddleware, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+placesRouter.post('/', placeProposalRateLimiter, authMiddleware, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const dto: CreatePlaceDto = req.body;
 
@@ -222,7 +223,7 @@ function validateImagePayload(img: string): { valid: boolean; message?: string }
 }
 
 // POST /api/places/:id/reviews
-placesRouter.post('/:id/reviews', async (req: Request, res: Response): Promise<void> => {
+placesRouter.post('/:id/reviews', reviewRateLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const dto: CreateReviewDto = req.body;

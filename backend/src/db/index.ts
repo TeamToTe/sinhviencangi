@@ -49,21 +49,26 @@ class DatabaseManager {
         rowCount: res.rowCount || 0,
       };
     } else if (this.sqliteDb) {
-      // Convert $1, $2 to ? for SQLite
-      const sqliteSql = sql.replace(/\$(\d+)/g, '?');
+      // Map $1, $2, etc. correctly to positional params for SQLite (supports repeated placeholders like $1)
+      const mappedParams: any[] = [];
+      const sqliteSql = sql.replace(/\$(\d+)/g, (_, indexStr) => {
+        const idx = parseInt(indexStr, 10) - 1;
+        mappedParams.push(params[idx]);
+        return '?';
+      });
       const trimmed = sqliteSql.trim();
-      const isSelect = /^SELECT/i.test(trimmed) || /^WITH/i.test(trimmed);
+      const isSelect = /^SELECT/i.test(trimmed) || /^WITH/i.test(trimmed) || /^PRAGMA/i.test(trimmed);
 
       if (isSelect) {
         const stmt = this.sqliteDb.prepare(sqliteSql);
-        const rows = stmt.all(...params) as T[];
+        const rows = stmt.all(...mappedParams) as T[];
         return {
           rows,
           rowCount: rows.length,
         };
       } else {
         const stmt = this.sqliteDb.prepare(sqliteSql);
-        const info = stmt.run(...params);
+        const info = stmt.run(...mappedParams);
         // If query has RETURNING, retrieve the inserted/updated row
         if (/RETURNING/i.test(sqliteSql)) {
           // For SQLite without native RETURNING or to ensure compatibility
