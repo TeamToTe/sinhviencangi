@@ -1,0 +1,530 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.52018,
+          21.0207583
+        ]
+      },
+      "properties": {
+        "id": "food-379-minh-nga-1",
+        "name": "Nhà Hàng 379 Minh Nga 1",
+        "category": "food_drink",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Km14 Quốc Lộ 21A, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 120000,
+        "max_price": 250000,
+        "opening_hours": "09:00 - 22:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5206533,
+          21.0231961
+        ]
+      },
+      "properties": {
+        "id": "food-thai-linh-ga-ca",
+        "name": "Ẩm Thực Thái Linh - Gà Cá",
+        "category": "food_drink",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "QL21A (Đoạn ven hồ Thôn 4), Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 100000,
+        "max_price": 200000,
+        "opening_hours": "09:30 - 22:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5176141,
+          21.0292651
+        ]
+      },
+      "properties": {
+        "id": "food-bun-bay-cuong",
+        "name": "Cửa Hàng Bún Bẩy Cường",
+        "category": "food_drink",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Đường QL21 gần Chợ Hòa Lạc, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 30000,
+        "max_price": 45000,
+        "opening_hours": "06:00 - 14:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5186,
+          21.0275
+        ]
+      },
+      "properties": {
+        "id": "food-pho-ngon-cho-hoa-lac",
+        "name": "Phở Bò Gia Truyền Ngã 3 Hòa Lạc",
+        "category": "food_drink",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Ngã 3 Hòa Lạc (Giao QL21 & ĐT420), Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 35000,
+        "max_price": 50000,
+        "opening_hours": "05:30 - 21:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5152,
+          21.0251
+        ]
+      },
+      "properties": {
+        "id": "food-an-vat-thon-5",
+        "name": "Quán Ăn Vặt & Trà Chanh Thôn 5",
+        "category": "food_drink",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Đường trục chính Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 15000,
+        "max_price": 40000,
+        "opening_hours": "08:00 - 23:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5187454,
+          21.0270926
+        ]
+      },
+      "properties": {
+        "id": "grocery-cho-hoa-lac",
+        "name": "Chợ Hòa Lạc (Chợ Dân Sinh Trung Tâm)",
+        "category": "grocery",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Ngã 3 Hòa Lạc, Đường QL21, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 200000,
+        "opening_hours": "05:00 - 18:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5192,
+          21.02735
+        ]
+      },
+      "properties": {
+        "id": "grocery-sieu-thi-manh-quan",
+        "name": "Siêu Thị Mini & Tạp Hóa Mạnh Quân",
+        "category": "grocery",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21 đối diện Chợ Hòa Lạc, Thạch Hòa, Thạch Thất",
+        "min_price": 5000,
+        "max_price": 300000,
+        "opening_hours": "06:30 - 22:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5156,
+          21.02565
+        ]
+      },
+      "properties": {
+        "id": "grocery-tap-hoa-ba-mui-thon-5",
+        "name": "Đại Lý Tạp Hóa Bà Mùi Thôn 5",
+        "category": "grocery",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Cạnh Nhà Văn Hóa Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 100000,
+        "opening_hours": "06:00 - 22:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5189989,
+          21.0277222
+        ]
+      },
+      "properties": {
+        "id": "pharmacy-my-le-1",
+        "name": "Quầy thuốc Mỹ lệ 1",
+        "category": "pharmacy",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "QL21 (Cách Chợ Hòa Lạc 70m về phía Bắc), Thạch Hòa, Thạch Thất",
+        "min_price": 5000,
+        "max_price": 150000,
+        "opening_hours": "06:30 - 22:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5205,
+          21.0226
+        ]
+      },
+      "properties": {
+        "id": "pharmacy-phuong-nam-thon-4",
+        "name": "Phương Nam Pharmacy (QL21 Thôn 4)",
+        "category": "pharmacy",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 200000,
+        "opening_hours": "07:00 - 22:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5079125,
+          21.03125
+        ]
+      },
+      "properties": {
+        "id": "pharmacy-nga-cuong-thon-5",
+        "name": "Quầy Thuốc Nga Cường",
+        "category": "pharmacy",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Phố Nam Sơn, Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 120000,
+        "opening_hours": "07:00 - 21:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.517671,
+          21.0299595
+        ]
+      },
+      "properties": {
+        "id": "service-honda-cuong-thanh",
+        "name": "HEAD Honda Cường Thành",
+        "category": "services",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Đường QL21 (Cách Chợ Hòa Lạc 280m), Thạch Hòa, Thạch Thất",
+        "min_price": 20000,
+        "max_price": 200000,
+        "opening_hours": "07:30 - 18:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5246895,
+          21.027403
+        ]
+      },
+      "properties": {
+        "id": "service-ky-ngan",
+        "name": "Kỳ Ngàn Building Hòa Lạc",
+        "category": "services",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Đường ĐT420, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 0,
+        "max_price": 0,
+        "opening_hours": "07:00 - 21:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5208,
+          21.0225
+        ]
+      },
+      "properties": {
+        "id": "service-in-an-photo-thon-4",
+        "name": "Tiệm Photocopy & In Ấn Đồ Án Thôn 4",
+        "category": "services",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất",
+        "min_price": 500,
+        "max_price": 100000,
+        "opening_hours": "07:30 - 21:30"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.515,
+          21.0248
+        ]
+      },
+      "properties": {
+        "id": "service-sua-xe-chu-hung-thon-5",
+        "name": "Tiệm Sửa Xe Máy Chú Hùng Thôn 5",
+        "category": "services",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Ngã ba xóm trọ Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 15000,
+        "max_price": 120000,
+        "opening_hours": "07:00 - 20:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.512037,
+          21.022348
+        ]
+      },
+      "properties": {
+        "id": "service-henna-tattoo-thon-5",
+        "name": "Henna Tattoo Thạch Hòa",
+        "category": "services",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Xóm 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 50000,
+        "max_price": 300000,
+        "opening_hours": "09:00 - 21:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5154171,
+          21.0255094
+        ]
+      },
+      "properties": {
+        "id": "service-nha-van-hoa-thon-5",
+        "name": "Nhà Văn hoá thôn 5 - Hoà Lạc",
+        "category": "services",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Trung tâm Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 0,
+        "max_price": 0,
+        "opening_hours": "07:00 - 21:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.521736,
+          21.0222227
+        ]
+      },
+      "properties": {
+        "id": "service-nha-van-hoa-thon-4",
+        "name": "Nhà Văn Hoá Thôn 4 Hòa Lạc",
+        "category": "services",
+        "location_type": "trong_xom",
+        "area": "Thôn 4 Thạch Hòa",
+        "address": "Thôn 4 (Gần QL21), Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 0,
+        "max_price": 0,
+        "opening_hours": "07:00 - 21:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5298308,
+          21.0289077
+        ]
+      },
+      "properties": {
+        "id": "ent-san-cau-long-368",
+        "name": "Sân Cầu Lông 368 Badminton",
+        "category": "entertainment",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Đường ĐT420, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 50000,
+        "max_price": 80000,
+        "opening_hours": "05:30 - 23:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5191,
+          21.0262
+        ]
+      },
+      "properties": {
+        "id": "ent-king-bida-ql21",
+        "name": "King Club Bida Hòa Lạc (Trục QL21)",
+        "category": "entertainment",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Đường QL21, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 40000,
+        "max_price": 70000,
+        "opening_hours": "08:00 - 02:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5204,
+          21.0218
+        ]
+      },
+      "properties": {
+        "id": "ent-cyber-net-thon-4",
+        "name": "CyberNet Gaming Hòa Lạc (Thôn 4)",
+        "category": "entertainment",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 8000,
+        "max_price": 14000,
+        "opening_hours": "Mở cửa 24/7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5145,
+          21.0235
+        ]
+      },
+      "properties": {
+        "id": "house-tro-trang-nguyen",
+        "name": "Nhà Trọ Trạng Nguyên Thôn 5",
+        "category": "boarding_house",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Xóm Trạng Nguyên, Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 1400000,
+        "max_price": 2000000,
+        "opening_hours": "24/7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5138,
+          21.0242
+        ]
+      },
+      "properties": {
+        "id": "house-xom-tro-xanh-thon-5",
+        "name": "Khu Trọ Sinh Viên Xóm Xanh Thôn 5",
+        "category": "boarding_house",
+        "location_type": "trong_xom",
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Ngõ 2 Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 1300000,
+        "max_price": 1800000,
+        "opening_hours": "24/7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5215,
+          21.0229
+        ]
+      },
+      "properties": {
+        "id": "house-ccmn-thon-4-ql21",
+        "name": "Chung Cư Mini Sinh Viên Thôn 4",
+        "category": "boarding_house",
+        "location_type": "trong_xom",
+        "area": "Thôn 4 Thạch Hòa",
+        "address": "Ngõ 1 Thôn 4 (Cách QL21 50m), Xã Thạch Hòa, Thạch Thất",
+        "min_price": 2200000,
+        "max_price": 2800000,
+        "opening_hours": "24/7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5189,
+          21.027
+        ]
+      },
+      "properties": {
+        "id": "campus-bus-cho-hoa-lac",
+        "name": "Điểm Đón Xe Buýt Chợ Hòa Lạc (QL21)",
+        "category": "campus",
+        "location_type": "quoc_lo",
+        "area": "Thạch Hòa",
+        "address": "Trước cổng Chợ Hòa Lạc, Trục QL21, Thạch Hòa, Thạch Thất",
+        "min_price": 9000,
+        "max_price": 9000,
+        "opening_hours": "05:00 - 21:00"
+      }
+    }
+  ]
+}

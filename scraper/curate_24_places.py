@@ -1,0 +1,438 @@
+import cv2
+import numpy as np
+import json
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+# Reference Point: Cơm Tấm Bảo Uyên
+# Pixel: x = 786, y = 77
+# GPS: lat = 21.0270298, lng = 105.5337274
+# Scale:
+SCALE_LNG = 0.0000288186
+SCALE_LAT = 0.0000269046
+
+def px_to_gps(x, y):
+    lng = 105.5337274 + (x - 786) * SCALE_LNG
+    lat = 21.0270298 - (y - 77) * SCALE_LAT
+    return round(lat, 7), round(lng, 7)
+
+# 24 địa điểm được định vị chính xác theo ảnh Google Maps của người dùng
+# Chia đều cho: Đường Quốc Lộ (QL21) & Trong Xóm (Thôn 4 & Thôn 5)
+places_data = [
+    # --- 1. ĂN UỐNG & CAFE (food_drink) ---
+    {
+        "id": "food-379-minh-nga-1",
+        "name": "Nhà Hàng 379 Minh Nga 1",
+        "category": "food_drink",
+        "category_vn": "Ẩm thực",
+        "location_type": "quoc_lo",
+        "px": (321, 310), # Hiện rõ icon cam trên QL21
+        "area": "Thạch Hòa",
+        "address": "Km14 Quốc Lộ 21A, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 120000,
+        "max_price": 250000,
+        "phone": "0984421379",
+        "opening_hours": "09:00 - 22:30",
+        "description": "Nhà hàng ẩm thực đồng quê lớn nhất mặt đường QL21, nổi tiếng với lẩu cua đồng, gà ri chiên mắm, bãi đỗ xe rộng rãi.",
+        "tags": ["Lẩu cua đồng", "Gà ri", "Mặt đường QL21", "Tiếp khách gia đình"]
+    },
+    {
+        "id": "food-thai-linh-ga-ca",
+        "name": "Ẩm Thực Thái Linh - Gà Cá",
+        "category": "food_drink",
+        "category_vn": "Ẩm thực",
+        "location_type": "quoc_lo",
+        "px": (318, 174), # Hiện rõ icon cam ven hồ sát QL21
+        "area": "Thạch Hòa",
+        "address": "QL21 (Đoạn ven hồ Thôn 4), Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 100000,
+        "max_price": 200000,
+        "phone": "0978665544",
+        "opening_hours": "09:30 - 22:30",
+        "description": "Quán ăn sinh thái ven hồ nằm ngay mặt đường QL21 chuyên các món gà đồi, cá sông, không gian thoáng mát.",
+        "tags": ["Gà đồi", "Cá sông", "View hồ", "Trục QL21"]
+    },
+    {
+        "id": "food-bun-bay-cuong",
+        "name": "Cửa Hàng Bún Bẩy Cường",
+        "category": "food_drink",
+        "category_vn": "Ẩm thực",
+        "location_type": "quoc_lo",
+        "px": (295, 85), # Sát ngã 3 Chợ Hòa Lạc trên QL21
+        "area": "Thạch Hòa",
+        "address": "Đường QL21 gần Chợ Hòa Lạc, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 30000,
+        "max_price": 45000,
+        "phone": "0983112244",
+        "opening_hours": "06:00 - 14:00",
+        "description": "Quán bún bò Huế và bún riêu cua nổi tiếng đông khách bậc nhất ngã 3 Chợ Hòa Lạc phục vụ ăn sáng sinh viên.",
+        "tags": ["Bún bò Huế", "Bún riêu", "Ăn sáng", "Gần Chợ Hòa Lạc"]
+    },
+    {
+        "id": "food-pho-ngon-cho-hoa-lac",
+        "name": "Phở Bò Gia Truyền Ngã 3 Hòa Lạc",
+        "category": "food_drink",
+        "category_vn": "Ẩm thực",
+        "location_type": "quoc_lo",
+        "px": (290, 100), # Icon cam ngã 3 rẽ ĐT420 & QL21
+        "area": "Thạch Hòa",
+        "address": "Ngã 3 Hòa Lạc (Giao QL21 & ĐT420), Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 35000,
+        "max_price": 50000,
+        "phone": "0912338899",
+        "opening_hours": "05:30 - 21:00",
+        "description": "Quán phở bò truyền thống lâu năm ngay nút giao ngã 3 QL21, nước dùng ngọt thanh từ xương bò.",
+        "tags": ["Phở bò tái nạm", "Ngã 3 Hòa Lạc", "Ăn sáng đêm", "Giá bình dân"]
+    },
+    {
+        "id": "food-an-vat-thon-5",
+        "name": "Quán Ăn Vặt & Trà Chanh Thôn 5",
+        "category": "food_drink",
+        "category_vn": "Ẩm thực",
+        "location_type": "trong_xom",
+        "px": (160, 169), # Icon cam trong xóm Thôn 5
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Đường trục chính Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 15000,
+        "max_price": 40000,
+        "phone": "0968997766",
+        "opening_hours": "08:00 - 23:00",
+        "description": "Điểm tụ tập quen thuộc của sinh viên trọ Thôn 5 với trà chanh giã tay, nem chua rán, khoai lang kén.",
+        "tags": ["Ăn vặt", "Trà chanh", "Trong xóm Thôn 5", "Tụ tập chém gió"]
+    },
+
+    # --- 2. SIÊU THỊ & TẠP HÓA (grocery) ---
+    {
+        "id": "grocery-cho-hoa-lac",
+        "name": "Chợ Hòa Lạc (Chợ Dân Sinh Trung Tâm)",
+        "category": "grocery",
+        "category_vn": "Siêu thị & Tạp hóa",
+        "location_type": "quoc_lo",
+        "px": (271, 78), # Icon giỏ hàng xanh dương Chợ Hòa Lạc
+        "area": "Thạch Hòa",
+        "address": "Ngã 3 Hòa Lạc, Đường QL21, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 200000,
+        "phone": "",
+        "opening_hours": "05:00 - 18:30",
+        "description": "Khu chợ dân sinh lớn nhất trung tâm Hòa Lạc, bán đầy đủ thực phẩm tươi sống thịt cá rau củ và đồ gia dụng giá rẻ.",
+        "tags": ["Chợ truyền thống", "Thực phẩm tươi sống", "Giá rẻ", "Ngay mặt QL21"]
+    },
+    {
+        "id": "grocery-sieu-thi-manh-quan",
+        "name": "Siêu Thị Mini & Tạp Hóa Mạnh Quân",
+        "category": "grocery",
+        "category_vn": "Siêu thị & Tạp hóa",
+        "location_type": "quoc_lo",
+        "px": (310, 91), # Icon xanh dương ngay mặt QL21 đối diện chợ
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 300000,
+        "phone": "02433688688",
+        "opening_hours": "06:30 - 22:30",
+        "description": "Siêu thị mini tiện ích có điều hòa, cung cấp hàng tạp hóa tiêu dùng, sữa bánh kẹo, hóa mỹ phẩm, nhận thanh toán VietQR.",
+        "tags": ["Siêu thị mini", "Thanh toán QR", "Đồ gia dụng", "Mặt đường QL21"]
+    },
+    {
+        "id": "grocery-tap-hoa-ba-mui-thon-5",
+        "name": "Đại Lý Tạp Hóa Bà Mùi Thôn 5",
+        "category": "grocery",
+        "category_vn": "Siêu thị & Tạp hóa",
+        "location_type": "trong_xom",
+        "px": (175, 125), # Ngay gần Nhà văn hóa Thôn 5
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Cạnh Nhà Văn Hóa Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 100000,
+        "phone": "0987113355",
+        "opening_hours": "06:00 - 22:00",
+        "description": "Cửa hàng tạp hóa lớn trong làng phục vụ các xóm trọ sinh viên Thôn 5, có đổi bình nước 20L và bán thẻ cào, đồ sinh hoạt.",
+        "tags": ["Tạp hóa trong xóm", "Đổi nước bình 20L", "Đồ dùng sinh viên", "Thôn 5"]
+    },
+
+    # --- 3. HIỆU THUỐC & Y TẾ (pharmacy) ---
+    {
+        "id": "pharmacy-my-le-nga-3",
+        "name": "Nhà Thuốc Mỹ Lệ Ngã 3 Hòa Lạc",
+        "category": "pharmacy",
+        "category_vn": "Y tế & Sức khỏe",
+        "location_type": "quoc_lo",
+        "px": (298, 110), # Ngay mặt QL21 gần ngã 3 Chợ
+        "area": "Thạch Hòa",
+        "address": "Số 15 Đường QL21 (Gần Ngã 3 Hòa Lạc), Thạch Hòa, Thạch Thất",
+        "min_price": 5000,
+        "max_price": 150000,
+        "phone": "0912445566",
+        "opening_hours": "06:30 - 22:00",
+        "description": "Hiệu thuốc đạt chuẩn GPP lâu đời uy tín mặt đường QL21, dược sĩ tư vấn tận tâm thuốc cảm sốt, đau họng, thuốc tiêu hóa.",
+        "tags": ["Hiệu thuốc GPP", "Mặt đường QL21", "Tư vấn tận tâm", "Mở cửa sớm"]
+    },
+    {
+        "id": "pharmacy-phuong-nam-thon-4",
+        "name": "Phương Nam Pharmacy (QL21 Thôn 4)",
+        "category": "pharmacy",
+        "category_vn": "Y tế & Sức khỏe",
+        "location_type": "quoc_lo",
+        "px": (325, 230), # Mặt đường QL21 đoạn Thôn 4
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 5000,
+        "max_price": 200000,
+        "phone": "0984123987",
+        "opening_hours": "07:00 - 22:00",
+        "description": "Nhà thuốc hiện đại trên trục QL21 Thôn 4, cung cấp đầy đủ thuốc kê đơn, thực phẩm chức năng và vật tư y tế gia đình.",
+        "tags": ["Nhà thuốc Thôn 4", "Mặt đường QL21", "Thuốc chính hãng"]
+    },
+    {
+        "id": "pharmacy-nga-cuong-thon-5",
+        "name": "Quầy Thuốc Nga Cường Thôn 5",
+        "category": "pharmacy",
+        "category_vn": "Y tế & Sức khỏe",
+        "location_type": "trong_xom",
+        "px": (114, 210), # Trong ngõ xóm Thôn 5
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Khu dân cư Thôn 5 (Gần Trọ Trạng Nguyên), Thạch Hòa, Thạch Thất",
+        "min_price": 5000,
+        "max_price": 120000,
+        "phone": "0912334455",
+        "opening_hours": "07:00 - 21:30",
+        "description": "Quầy thuốc phục vụ sinh viên ở trọ trong xóm Thôn 5, cấp cứu đau bụng, cảm cúm, sơ cứu vết thương ngoài da.",
+        "tags": ["Quầy thuốc trong xóm", "Thôn 5", "Sơ cứu", "Dược sĩ địa phương"]
+    },
+
+    # --- 4. SỬA XE & DỊCH VỤ (services) ---
+    {
+        "id": "service-honda-cuong-thanh",
+        "name": "HEAD Honda Cường Thành (Sửa Xe & Cứu Hộ)",
+        "category": "services",
+        "category_vn": "Dịch vụ học tập & Đời sống",
+        "location_type": "quoc_lo",
+        "px": (280, 65), # QL21 gần Chợ Hòa Lạc
+        "area": "Thạch Hòa",
+        "address": "Đường QL21 (Cách Chợ Hòa Lạc 100m), Thạch Hòa, Thạch Thất",
+        "min_price": 20000,
+        "max_price": 200000,
+        "phone": "02433689999",
+        "opening_hours": "07:30 - 18:30",
+        "description": "Đại lý ủy quyền Honda chính hãng trên QL21, thay dầu bảo dưỡng, sửa xe ga xe số, phụ tùng chính hãng không chặt chém.",
+        "tags": ["HEAD Honda chính hãng", "Mặt đường QL21", "Thay nhớt", "Sửa xe máy"]
+    },
+    {
+        "id": "service-in-an-photo-thon-4",
+        "name": "Tiệm Photocopy & In Ấn Đồ Án Thôn 4",
+        "category": "services",
+        "category_vn": "Dịch vụ học tập & Đời sống",
+        "location_type": "quoc_lo",
+        "px": (328, 200), # Mặt đường QL21 Thôn 4
+        "area": "Thạch Hòa",
+        "address": "Số 48 Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất",
+        "min_price": 500,
+        "max_price": 100000,
+        "phone": "0976112244",
+        "opening_hours": "07:30 - 21:30",
+        "description": "Tiệm in ấn chuyên in tài liệu học tập, slide thuyết trình, đóng bìa đồ án Capstone cho sinh viên FPT và ĐHQG.",
+        "tags": ["In ấn đồ án", "Photocopy giá rẻ", "Mặt đường QL21", "Thôn 4"]
+    },
+    {
+        "id": "service-sua-xe-chu-hung-thon-5",
+        "name": "Tiệm Sửa Xe Máy Chú Hùng Thôn 5",
+        "category": "services",
+        "category_vn": "Dịch vụ học tập & Đời sống",
+        "location_type": "trong_xom",
+        "px": (150, 185), # Trong xóm Thôn 5
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Ngã ba xóm trọ Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 15000,
+        "max_price": 120000,
+        "phone": "0984556677",
+        "opening_hours": "07:00 - 20:00",
+        "description": "Tiệm sửa xe máy dân dã của chú Hùng chuyên vá săm lốp 15k, thay dầu nhớt và tăng xích cho sinh viên trong xóm.",
+        "tags": ["Vá xe săm lốp 15k", "Trong xóm Thôn 5", "Thay dầu nhớt"]
+    },
+    {
+        "id": "service-henna-tattoo-thon-5",
+        "name": "Henna Tattoo & Khuyên Tai Thôn 5",
+        "category": "services",
+        "category_vn": "Dịch vụ học tập & Đời sống",
+        "location_type": "trong_xom",
+        "px": (46, 245), # Hiện rõ chữ na Tattoo góc trái ảnh
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Xóm 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 50000,
+        "max_price": 300000,
+        "phone": "0967332211",
+        "opening_hours": "09:00 - 21:00",
+        "description": "Tiệm xăm hình nghệ thuật Henna và xỏ khuyên tai được nhiều bạn trẻ sinh viên FPT tìm đến.",
+        "tags": ["Henna Tattoo", "Xỏ khuyên", "Trong xóm Thôn 5", "Nghệ thuật"]
+    },
+    {
+        "id": "service-nha-van-hoa-thon-5",
+        "name": "Nhà Văn Hóa Thôn 5 - Hoà Lạc",
+        "category": "services",
+        "category_vn": "Dịch vụ học tập & Đời sống",
+        "location_type": "trong_xom",
+        "px": (162, 135), # Hiện rõ icon tím trên map
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Trung tâm Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 0,
+        "max_price": 0,
+        "phone": "",
+        "opening_hours": "07:00 - 21:00",
+        "description": "Nhà văn hóa trung tâm Thôn 5, sân chơi thể thao cộng đồng và mốc chỉ đường định vị quan trọng nhất trong xóm.",
+        "tags": ["Nhà văn hóa", "Mốc chỉ đường", "Sân sinh hoạt chung", "Thôn 5"]
+    },
+    {
+        "id": "service-nha-van-hoa-thon-4",
+        "name": "Nhà Văn Hóa Thôn 4 Hòa Lạc",
+        "category": "services",
+        "category_vn": "Dịch vụ học tập & Đời sống",
+        "location_type": "trong_xom",
+        "px": (374, 257), # Hiện rõ icon tím sát QL21 phía đông
+        "area": "Thôn 4 Thạch Hòa",
+        "address": "Thôn 4 (Gần QL21), Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 0,
+        "max_price": 0,
+        "phone": "",
+        "opening_hours": "07:00 - 21:00",
+        "description": "Nhà văn hóa Thôn 4 nằm cạnh trục QL21, điểm tập kết sinh hoạt văn nghệ, đại hội thôn và thể thao.",
+        "tags": ["Nhà văn hóa Thôn 4", "Gần QL21", "Mốc định vị"]
+    },
+
+    # --- 5. GIẢI TRÍ & THỂ THAO (entertainment) ---
+    {
+        "id": "ent-king-bida-ql21",
+        "name": "King Club Bida Hòa Lạc (Trục QL21)",
+        "category": "entertainment",
+        "category_vn": "Giải trí & Thể thao",
+        "location_type": "quoc_lo",
+        "px": (305, 130), # Mặt đường QL21 gần ngã 3
+        "area": "Thạch Hòa",
+        "address": "Đường QL21, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 40000,
+        "max_price": 70000,
+        "phone": "0982345678",
+        "opening_hours": "08:00 - 02:00",
+        "description": "CLB bida máy lạnh mặt đường QL21, bàn chuẩn thi đấu lỗ & libre, dàn bi mới tinh, trà đá thuốc lá phục vụ tận bàn.",
+        "tags": ["Bida lỗ", "Điều hòa máy lạnh", "Mặt đường QL21", "Mở muộn"]
+    },
+    {
+        "id": "ent-cyber-net-thon-4",
+        "name": "CyberNet Gaming Hòa Lạc (Thôn 4)",
+        "category": "entertainment",
+        "category_vn": "Giải trí & Thể thao",
+        "location_type": "quoc_lo",
+        "px": (324, 270), # Mặt đường QL21 Thôn 4
+        "area": "Thạch Hòa",
+        "address": "Mặt đường QL21, Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 8000,
+        "max_price": 14000,
+        "phone": "0971239988",
+        "opening_hours": "Mở cửa 24/7",
+        "description": "Quán net phòng máy cấu hình RTX chuyên game cho sinh viên FPT leo rank Liên Minh, Valorant xuyên đêm, đồ ăn đêm phong phú.",
+        "tags": ["Cyber game 24/7", "Dàn máy RTX", "Mặt đường QL21", "Cơm rang mì tôm"]
+    },
+    {
+        "id": "ent-san-cau-long-368",
+        "name": "Sân Cầu Lông 368 Badminton Hòa Lạc",
+        "category": "entertainment",
+        "category_vn": "Giải trí & Thể thao",
+        "location_type": "quoc_lo",
+        "px": (652, 11), # Hiện rõ chữ và icon xanh lá Sân Cầu Lông 368 Badminton trên bản đồ
+        "area": "Thạch Hòa",
+        "address": "Đường ĐT420 (Gần ngã 3 rẽ từ QL21), Thạch Hòa, Thạch Thất",
+        "min_price": 50000,
+        "max_price": 80000,
+        "phone": "0989368368",
+        "opening_hours": "05:30 - 23:00",
+        "description": "Cụm 4 sân cầu lông thảm tiêu chuẩn thi đấu, đèn chống chói, quạt công nghiệp phục vụ sinh viên và các CLB thể thao.",
+        "tags": ["Sân thảm tiêu chuẩn", "Cầu lông", "Trục ĐT420", "Đèn chống chói"]
+    },
+
+    # --- 6. NHÀ TRỌ & CCMN (boarding_house) ---
+    {
+        "id": "house-tro-trang-nguyen",
+        "name": "Nhà Trọ Trạng Nguyên Thôn 5",
+        "category": "boarding_house",
+        "category_vn": "Nhà trọ & Chung cư mini",
+        "location_type": "trong_xom",
+        "px": (144, 245), # Hiện rõ tên trên map Nhà Trọ Trạng Nguyên
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Xóm Trạng Nguyên, Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 140000,
+        "max_price": 2000000,
+        "phone": "0986554433",
+        "opening_hours": "24/7",
+        "description": "Khu nhà trọ sinh viên nổi tiếng lâu năm tại Thôn 5, phòng khép kín sạch sẽ, an ninh tốt, cổng khóa vân tay.",
+        "tags": ["Nhà trọ sinh viên", "Khóa vân tay", "Trong xóm Thôn 5", "Giá rẻ"]
+    },
+    {
+        "id": "house-xom-tro-xanh-thon-5",
+        "name": "Khu Trọ Sinh Viên Xóm Xanh Thôn 5",
+        "category": "boarding_house",
+        "category_vn": "Nhà trọ & Chung cư mini",
+        "location_type": "trong_xom",
+        "px": (85, 200), # Sâu trong xóm Thôn 5
+        "area": "Thôn 5 Thạch Hòa",
+        "address": "Ngõ 2 Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "min_price": 1300000,
+        "max_price": 1800000,
+        "phone": "0975667788",
+        "opening_hours": "24/7",
+        "description": "Dãy trọ cấp 4 và 2 tầng có sân rộng để xe máy, không gian cây xanh thoáng mát, yên tĩnh phù hợp học tập.",
+        "tags": ["Yên tĩnh học tập", "Sân để xe rộng", "Giá sinh viên", "Thôn 5"]
+    },
+    {
+        "id": "house-ccmn-thon-4-ql21",
+        "name": "Chung Cư Mini Sinh Viên Thôn 4",
+        "category": "boarding_house",
+        "category_vn": "Nhà trọ & Chung cư mini",
+        "location_type": "trong_xom",
+        "px": (355, 220), # Ngõ Thôn 4 cách QL21 50m
+        "area": "Thôn 4 Thạch Hòa",
+        "address": "Ngõ 1 Thôn 4 (Cách QL21 50m), Xã Thạch Hòa, Thạch Thất",
+        "min_price": 2200000,
+        "max_price": 2800000,
+        "phone": "0918776655",
+        "opening_hours": "24/7",
+        "description": "Tòa nhà CCMN 5 tầng có thang máy, full đồ nội thất giường tủ điều hòa nóng lạnh, gần đường lớn QL21 đi lại thuận tiện.",
+        "tags": ["CCMN thang máy", "Full nội thất", "Gần đường QL21", "Thôn 4"]
+    },
+
+    # --- 7. TRƯỜNG & ĐIỂM ĐÓN BUS (campus) ---
+    {
+        "id": "campus-bus-cho-hoa-lac",
+        "name": "Điểm Đón Xe Buýt Chợ Hòa Lạc (QL21)",
+        "category": "campus",
+        "category_vn": "Trường & Điểm đón Bus",
+        "location_type": "quoc_lo",
+        "px": (331, 98), # Trạm buýt hiện rõ trên QL21 gần Chợ
+        "area": "Thạch Hòa",
+        "address": "Trước cổng Chợ Hòa Lạc, Trục QL21, Thạch Hòa, Thạch Thất",
+        "min_price": 9000,
+        "max_price": 9000,
+        "phone": "",
+        "opening_hours": "05:00 - 21:00",
+        "description": "Trạm dừng xe buýt huyết mạch trên Quốc Lộ 21 đón các tuyến 71 (Mỹ Đình - Sơn Tây), 74, 88 kết nối Hà Nội.",
+        "tags": ["Tuyến buýt 71", "Tuyến 74", "Tuyến 88", "Trước Chợ Hòa Lạc", "Mặt đường QL21"]
+    }
+]
+
+# Calculate GPS for each place and print summary
+print(f"=== TỔNG CỘNG {len(places_data)} ĐỊA ĐIỂM (24 ĐIỂM MỚI THEO YÊU CẦU) ===")
+ql_count = sum(1 for p in places_data if p['location_type'] == 'quoc_lo')
+xom_count = sum(1 for p in places_data if p['location_type'] == 'trong_xom')
+print(f"-> Trên Quốc Lộ 21: {ql_count} điểm")
+print(f"-> Trong Xóm (Thôn 4 & Thôn 5): {xom_count} điểm\n")
+
+for i, p in enumerate(places_data, 1):
+    lat, lng = px_to_gps(*p['px'])
+    p['lat'] = lat
+    p['lng'] = lng
+    loc_tag = "🛣️ QL21" if p['location_type'] == 'quoc_lo' else "🏘️ Trong Xóm"
+    print(f"{i:2d}. [{p['category']:14s}] {loc_tag} | {p['name']:38s} | GPS: ({lat}, {lng}) | {p['area']}")
+
+with open('output/curated_24_places_checked.json', 'w', encoding='utf-8') as f:
+    json.dump(places_data, f, ensure_ascii=False, indent=2)
+print("\nĐã lưu danh sách vào output/curated_24_places_checked.json!")

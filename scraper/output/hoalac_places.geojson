@@ -1,0 +1,2396 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "title": "Hòa Lạc Student Map POI Dataset",
+    "bbox_from_n18_up": [
+      105.495,
+      20.998,
+      105.558,
+      21.032
+    ],
+    "total_places": 68,
+    "created_at": "2026-10-10T11:07:01.228507"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5513063,
+          21.0203043
+        ]
+      },
+      "properties": {
+        "id": "35c44110d1e9",
+        "name": "Vân Hiền",
+        "name_vi": "Vân Hiền",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_5475930399",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.478745",
+        "distance_to_fpt_m": 2813.4,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5523571,
+          21.0171326
+        ]
+      },
+      "properties": {
+        "id": "07560d906af8",
+        "name": "Zing Tea",
+        "name_vi": "Zing Tea",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_7919363000",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 2847.7,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5515173,
+          21.0195732
+        ]
+      },
+      "properties": {
+        "id": "ead4fc5eddec",
+        "name": "Quán Chú Béo",
+        "name_vi": "Quán Chú Béo",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_8042087441",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 2813.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5173704,
+          21.0296472
+        ]
+      },
+      "properties": {
+        "id": "ad0e2b5d7fe9",
+        "name": "Cửa Hàng Bún Bẩy Cường",
+        "name_vi": "Cửa Hàng Bún Bẩy Cường",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9377994036",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 1970.8,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5500223,
+          21.0193866
+        ]
+      },
+      "properties": {
+        "id": "7997029a557a",
+        "name": "Helios",
+        "name_vi": "Helios",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_10678143902",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 2658.3,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.521583,
+          21.0017358
+        ]
+      },
+      "properties": {
+        "id": "11e94a40bd73",
+        "name": "Bún bò Huế – Cơm rang Đức Duy",
+        "name_vi": "Bún bò Huế – Cơm rang Đức Duy",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_10731139483",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 1360.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5521513,
+          21.0177212
+        ]
+      },
+      "properties": {
+        "id": "386121aa6c94",
+        "name": "Phê đây",
+        "name_vi": "Phê đây",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "Mục Uyên",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "+84983021001",
+        "website": "",
+        "opening_hours": "Mo-Su 06:30-00:00",
+        "osm_id": "node_12756565873",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 2836.6,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5374351,
+          21.00052
+        ]
+      },
+      "properties": {
+        "id": "a766238651b9",
+        "name": "Twitter Beans Coffee",
+        "name_vi": "Twitter Beans Coffee",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "way_866521399",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:04:56.479745",
+        "distance_to_fpt_m": 1922.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5517295,
+          21.0190818
+        ]
+      },
+      "properties": {
+        "id": "67f81decc653",
+        "name": "Quầy thuốc Hải Yến",
+        "name_vi": "Quầy thuốc Hải Yến",
+        "name_en": "",
+        "category": "pharmacy",
+        "category_label": "Hiệu thuốc & Y tế",
+        "subcategory": "pharmacy",
+        "address": "",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_7924687012",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:05:31.004198",
+        "distance_to_fpt_m": 2822.8,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5188858,
+          21.02722
+        ]
+      },
+      "properties": {
+        "id": "e0baf2d37463",
+        "name": "Chợ Hòa Lạc",
+        "name_vi": "Chợ Hòa Lạc",
+        "name_en": "",
+        "category": "grocery",
+        "category_label": "Siêu thị & Tạp hóa",
+        "subcategory": "marketplace",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9844633824",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:05:47.266013",
+        "distance_to_fpt_m": 1660.4,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5333899,
+          21.0003695
+        ]
+      },
+      "properties": {
+        "id": "f2856d23b3e1",
+        "name": "Trường PTTH Hòa Lạc",
+        "name_vi": "Trường PTTH Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_8946031020",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.195930",
+        "distance_to_fpt_m": 1689.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5306599,
+          21.0086063
+        ]
+      },
+      "properties": {
+        "id": "21e0db418e0a",
+        "name": "Tòa nhà Viettel Hòa Lạc",
+        "name_vi": "Tòa nhà Viettel Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_8946031022",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 785.7,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5248202,
+          21.0096937
+        ]
+      },
+      "properties": {
+        "id": "15287d1e9aad",
+        "name": "Trước 50m đường vào trường Đại học FPT",
+        "name_vi": "Trước 50m đường vào trường Đại học FPT",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_8946031025",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 425.1,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5182554,
+          21.0064986
+        ]
+      },
+      "properties": {
+        "id": "17b9e9bc3089",
+        "name": "Công ty TNHH Xây dựng Sungeun Plant",
+        "name_vi": "Công ty TNHH Xây dựng Sungeun Plant",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_8946031027",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1061.0,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5220177,
+          21.0000595
+        ]
+      },
+      "properties": {
+        "id": "b06bc3244bdc",
+        "name": "Công ty Cổ phần Dịch vụ Bảo vệ Khu công nghệ cao Hòa Lạc",
+        "name_vi": "Công ty Cổ phần Dịch vụ Bảo vệ Khu công nghệ cao Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_8946031028",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1530.6,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.528669,
+          21.0134654
+        ]
+      },
+      "properties": {
+        "id": "07d7db7d7c94",
+        "name": "Đại học FPT Hòa Lạc",
+        "name_vi": "Đại học FPT Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9010637657",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 360.1,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5229378,
+          21.0097244
+        ]
+      },
+      "properties": {
+        "id": "3e1306baab9a",
+        "name": "Qua vòng xuyến đường vào trường Đại học FPT 50m",
+        "name_vi": "Qua vòng xuyến đường vào trường Đại học FPT 50m",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9010637659",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 481.0,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5206031,
+          21.0213164
+        ]
+      },
+      "properties": {
+        "id": "8c7e15ef9fac",
+        "name": "231 Thạch Hòa, Thạch Thất",
+        "name_vi": "231 Thạch Hòa, Thạch Thất",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9025164772",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 991.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5203058,
+          21.0204491
+        ]
+      },
+      "properties": {
+        "id": "783f74c0fcde",
+        "name": "232 Thạch Hòa Thạch Thất",
+        "name_vi": "232 Thạch Hòa Thạch Thất",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9025164773",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 924.7,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5189584,
+          21.0275648
+        ]
+      },
+      "properties": {
+        "id": "5d88048f96c5",
+        "name": "Qua Ngã Tư Láng Hòa Lạc",
+        "name_vi": "Qua Ngã Tư Láng Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9025164774",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1692.8,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5161741,
+          21.0317376
+        ]
+      },
+      "properties": {
+        "id": "f33f9e4c546f",
+        "name": "Qua cầu Hòa Lạc (đi Xuân Mai)",
+        "name_vi": "Qua cầu Hòa Lạc (đi Xuân Mai)",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_9025164776",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 2233.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5192975,
+          20.9986594
+        ]
+      },
+      "properties": {
+        "id": "5ea8daff6092",
+        "name": "Đối diện Ban Quản lý Dự án ĐHQG Hà Nội",
+        "name_vi": "Đối diện Ban Quản lý Dự án ĐHQG Hà Nội",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11534004846",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1760.3,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5316678,
+          21.0048613
+        ]
+      },
+      "properties": {
+        "id": "7333e1c91a84",
+        "name": "Đối diện Trung tâm Dịch vụ Tài Chính Bộ Tài Chính",
+        "name_vi": "Đối diện Trung tâm Dịch vụ Tài Chính Bộ Tài Chính",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11534004847",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1171.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5415449,
+          21.0024256
+        ]
+      },
+      "properties": {
+        "id": "4c5b67ac148c",
+        "name": "Công ty điện tử Nobie",
+        "name_vi": "Công ty điện tử Nobie",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11537292300",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 2096.4,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5392477,
+          21.0073941
+        ]
+      },
+      "properties": {
+        "id": "3720e36c6b65",
+        "name": "Tòa nhà Trung tâm Viện đo lường Việt Nam",
+        "name_vi": "Tòa nhà Trung tâm Viện đo lường Việt Nam",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11537292301",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1608.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5350536,
+          21.0106516
+        ]
+      },
+      "properties": {
+        "id": "37c3571a2646",
+        "name": "Đối diện FPT Software Hòa Lạc",
+        "name_vi": "Đối diện FPT Software Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11537292302",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1070.7,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5406045,
+          21.0027691
+        ]
+      },
+      "properties": {
+        "id": "6330ea84860b",
+        "name": "Đối diện công ty Thông Tin M3 Viettel",
+        "name_vi": "Đối diện công ty Thông Tin M3 Viettel",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11537292305",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1995.2,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5186625,
+          21.0111661
+        ]
+      },
+      "properties": {
+        "id": "347b89d4cdfc",
+        "name": "Thôn 8 Thạch Hòa Hòa Lạc",
+        "name_vi": "Thôn 8 Thạch Hòa Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11546585359",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 726.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5198575,
+          21.0171541
+        ]
+      },
+      "properties": {
+        "id": "7ee9b1f546ac",
+        "name": "Đối diện 354 Thạch Hòa Thạch Thất",
+        "name_vi": "Đối diện 354 Thạch Hòa Thạch Thất",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11546585360",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 687.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5205002,
+          21.026834
+        ]
+      },
+      "properties": {
+        "id": "0bd40a258567",
+        "name": "Số 27 Thôn 9 Thạch Hòa",
+        "name_vi": "Số 27 Thôn 9 Thạch Hòa",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thôn 4 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11546585361",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1560.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5274038,
+          21.0281678
+        ]
+      },
+      "properties": {
+        "id": "a66e9ad4c581",
+        "name": "Của hàng sửa chữa xe máy Duẩn An",
+        "name_vi": "Của hàng sửa chữa xe máy Duẩn An",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11546585362",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1646.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5324274,
+          21.0291234
+        ]
+      },
+      "properties": {
+        "id": "be215efce8bb",
+        "name": "Qua chùa Thái Bình 10m",
+        "name_vi": "Qua chùa Thái Bình 10m",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Tân Xã",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11546585363",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 1892.3,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5184006,
+          21.0106399
+        ]
+      },
+      "properties": {
+        "id": "851cb7aee4de",
+        "name": "Thôn 3 Thạch Hòa Hòa Lạc",
+        "name_vi": "Thôn 3 Thạch Hòa Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_11546611496",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 774.1,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5085312,
+          20.9982784
+        ]
+      },
+      "properties": {
+        "id": "4e0d87e47ac9",
+        "name": "Tòa nhà HT1, HT2 (ĐHQGHN)",
+        "name_vi": "Tòa nhà HT1, HT2 (ĐHQGHN)",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_12265521355",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 2420.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5281735,
+          21.02066
+        ]
+      },
+      "properties": {
+        "id": "9f485e445eb3",
+        "name": "Học viện Tài chính (Cơ sở Hòa Lạc)",
+        "name_vi": "Học viện Tài chính (Cơ sở Hòa Lạc)",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_13607997841",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.196927",
+        "distance_to_fpt_m": 853.9,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5387029,
+          21.0141315
+        ]
+      },
+      "properties": {
+        "id": "4f48fd278951",
+        "name": "Hòa Lạc",
+        "name_vi": "Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_13608473997",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.201931",
+        "distance_to_fpt_m": 1403.4,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5495643,
+          21.0212398
+        ]
+      },
+      "properties": {
+        "id": "87645f2bb150",
+        "name": "Viettel Post Hòa Lạc",
+        "name_vi": "Viettel Post Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "bus_stop",
+        "address": "",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "node_13697659014",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.201931",
+        "distance_to_fpt_m": 2671.4,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5252156,
+          21.013538
+        ]
+      },
+      "properties": {
+        "id": "cc7f7be45f7c",
+        "name": "Trường Đại học FPT",
+        "name_vi": "Trường Đại học FPT",
+        "name_en": "FPT University",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "university",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "https://hanoi.fpt.edu.vn/",
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "osm_id": "way_800878327",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.201931",
+        "distance_to_fpt_m": 4.5,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5035141,
+          21.0056905
+        ]
+      },
+      "properties": {
+        "id": "3f9e00598804",
+        "name": "Đại học Quốc gia Hà Nội tại Hòa Lạc",
+        "name_vi": "Đại học Quốc gia Hà Nội tại Hòa Lạc",
+        "name_en": "Vietnam National University – Hoa Lac Campus",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "university",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "way_923220611",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.201931",
+        "distance_to_fpt_m": 2412.7,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.527591,
+          21.0215617
+        ]
+      },
+      "properties": {
+        "id": "5ac3e8fc2b38",
+        "name": "Học viện Tài chính (cơ sở Hòa Lạc)",
+        "name_vi": "Học viện Tài chính (cơ sở Hòa Lạc)",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "university",
+        "address": "",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "way_1147594076",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.201931",
+        "distance_to_fpt_m": 930.1,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.4976535,
+          20.9964613
+        ]
+      },
+      "properties": {
+        "id": "648a3b77bbab",
+        "name": "Trường Đại học Công nghệ",
+        "name_vi": "Trường Đại học Công nghệ",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "university",
+        "address": "",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "way_1433296679",
+        "source": "osm",
+        "scraped_at": "2026-10-10T11:07:00.201931",
+        "distance_to_fpt_m": 3430.2,
+        "status": "needs_verify",
+        "notes": "",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5185,
+          21.0255
+        ]
+      },
+      "properties": {
+        "id": "5f60a84cd82e",
+        "name": "Chợ Hòa Lạc",
+        "name_vi": "Chợ Hòa Lạc",
+        "name_en": "",
+        "category": "grocery",
+        "category_label": "Siêu thị & Tạp hóa",
+        "subcategory": "marketplace",
+        "address": "Ngã 3 Hòa Lạc giao ĐT420, Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1504.6882463652448,
+        "status": "needs_verify",
+        "notes": "Chợ dân sinh lớn nhất khu vực, bán đầy đủ thực phẩm tươi sống, hoa quả, đồ gia dụng giá rẻ cho sinh viên",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "chợ dân sinh,thực phẩm tươi,đồ gia dụng,giá rẻ"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.502,
+          21.021
+        ]
+      },
+      "properties": {
+        "id": "179097eaf3e5",
+        "name": "Nhà Trọ Thanh Phượng",
+        "name_vi": "Nhà Trọ Thanh Phượng",
+        "name_en": "",
+        "category": "boarding_house",
+        "category_label": "Nhà trọ & CCMN",
+        "subcategory": "boarding_house",
+        "address": "Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 2548.4185590710777,
+        "status": "needs_verify",
+        "notes": "Khu trọ sinh viên Thôn 5, yên tĩnh, khép kín",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà trọ,thôn 5,sinh viên"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.501,
+          21.0185
+        ]
+      },
+      "properties": {
+        "id": "023786d7dd6e",
+        "name": "Nhà Trọ Happy",
+        "name_vi": "Nhà Trọ Happy",
+        "name_en": "",
+        "category": "boarding_house",
+        "category_label": "Nhà trọ & CCMN",
+        "subcategory": "boarding_house",
+        "address": "Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 2572.710848797206,
+        "status": "needs_verify",
+        "notes": "Phòng trọ sinh viên khép kín, an ninh tốt",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà trọ,phòng khép kín,an ninh"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.4965,
+          21.016
+        ]
+      },
+      "properties": {
+        "id": "39c9db94d662",
+        "name": "Nhà Trọ Chú Bốn",
+        "name_vi": "Nhà Trọ Chú Bốn",
+        "name_en": "",
+        "category": "boarding_house",
+        "category_label": "Nhà trọ & CCMN",
+        "subcategory": "boarding_house",
+        "address": "Thôn 5, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 2991.977476834582,
+        "status": "needs_verify",
+        "notes": "Trọ bình dân giá rẻ cho sinh viên",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "trọ bình dân,giá rẻ,chủ trọ thân thiện"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.511,
+          21.0145
+        ]
+      },
+      "properties": {
+        "id": "6b18d3465ba4",
+        "name": "Nhà Trọ Tràng Nguyên",
+        "name_vi": "Nhà Trọ Tràng Nguyên",
+        "name_en": "",
+        "category": "boarding_house",
+        "category_label": "Nhà trọ & CCMN",
+        "subcategory": "boarding_house",
+        "address": "Thôn 5, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1478.1435840811428,
+        "status": "needs_verify",
+        "notes": "Dãy trọ sinh viên khép kín gần bờ sông",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà trọ,khép kín,thoáng mát"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5285,
+          21.0195
+        ]
+      },
+      "properties": {
+        "id": "9a26387158b2",
+        "name": "Nhà Trọ Minh Cương",
+        "name_vi": "Nhà Trọ Minh Cương",
+        "name_en": "",
+        "category": "boarding_house",
+        "category_label": "Nhà trọ & CCMN",
+        "subcategory": "boarding_house",
+        "address": "Thôn 4, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 749.962790306276,
+        "status": "needs_verify",
+        "notes": "Nằm giữa trục FPT đi Tân Xã, trọ CCMN nhiều tầng",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà trọ,CCMN,gần FPT"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5045,
+          21.014
+        ]
+      },
+      "properties": {
+        "id": "8ff8776547e3",
+        "name": "Henna Tattoo Hòa Lạc",
+        "name_vi": "Henna Tattoo Hòa Lạc",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "beauty",
+        "address": "Thôn 5, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 2149.3758926272617,
+        "status": "needs_verify",
+        "notes": "Dịch vụ xăm nghệ thuật, vẽ henna giới trẻ",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "xăm nghệ thuật,tattoo,làm đẹp"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5255,
+          21.025
+        ]
+      },
+      "properties": {
+        "id": "50b374d220e6",
+        "name": "Kỳ Ngàn Building",
+        "name_vi": "Tòa Nhà Kỳ Ngàn",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "office",
+        "address": "Đường ĐT420, Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1279.120732748511,
+        "status": "needs_verify",
+        "notes": "Tòa nhà dịch vụ & văn phòng trên trục ĐT420",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "tòa nhà,dịch vụ,trục ĐT420"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.552,
+          21.0258
+        ]
+      },
+      "properties": {
+        "id": "3ae00909d380",
+        "name": "Cơm Tấm Bảo Uyên",
+        "name_vi": "Cơm Tấm Bảo Uyên",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "Trục ĐT420 gần Nhà Thờ Phú Hữu, Thạch Thất",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 3099.7732897631154,
+        "status": "needs_verify",
+        "notes": "Quán cơm tấm, cơm bình dân quen thuộc trục ĐT420",
+        "min_price": 35000,
+        "max_price": 45000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "cơm tấm,cơm bình dân,ăn trưa,giá sinh viên"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.558,
+          21.0262
+        ]
+      },
+      "properties": {
+        "id": "a523d1f56a6f",
+        "name": "Mixue Phú Hữu",
+        "name_vi": "Mixue Phú Hữu",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "fast_food",
+        "address": "Khu vực Phú Hữu, Bình Yên, Thạch Thất",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 3685.760371441224,
+        "status": "needs_verify",
+        "notes": "Trà sữa & kem Mixue giá rẻ học sinh, sinh viên",
+        "min_price": 10000,
+        "max_price": 25000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "trà sữa,kem,mixue,giá rẻ"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.555,
+          21.0235
+        ]
+      },
+      "properties": {
+        "id": "3184706cf212",
+        "name": "Nhà Thờ Giáo Xứ Phú Hữu",
+        "name_vi": "Nhà Thờ Phú Hữu",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "place_of_worship",
+        "address": "Thôn Phú Hữu, Tân Xã, Thạch Thất, Hà Nội",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 3286.932616879638,
+        "status": "needs_verify",
+        "notes": "Địa điểm sinh hoạt cộng đồng & landmark mốc chỉ đường quan trọng",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà thờ,mốc chỉ đường,landmark"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.541,
+          21.008
+        ]
+      },
+      "properties": {
+        "id": "5a0cf7cb74c2",
+        "name": "Học viện Tài chính - Cơ sở Hòa Lạc",
+        "name_vi": "Học viện Tài chính - Cơ sở Hòa Lạc",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "university",
+        "address": "Đường N18, Khu CNC Hòa Lạc, Thạch Thất, Hà Nội",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1750.3861234855203,
+        "status": "needs_verify",
+        "notes": "Cơ sở đào tạo mới của Học viện Tài chính tại Hòa Lạc trên trục N18",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "đại học,học viện tài chính,trục N18"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.539,
+          21.01
+        ]
+      },
+      "properties": {
+        "id": "e8bafb8a6bff",
+        "name": "Trường Đại học Điện Lực - Cơ sở 4",
+        "name_vi": "Trường Đại học Điện Lực - Cơ sở 4",
+        "name_en": "",
+        "category": "campus",
+        "category_label": "Trường & Điểm đón Bus",
+        "subcategory": "university",
+        "address": "Đường N18, Khu CNC Hòa Lạc, Thạch Thất, Hà Nội",
+        "area_name": "Khu CNC Hòa Lạc",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1484.3840173233777,
+        "status": "needs_verify",
+        "notes": "Cơ sở thực hành và đào tạo của ĐH Điện Lực",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "đại học,điện lực,trục N18"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5205,
+          21.0125
+        ]
+      },
+      "properties": {
+        "id": "59ba0dc7141b",
+        "name": "Nhà Văn Hóa Thôn 4 Hòa Lạc",
+        "name_vi": "Nhà Văn Hóa Thôn 4 Hòa Lạc",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "community_centre",
+        "address": "Thôn 4, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 500.3732166114706,
+        "status": "needs_verify",
+        "notes": "Nhà sinh hoạt cộng đồng Thôn 4, gần trục QL21",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà văn hóa,cộng đồng,thôn 4"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.508,
+          21.0205
+        ]
+      },
+      "properties": {
+        "id": "1f3725ce1ba5",
+        "name": "Nhà Văn Hóa Thôn 5 - Hoà Lạc",
+        "name_vi": "Nhà Văn Hóa Thôn 5 - Hoà Lạc",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "community_centre",
+        "address": "Thôn 5, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1947.6172403800167,
+        "status": "needs_verify",
+        "notes": "Nhà sinh hoạt cộng đồng Thôn 5",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà văn hóa,cộng đồng,thôn 5"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.527,
+          21.014
+        ]
+      },
+      "properties": {
+        "id": "a34cfd03c156",
+        "name": "Hola Hotpot",
+        "name_vi": "Hola Hotpot - Lẩu Sinh Viên",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "Gần cổng phụ ĐH FPT, Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 194.93628860332825,
+        "status": "needs_verify",
+        "notes": "Quán lẩu cực quen thuộc của sinh viên FPT ngay cổng phụ, giá sinh viên",
+        "min_price": 99000,
+        "max_price": 150000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "lẩu,cổng phụ FPT,sinh viên,tụ tập"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.526,
+          21.0148
+        ]
+      },
+      "properties": {
+        "id": "9fed87f4ef76",
+        "name": "Bánh mì Bamimo",
+        "name_vi": "Bánh mì Bamimo",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "fast_food",
+        "address": "Cổng trường ĐH FPT, Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 166.70713928248944,
+        "status": "needs_verify",
+        "notes": "Bánh mì kẹp giòn, ship tận phòng ký túc xá FPT & các xóm trọ",
+        "min_price": 20000,
+        "max_price": 35000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "bánh mì,ship tận KTX,ăn sáng,nhanh gọn"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.518,
+          21.0155
+        ]
+      },
+      "properties": {
+        "id": "edc65840560c",
+        "name": "Nhà hàng 379 Minh Nga",
+        "name_vi": "Nhà hàng 379 Minh Nga",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "Thôn 4, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 779.7415523327269,
+        "status": "needs_verify",
+        "notes": "Chuyên đặc sản lẩu cua đồng, gà ri, cá tầm, không gian rộng rãi tiếp khách",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "lẩu cua đồng,gà ri,tiếp khách,liên hoan"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.52,
+          21.016
+        ]
+      },
+      "properties": {
+        "id": "0e2f0f3e13ec",
+        "name": "Gà Ri Thành Luân",
+        "name_vi": "Gà Ri Thành Luân",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 607.1350811742827,
+        "status": "needs_verify",
+        "notes": "Gà rang muối đậm đà, giá mềm phù hợp nhóm bạn",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "gà ri,gà rang muối,nhóm bạn"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5315,
+          21.0175
+        ]
+      },
+      "properties": {
+        "id": "096128f1cac0",
+        "name": "Layla Cafe",
+        "name_vi": "Layla Cafe Tân Xã",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "Ngã tư Tân Xã, Thạch Thất, Hà Nội",
+        "area_name": "Tân Xã",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 790.8572348117475,
+        "status": "needs_verify",
+        "notes": "Cafe phong cách retro những năm 80, không gian rộng thoáng họp nhóm",
+        "min_price": 25000,
+        "max_price": 45000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "cafe,retro,họp nhóm,chill"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5188,
+          21.0152
+        ]
+      },
+      "properties": {
+        "id": "c118f0b8df82",
+        "name": "M.O.C Tea & Coffee",
+        "name_vi": "M.O.C Tea & Coffee",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "225 Thôn 4, Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 690.6873539579138,
+        "status": "needs_verify",
+        "notes": "Trà sữa, trà hoa quả có ship tận nơi cho sinh viên trọ",
+        "min_price": 20000,
+        "max_price": 40000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "trà sữa,cafe,ship tận phòng"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5325,
+          21.018
+        ]
+      },
+      "properties": {
+        "id": "6ea73dce5eee",
+        "name": "Young Food & Drink",
+        "name_vi": "Young Food & Drink Tân Xã",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "cafe",
+        "address": "68 Mục Uyên Công Nghệ, Tân Xã, Thạch Thất",
+        "area_name": "Tân Xã",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 908.0363771061092,
+        "status": "needs_verify",
+        "notes": "Trang trí tối giản phong cách gen Z, đồ ăn vặt & trà sữa",
+        "min_price": 20000,
+        "max_price": 40000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "sống ảo,đồ ăn vặt,trà sữa,tân xã"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5195,
+          21.0148
+        ]
+      },
+      "properties": {
+        "id": "b857d15647ef",
+        "name": "Phương Nam Pharmacy",
+        "name_vi": "Nhà thuốc Phương Nam",
+        "name_en": "",
+        "category": "pharmacy",
+        "category_label": "Hiệu thuốc & Y tế",
+        "subcategory": "pharmacy",
+        "address": "Thôn 6, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 609.0601716068337,
+        "status": "needs_verify",
+        "notes": "Hiệu thuốc lớn, dược sĩ tư vấn tận tình, đầy đủ thuốc cảm, tiêu hóa, sơ cứu",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà thuốc,dược sĩ tư vấn,sơ cứu"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.516,
+          21.0135
+        ]
+      },
+      "properties": {
+        "id": "fea0dfd6a061",
+        "name": "Nhà thuốc Mỹ Lệ",
+        "name_vi": "Nhà thuốc Mỹ Lệ",
+        "name_en": "",
+        "category": "pharmacy",
+        "category_label": "Hiệu thuốc & Y tế",
+        "subcategory": "pharmacy",
+        "address": "Ngã 3 Hòa Lạc, Xã Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 954.9601381565461,
+        "status": "needs_verify",
+        "notes": "Nhà thuốc quen thuộc tại điểm giao Ngã 3 Hòa Lạc",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà thuốc,ngã 3 hòa lạc,thuốc kê đơn"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.538,
+          21.02
+        ]
+      },
+      "properties": {
+        "id": "f28df37be044",
+        "name": "Quầy thuốc Anh Phương",
+        "name_vi": "Quầy thuốc Anh Phương",
+        "name_en": "",
+        "category": "pharmacy",
+        "category_label": "Hiệu thuốc & Y tế",
+        "subcategory": "pharmacy",
+        "address": "Bình Yên, Thạch Thất, Hà Nội",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 1512.4814026645465,
+        "status": "needs_verify",
+        "notes": "Quầy thuốc khu vực Bình Yên",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà thuốc,bình yên"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5265,
+          21.0115
+        ]
+      },
+      "properties": {
+        "id": "993e3c5a47e4",
+        "name": "Cứu Hộ & Sửa Xe Máy Tuấn Cường 24/7",
+        "name_vi": "Sửa Xe Máy Tuấn Cường 24/7",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "motorcycle_repair",
+        "address": "Đối diện Cổng 3 KTX ĐH FPT, Thạch Hòa, Thạch Thất",
+        "area_name": "Thạch Hòa",
+        "phone": "0988776655",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 260.12746850486513,
+        "status": "needs_verify",
+        "notes": "Cứu hộ vá xe đêm khuya, thay săm lốp, bảo dưỡng xe máy cho sinh viên FPT",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "sửa xe máy,cứu hộ đêm 24/7,vá xe,cổng 3 FPT"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.521,
+          21.0155
+        ]
+      },
+      "properties": {
+        "id": "142252be0447",
+        "name": "Tiệm Photo & In Ấn Đồ Án Thôn 3",
+        "name_vi": "Photo & In Ấn Đồ Án Thôn 3",
+        "name_en": "",
+        "category": "services",
+        "category_label": "Sửa xe & Dịch vụ",
+        "subcategory": "copyshop",
+        "address": "Thôn 3, Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:07:01.204451",
+        "distance_to_fpt_m": 489.40359102431216,
+        "status": "needs_verify",
+        "notes": "Chuyên in ấn tài liệu, đóng bìa mạ vàng đồ án tốt nghiệp, photo đề cương",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "photo,in đồ án,bìa mạ vàng,giá sinh viên"
+      }
+    }
+  ]
+}

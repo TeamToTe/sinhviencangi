@@ -1,0 +1,519 @@
+[
+  {
+    "title_trohoalac": "Trọ An Bình",
+    "name_on_google_maps": "An Bình Building",
+    "cid": "0x31345b005e6f5225%3A0",
+    "lat": 21.027616819382526,
+    "lng": 105.54418139729306,
+    "ward": "Tân Xã",
+    "price": 1900000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/9e1stsikf6u-1785003492814.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/9e1stsikf6u-1785003492814.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/lepx1zr1r6-1785003493688.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/eu45o41r8vc-1785003493676.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/zo41ygbw6ia-1785003493688.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0aob1k6ibfi-1785003493689.webp"
+    ],
+    "amenities": [
+      "Phòng tắm",
+      "Giường nệm",
+      "Kệ bếp",
+      "Gác lửng",
+      "Máy giặt",
+      "Tủ lạnh",
+      "Wifi",
+      "Bãi để xe riêng"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7448.253350935652!2d105.54418139729306!3d21.027616819382526!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b005e6f5225%3A0xc2f8375b146f7547!2sAn%20B%C3%ACnh%20Building!5e0!3m2!1svi!2s!4v1785003417755!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "YoungHouse 2 - Phòng studio 2 giường đơn",
+    "name_on_google_maps": "Young House 2",
+    "cid": "0x31345b0036d73f29%3A0",
+    "lat": 21.026929587842577,
+    "lng": 105.53127747471441,
+    "ward": "Tân Xã",
+    "price": 2800000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0m99cuqipa5-1779621407478.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0m99cuqipa5-1779621407478.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/xdflmzkmtt-1760719442444.JPG",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/99k7dlogbsq-1760719442444.JPG",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0vzxi7ro1ql-1760719442444.JPG",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/xriyebgq1wc-1760719442444.JPG"
+    ],
+    "amenities": [
+      "Phòng tắm",
+      "Giường nệm",
+      "Kệ bếp",
+      "Máy giặt",
+      "Tủ lạnh",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Bãi để xe riêng"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.1438466775544!2d105.53127747471441!3d21.026929587842577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b0036d73f29%3A0xa318506797a97624!2sYoung%20House%202!5e0!3m2!1svi!2s!4v1760718758910!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "An's House",
+    "name_on_google_maps": "An&#39;s Hose",
+    "cid": "0x31345b005c6806e3%3A0",
+    "lat": 21.0295336,
+    "lng": 105.5563665,
+    "ward": "Tân Xã",
+    "price": 2000000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/cwboro34cg-1761923976130.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/cwboro34cg-1761923976130.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/k29c9cmpfrh-1761923976732.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/9q2pu767id9-1761923976754.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0crevved2thh-1761923976772.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/c1js8d1nfkh-1761923976753.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/n2efc643iw-1761923976754.webp"
+    ],
+    "amenities": [
+      "Máy giặt",
+      "Tủ lạnh",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Điều hòa"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14896.315119350824!2d105.5563665!3d21.0295336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b005c6806e3%3A0x556c90278598339!2sAn&#39;s%20Hose!5e0!3m2!1svi!2s!4v1761923941306!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "Trọ chị Tâm",
+    "name_on_google_maps": "Nhà Chung cafe",
+    "cid": "0x31345bc9d2ef3089%3A0",
+    "lat": 21.019148388107535,
+    "lng": 105.54984817584116,
+    "ward": "Tân Xã",
+    "price": 1000000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/px7vkpebcrk-1782447103535.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/px7vkpebcrk-1782447103535.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/v248766pzc8-1782447104588.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/wdnwtxr0gy-1782447104594.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/k59g11f6va-1782447104602.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.338230837745!2d105.54984817584116!3d21.019148388107535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345bc9d2ef3089%3A0x5b7457cd4ff61cb2!2sNh%C3%A0%20Chung%20cafe!5e0!3m2!1svi!2s!4v1777889800978!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "WhiteHouse",
+    "name_on_google_maps": "Whitehouse Apartment",
+    "cid": "0x31345b4f98fc284f%3A0",
+    "lat": 21.02575978788272,
+    "lng": 105.55001667471443,
+    "ward": "Tân Xã",
+    "price": 2800000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/qkbbyavh4i-1780024192993.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/qkbbyavh4i-1780024192993.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/4ud053mj56u-1780024193736.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/968ac5oisjj-1780024193725.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/64yfb9c9p1k-1780024193737.webp"
+    ],
+    "amenities": [
+      "Bãi để xe riêng",
+      "Bình nóng lạnh",
+      "Ban công/sân thượng",
+      "Camera an ninh",
+      "Điều hòa",
+      "Kệ bếp",
+      "Giường nệm",
+      "Phòng tắm riêng"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3370.182664748583!2d105.55001667471443!3d21.02575978788272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b4f98fc284f%3A0x897003f51a435bf3!2sWhitehouse%20Apartment!5e1!3m2!1svi!2s!4v1783395953152!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "Nhà trọ Minh Tuy",
+    "name_on_google_maps": "sg",
+    "cid": "0x31345bdaaab0bafd%3A0",
+    "lat": 21.02539358789526,
+    "lng": 105.5329332747143,
+    "ward": "Tân Xã",
+    "price": 1300000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/8vfz5sai29p-1781580054681.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/8vfz5sai29p-1781580054681.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/s0rwjpj1cb-1781545955692.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/8k5rdnzgot3-1781545955684.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/yj5mo90qnpp-1781545955692.webp"
+    ],
+    "amenities": [
+      "Kệ bếp",
+      "Wifi",
+      "Ban công/sân thượng",
+      "Vệ sinh trong",
+      "Bình nóng lạnh",
+      "Tủ áo quần",
+      "Camera an ninh",
+      "Điều hòa"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.1822233301527!2d105.5329332747143!3d21.02539358789526!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345bdaaab0bafd%3A0xd89262a66fc74d3b!2zTmjDoCBUaOG7nSBQaMO6IEjhu691!5e0!3m2!1svi!2ssg!4v1781580325263!5m2!1svi!2ssg"
+  },
+  {
+    "title_trohoalac": "V Village",
+    "name_on_google_maps": "V Village Apartment",
+    "cid": "0x31345bc2a5f64b29%3A0",
+    "lat": 21.030823387706498,
+    "lng": 105.55492267584138,
+    "ward": "Tân Xã",
+    "price": 5500000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/6e6uiv7ccnp-1785000305013.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/6e6uiv7ccnp-1785000305013.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/nf56u3d58mp-1780630663290.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/6w9q3vt2bgi-1780630663291.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0t7fknrwa8yh-1780630663277.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/8ljqd88ciws-1780630663262.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/p250p9imk8-1780630663276.webp"
+    ],
+    "amenities": [
+      "Giường nệm",
+      "Tivi",
+      "Tủ lạnh",
+      "Sân vườn",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Bãi để xe riêng",
+      "Vệ sinh trong"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0465488714344!2d105.55492267584138!3d21.030823387706498!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345bc2a5f64b29%3A0xd78e3bb8a56554e8!2sV%20Village%20Apartment!5e0!3m2!1svi!2s!4v1780630300076!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "YoungHouse 3",
+    "name_on_google_maps": "Hanoi House 1",
+    "cid": "0x31345b00765f94a3%3A0",
+    "lat": 21.02356833802213,
+    "lng": 105.55205037749975,
+    "ward": "Tân Xã",
+    "price": 2500000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/1s3wt1ihx1n-1781115611450.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/1s3wt1ihx1n-1781115611450.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/rqdw69fdafj-1778638505077.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/ev2y9y3cqys-1778638505066.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/5tgtiuj4mv9-1778638505077.webp"
+    ],
+    "amenities": [
+      "Máy giặt",
+      "Tủ lạnh",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Điều hòa"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.2278233545503!2d105.55205037749975!3d21.02356833802213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b00765f94a3%3A0x414f906fd9027fd5!2sHanoi%20House%201!5e0!3m2!1svi!2s!4v1778638427711!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "Mark Hostel",
+    "name_on_google_maps": "Mark Hostel",
+    "cid": "0x31345b0030290439%3A0",
+    "lat": 21.02918755039735,
+    "lng": 105.55768857881705,
+    "ward": "Tân Xã",
+    "price": 1800000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/nhe4jse73up-1779981686366.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/nhe4jse73up-1779981686366.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/l7ug4u3ba1-1779981687040.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/k1jjmdiyafk-1779981687024.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/smnnf3a7m2b-1779981687054.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/shsf23duof-1779981687054.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/5errg9ksuh5-1779981687039.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2214.355632584229!2d105.55768857881705!3d21.02918755039735!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b0030290439%3A0x6489a6a5f81beca9!2sMark%20Hostel!5e0!3m2!1svi!2s!4v1779981629504!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "SV Home",
+    "name_on_google_maps": "SV Home",
+    "cid": "0x31345b005ea7a99f%3A0",
+    "lat": 21.035655287542813,
+    "lng": 105.54080317471463,
+    "ward": "Bình Yên",
+    "price": 2500000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/6htrr4t84hw-1783689166941.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/6htrr4t84hw-1783689166941.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/t8nm825w6je-1783689167735.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/vr28e77ja0o-1783689167747.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/vfd3he0v3um-1783689167729.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/ft8vdt4piet-1783689167741.webp"
+    ],
+    "amenities": [
+      "Phòng tắm",
+      "Giường nệm",
+      "Kệ bếp",
+      "Máy giặt",
+      "Tủ lạnh",
+      "Sân vườn",
+      "Phòng tắm riêng",
+      "Wifi"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.9257860209345!2d105.54080317471463!3d21.035655287542813!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b005ea7a99f%3A0x7eb70fff6ec0f9d2!2sSV%20Home!5e0!3m2!1svi!2s!4v1783432845770!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "Young House 4 - Gần NIC",
+    "name_on_google_maps": "us",
+    "cid": "0x31345b41e87c01f3%3A0",
+    "lat": 21.01740999055677,
+    "lng": 105.54885619551426,
+    "ward": "Tân Xã",
+    "price": 2000000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/p7urq5fajfg-1779621443606.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/p7urq5fajfg-1779621443606.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/81i3yuy04nw-1760456538440.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/8yddezmghq9-1760456542662.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/3e7ogsr21v-1760456543494.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/t1hk8ggc7bk-1760456543516.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/utdvbzmdhtd-1760456543573.webp"
+    ],
+    "amenities": [
+      "Máy giặt",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Điều hòa"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d465.54770610109205!2d105.54885619551426!3d21.01740999055677!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b41e87c01f3%3A0xd0059f09a8791280!2zTmjDoCBUcuG7jSBZb3VuZyBIb3VzZSA0!5e0!3m2!1svi!2sus!4v1760456401187!5m2!1svi!2sus"
+  },
+  {
+    "title_trohoalac": "Nhà trọ You & Me",
+    "name_on_google_maps": "You&Me House",
+    "cid": "0x31345b000e05aea1%3A0",
+    "lat": 21.023911753453557,
+    "lng": 105.52138949639338,
+    "ward": "Thạch Hoà",
+    "price": 2300000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/mzncwe9ehf-1776964751877.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/mzncwe9ehf-1776964751877.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/h4h04irx1ew-1776964752908.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/xc6dt4ytcbq-1776964752930.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/5y7i5qigcl5-1776964752931.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/tbz0m72709-1776964752931.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/s0qupifhsu9-1776964752920.webp"
+    ],
+    "amenities": [
+      "Máy giặt",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Điều hòa",
+      "Kệ bếp",
+      "Tủ lạnh",
+      "Thang máy",
+      "Bình nóng lạnh"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1862.1096220659158!2d105.52138949639338!3d21.023911753453557!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b000e05aea1%3A0xf4e93c022c410bb4!2sYou%26Me%20House!5e0!3m2!1svi!2s!4v1777889747457!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "T&H",
+    "name_on_google_maps": "THC Luxury",
+    "cid": "0x31345b0004bcf525%3A0",
+    "lat": 21.028090487802597,
+    "lng": 105.5329006747144,
+    "ward": "Tân Xã",
+    "price": 2400000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/vwrelaemj9f-1780470794262.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/vwrelaemj9f-1780470794262.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/dsqp66kvbsi-1780470795394.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/n7gaq0c5ar-1780470795415.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/apm3ww4syu-1780470795434.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/u5aj5t279tg-1780470795448.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/8mmtg8vtgm6-1780470795426.webp"
+    ],
+    "amenities": [
+      "Phòng tắm",
+      "Giường nệm",
+      "Kệ bếp",
+      "Máy giặt",
+      "Tủ lạnh",
+      "Wifi",
+      "Bãi để xe riêng",
+      "Ban công/sân thượng"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.1148400475067!2d105.5329006747144!3d21.028090487802597!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b0004bcf525%3A0x90cb404c6f1f8852!2sTHC%20Luxury!5e0!3m2!1svi!2s!4v1780470807736!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "YoungHouse 8",
+    "name_on_google_maps": "us",
+    "cid": "0x31345b5ddf893bd3%3A0",
+    "lat": 21.0200297,
+    "lng": 105.5554078,
+    "ward": "Tân Xã",
+    "price": 2300000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/emdg8nn029-1779924171955.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/emdg8nn029-1779924171955.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/of8yk31jb4n-1779924173014.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/lcmv4axosc8-1779924173067.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/ag33by9msu8-1779924173031.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.3162180070963!2d105.5554078!3d21.0200297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b5ddf893bd3%3A0xc7e243a204cc7516!2zTmjDoCBUcuG7jSBZb3VuZyBIb3VzZSA4!5e0!3m2!1svi!2sus!4v1779924116299!5m2!1svi!2sus"
+  },
+  {
+    "title_trohoalac": "Young House 1",
+    "name_on_google_maps": "us",
+    "cid": "0x31345b007db6ca61%3A0",
+    "lat": 21.026691,
+    "lng": 105.549125,
+    "ward": "Tân Xã",
+    "price": 2500000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/9fg0dnxv3fh-1779621360263.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/9fg0dnxv3fh-1779621360263.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0zz6rvukw97-1760455481438.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/58b53mzk5ty-1760455481436.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/qtdzsag6d5-1760455481216.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/t4ios9a5ycg-1760455481434.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/ihyw7uoo5dj-1760455476329.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14896.599231691365!2d105.549125!3d21.026691!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b007db6ca61%3A0x1a71381f66c28851!2zTmjDoCB0cuG7jSBZb3VuZyBIb3VzZSAx!5e0!3m2!1svi!2sus!4v1760455229302!5m2!1svi!2sus"
+  },
+  {
+    "title_trohoalac": "YoungHouse 7",
+    "name_on_google_maps": "us",
+    "cid": "0x31345bd1ca96550f%3A0",
+    "lat": 21.020479,
+    "lng": 105.551395,
+    "ward": "Tân Xã",
+    "price": 2000000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/96tzmncemki-1783819515295.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/96tzmncemki-1783819515295.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/3q10o5i5t2w-1783819518038.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/oy1185uz42b-1783819518030.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/oa7r08195u-1783819518050.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/f7jz1ujlhy-1783819518051.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/wkmt8ayyq0m-1783819518061.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d465.5381244183924!2d105.551395!3d21.020479!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345bd1ca96550f%3A0xba9059ecf0b7745b!2zTmjDoCB0cuG7jSBIw6AgTuG7mWkgMw!5e0!3m2!1svi!2sus!4v1763020961789!5m2!1svi!2sus"
+  },
+  {
+    "title_trohoalac": "YoungHouse 2 - Phòng 2 giường đơn có giếng trời thoáng",
+    "name_on_google_maps": "Nhà Trọ Young House 2 (YH2)",
+    "cid": "0x31345b0036d73f29%3A0",
+    "lat": 21.026924599999997,
+    "lng": 105.5338524,
+    "ward": "Tân Xã",
+    "price": 2600000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0ri0rxn3iey-1779890653714.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0ri0rxn3iey-1779890653714.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/b5hu0qvm9on-1779890654622.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/knu1mmtdjln-1779890654623.webp"
+    ],
+    "amenities": [
+      "Phòng tắm",
+      "Kệ bếp",
+      "Máy giặt",
+      "Tủ lạnh",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Bãi để xe riêng",
+      "Vệ sinh trong"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.1439713021387!2d105.5338524!3d21.026924599999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b0036d73f29%3A0xa318506797a97624!2sNh%C3%A0%20Tr%E1%BB%8D%20Young%20House%202%20(YH2)!5e0!3m2!1svi!2s!4v1779890577548!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "YoungHouse 10",
+    "name_on_google_maps": "us",
+    "cid": "0x31345bda16aedb85%3A0",
+    "lat": 21.028973699999998,
+    "lng": 105.5340916,
+    "ward": "Bình Yên",
+    "price": 1700000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/4dr1oafsl3f-1779924407199.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/4dr1oafsl3f-1779924407199.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/qw1bdkljqgd-1779924408491.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/201oqnzus7i-1779924408494.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/o1qaxmytrtn-1779924408492.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/1ez1320px4g-1779924408488.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/b1mfds3x7vr-1779924408473.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0927707916217!2d105.5340916!3d21.028973699999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345bda16aedb85%3A0x1540b18e63fbb005!2zTmjDoCBWxINuIEhvw6EgVGjDtG4gVGjDoWkgQsOsbmg!5e0!3m2!1svi!2sus!4v1779924252857!5m2!1svi!2sus"
+  },
+  {
+    "title_trohoalac": "Phương Nam Apartment",
+    "name_on_google_maps": "Phương Nam apartment",
+    "cid": "0x31345b004276fc6d%3A0",
+    "lat": 21.01055528840243,
+    "lng": 105.51573457584104,
+    "ward": "Thạch Hoà",
+    "price": 3500000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0fa7ga26irpn-1780028332701.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/0fa7ga26irpn-1780028332701.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/n6wuwzjeezj-1780028333864.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/nifxy2hyzgk-1780028333887.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/r1he70r6i2-1780028333886.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/1mc1sj0sgst-1780028333890.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/pngeo93la1-1780028333872.webp"
+    ],
+    "amenities": [
+      "Camera an ninh",
+      "Bãi để xe riêng",
+      "Ban công/sân thượng",
+      "Bình nóng lạnh",
+      "Điều hòa",
+      "Kệ bếp",
+      "Giường nệm",
+      "Phòng tắm"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.5528174652763!2d105.51573457584104!3d21.01055528840243!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b004276fc6d%3A0xc2bd40211620b0e0!2sPh%C6%B0%C6%A1ng%20Nam%20apartment!5e0!3m2!1svi!2s!4v1780028259663!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "YoungHouse 5 - Phòng gác xép",
+    "name_on_google_maps": "Young House 5",
+    "cid": "0x31345b0062f1995f%3A0",
+    "lat": 21.018605088126133,
+    "lng": 105.54886527584108,
+    "ward": "Tân Xã",
+    "price": 2200000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/z4o22iilzxf-1779684851423.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/z4o22iilzxf-1779684851423.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/tnvg8uubv3a-1777003267571.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/861go4rq4yf-1777003267703.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/m62x0y1r7zb-1777003267594.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/g6ao4vw7zav-1777003267493.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/5bxw58l90r4-1777003264262.webp"
+    ],
+    "amenities": [],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.3518005894393!2d105.54886527584108!3d21.018605088126133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b0062f1995f%3A0x89ab20614a29c8c2!2sYoung%20House%205!5e0!3m2!1svi!2s!4v1777948261459!5m2!1svi!2s"
+  },
+  {
+    "title_trohoalac": "YoungHouse 6",
+    "name_on_google_maps": "us",
+    "cid": "0x31345b005104fa6d%3A0",
+    "lat": 21.029484011984465,
+    "lng": 105.52799152513124,
+    "ward": "Bình Yên",
+    "price": 2000000.0,
+    "banner": "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/f6sbgbcwuk-1763020600707.webp",
+    "images": [
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/f6sbgbcwuk-1763020600707.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/5d32lz4687t-1763020601648.webp",
+      "https://vlqkecqwfvkymszkqooo.supabase.co/storage/v1/object/public/room-images/uqbpgk4upbe-1763020601681.webp"
+    ],
+    "amenities": [
+      "Phòng tắm",
+      "Gác lửng",
+      "Máy giặt",
+      "Phòng tắm riêng",
+      "Wifi",
+      "Bãi để xe riêng",
+      "Ban công/sân thượng",
+      "Vệ sinh trong"
+    ],
+    "embed_url": "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d931.0200047431721!2d105.52799152513124!3d21.029484011984465!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345b005104fa6d%3A0x4eb17d2609273518!2zxJDhu6ljIFRow6BuaCBCdWlsZGluZw!5e0!3m2!1sen!2sus!4v1763020488412!5m2!1sen!2sus"
+  }
+]

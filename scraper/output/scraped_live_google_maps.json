@@ -1,0 +1,212 @@
+[
+  {
+    "id": "food-379-minh-nga-1",
+    "query": "Nhà Hàng 379 Minh Nga 1 Thạch Hòa",
+    "name": "Minh Nga 379 Restaurant Hòa Lạc",
+    "category": "food_drink",
+    "category_vn": "Ẩm thực",
+    "lat": 21.0207583,
+    "lng": 105.52018,
+    "maps_url": "https://www.google.com/maps/place/Minh+Nga+379+Restaurant+H%C3%B2a+L%E1%BA%A1c/@21.0207583,105.52018,17z/data=!3m1!4b1!4m6!3m5!1s0x31345bebc370dfd7:0xa64913ae113134ac!8m2!3d21.0207583!4d105.52018!16s%2Fg%2F1pzrn4hc6?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "food-thai-linh-ga-ca",
+    "query": "Ẩm Thực Thái Linh Gà Cá Thạch Hòa",
+    "name": "Nhà Hàng Ẩm Thực Thái Linh, QL21A, Hòa Lạc, Hà Nội",
+    "category": "food_drink",
+    "category_vn": "Ẩm thực",
+    "lat": 21.0231961,
+    "lng": 105.5206533,
+    "maps_url": "https://www.google.com/maps/place/Nh%C3%A0+H%C3%A0ng+%E1%BA%A8m+Th%E1%BB%B1c+Th%C3%A1i+Linh,+QL21A,+H%C3%B2a+L%E1%BA%A1c,+H%C3%A0+N%E1%BB%99i/@21.0231961,105.5206533,17z/data=!3m1!4b1!4m6!3m5!1s0x31345be90c22eab5:0xac04ae56e960f2b8!8m2!3d21.0231961!4d105.5206533!16s%2Fg%2F11c2kgwb9s?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "food-bun-bay-cuong",
+    "query": "Cửa hàng bún Bẩy Cường Hòa Lạc",
+    "name": "Bún Bảy Cường",
+    "category": "food_drink",
+    "category_vn": "Ẩm thực",
+    "lat": 21.0292651,
+    "lng": 105.5176141,
+    "maps_url": "https://www.google.com/maps/place/B%C3%BAn+B%E1%BA%A3y+C%C6%B0%E1%BB%9Dng/@21.0292651,105.5176141,17z/data=!3m1!4b1!4m6!3m5!1s0x31345b0064ca40ed:0x49cf0082582a4c02!8m2!3d21.0292651!4d105.5176141!16s%2Fg%2F11zhlylfjr?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "food-ga-ri-thanh-luan",
+    "query": "Gà Ri Thành Luân Hòa Lạc Thạch Hòa",
+    "name": "Nhà Hàng Gà Ri Thành Luân 1",
+    "category": "food_drink",
+    "category_vn": "Ẩm thực",
+    "lat": 20.9900916,
+    "lng": 105.5096849,
+    "maps_url": "https://www.google.com/maps/place/Nh%C3%A0+H%C3%A0ng+G%C3%A0+Ri+Th%C3%A0nh+Lu%C3%A2n+1/@20.9900916,105.5096849,17z/data=!3m1!4b1!4m6!3m5!1s0x31345b9f42dc86e9:0x5b5a4b7fcb894075!8m2!3d20.9900916!4d105.5096849!16s%2Fg%2F11cfhvtl2?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "grocery-cho-hoa-lac",
+    "query": "Chợ Hòa Lạc Thạch Thất Hà Nội",
+    "name": "Hoa Lac Market",
+    "category": "grocery",
+    "category_vn": "Siêu thị & Tạp hóa",
+    "lat": 21.0270926,
+    "lng": 105.5187454,
+    "maps_url": "https://www.google.com/maps/place/Hoa+Lac+Market/@21.0270926,105.5187454,17z/data=!3m1!4b1!4m6!3m5!1s0x3135ab68896793c9:0x9fcb0b4cae00323!8m2!3d21.0270926!4d105.5187454!16s%2Fg%2F11j47nczg9?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "grocery-tap-hoa-manh-quan",
+    "query": "Tạp hóa Mạnh Quân Hòa Lạc",
+    "name": "Tạp hóa Mạnh Quân Hòa Lạc",
+    "category": "grocery",
+    "category_vn": "Siêu thị & Tạp hóa",
+    "lat": 21.0095714,
+    "lng": 105.5180553,
+    "maps_url": "https://www.google.com/maps/place/Si%C3%AAu+Th%E1%BB%8B+M%E1%BA%A1nh+Qu%C3%A2n/@21.0095714,105.5000309,15z/data=!4m10!1m2!2m1!1zVOG6oXAgaMOzYSBN4bqhbmggUXXDom4gSMOyYSBM4bqhYw!3m6!1s0x31345bdc669aaadd:0xd3faec175b49b779!8m2!3d21.0095714!4d105.5180553!15sCiJU4bqhcCBow7NhIE3huqFuaCBRdcOibiBIw7JhIEzhuqFjWiQiInThuqFwIGjDs2EgbeG6oW5oIHF1w6JuIGjDsmEgbOG6oWOSAQtzdXBlcm1hcmtldOABAA!16s%2Fg%2F11lkp10npx?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "pharmacy-my-le-1",
+    "query": "Quầy thuốc Mỹ lệ 1 Thạch Hòa",
+    "name": "Quầy thuốc Mỹ lệ 1",
+    "category": "pharmacy",
+    "category_vn": "Y tế & Sức khỏe",
+    "lat": 21.0277222,
+    "lng": 105.5189989,
+    "maps_url": "https://www.google.com/maps/place/Qu%E1%BA%A7y+thu%E1%BB%91c+M%E1%BB%B9+l%E1%BB%87+1/@21.0277222,105.5189989,17z/data=!3m1!4b1!4m6!3m5!1s0x31345b2c192cd0af:0xc197671509839f4a!8m2!3d21.0277222!4d105.5189989!16s%2Fg%2F11j1ht9k7y?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "pharmacy-phuong-nam",
+    "query": "Phương Nam Pharmacy Thạch Hòa Thạch Thất",
+    "name": "Phương Nam Pharmacy Thạch Hòa Thạch Thất",
+    "category": "pharmacy",
+    "category_vn": "Y tế & Sức khỏe",
+    "lat": 21.0277222,
+    "lng": 105.5189989,
+    "maps_url": "https://www.google.com/maps/place/Qu%E1%BA%A7y+thu%E1%BB%91c+M%E1%BB%B9+l%E1%BB%87+1/@21.0277222,96.2904833,6z/data=!4m10!1m2!2m1!1zUGjGsMahbmcgTmFtIFBoYXJtYWN5IFRo4bqhY2ggSMOyYSBUaOG6oWNoIFRo4bqldA!3m6!1s0x31345b2c192cd0af:0xc197671509839f4a!8m2!3d21.0277222!4d105.5189989!15sCjFQaMawxqFuZyBOYW0gUGhhcm1hY3kgVGjhuqFjaCBIw7JhIFRo4bqhY2ggVGjhuqV0kgEIcGhhcm1hY3ngAQA!16s%2Fg%2F11j1ht9k7y?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "pharmacy-nga-cuong",
+    "query": "Quầy thuốc Nga Cường Thạch Hòa Thạch Thất",
+    "name": "Quầy Thuốc Nga Cường",
+    "category": "pharmacy",
+    "category_vn": "Y tế & Sức khỏe",
+    "lat": 21.03125,
+    "lng": 105.5079125,
+    "maps_url": "https://www.google.com/maps/place/Qu%E1%BA%A7y+Thu%E1%BB%91c+Nga+C%C6%B0%E1%BB%9Dng/@21.03125,105.4718636,14z/data=!4m10!1m2!2m1!1zUXXhuqd5IHRodeG7kWMgTmdhIEPGsOG7nW5nIFRo4bqhY2ggSMOyYSBUaOG6oWNoIFRo4bqldA!3m6!1s0x31345f0075f73e8b:0xfeef370f940f2877!8m2!3d21.03125!4d105.5079125!15sCjdRdeG6p3kgdGh14buRYyBOZ2EgQ8aw4budbmcgVGjhuqFjaCBIw7JhIFRo4bqhY2ggVGjhuqV0kgEIcGhhcm1hY3ngAQA!16s%2Fg%2F11xmxdw41y?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "service-honda-cuong-thanh",
+    "query": "HEAD Honda Cường Thành Hòa Lạc",
+    "name": "Honda Cường Thanh",
+    "category": "services",
+    "category_vn": "Dịch vụ học tập & Đời sống",
+    "lat": null,
+    "lng": null,
+    "maps_url": "https://www.google.com/maps/search/HEAD%20Honda%20C%C6%B0%E1%BB%9Dng%20Th%C3%A0nh%20H%C3%B2a%20L%E1%BA%A1c"
+  },
+  {
+    "id": "service-ky-ngan",
+    "query": "Kỳ Ngàn Building Hòa Lạc",
+    "name": "Kỳ Ngàn Building Hòa Lạc",
+    "category": "services",
+    "category_vn": "Dịch vụ học tập & Đời sống",
+    "lat": 21.027403,
+    "lng": 105.5246895,
+    "maps_url": "https://www.google.com/maps/place/Ky+Ngan+Hostel/@21.027403,105.5066651,15z/data=!4m10!1m2!2m1!1zS-G7syBOZ8OgbiBCdWlsZGluZyBIw7JhIEzhuqFj!3m6!1s0x31345bf373461901:0x953c871840dfe8e7!8m2!3d21.027403!4d105.5246895!15sCh5L4buzIE5nw6BuIEJ1aWxkaW5nIEjDsmEgTOG6oWOSAQZob3N0ZWzgAQA!16s%2Fg%2F11vbsmj2pj?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "service-nvh-thon-4",
+    "query": "Nhà Văn Hóa Thôn 4 Hòa Lạc",
+    "name": "Nhà Văn Hoá Thôn 4 Hòa Lạc",
+    "category": "services",
+    "category_vn": "Dịch vụ học tập & Đời sống",
+    "lat": 21.0222227,
+    "lng": 105.521736,
+    "maps_url": "https://www.google.com/maps/place/Nh%C3%A0+V%C4%83n+Ho%C3%A1+Th%C3%B4n+4+H%C3%B2a+L%E1%BA%A1c/@21.0222227,105.521736,17z/data=!3m1!4b1!4m6!3m5!1s0x31345bc735611631:0xa1693973fe734b8!8m2!3d21.0222227!4d105.521736!16s%2Fg%2F11s_fszz_2?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "service-nvh-thon-5",
+    "query": "Nhà Văn hóa thôn 5 Hoà Lạc",
+    "name": "Nhà Văn hoá thôn 5 - Hoà Lạc",
+    "category": "services",
+    "category_vn": "Dịch vụ học tập & Đời sống",
+    "lat": 21.0255094,
+    "lng": 105.5154171,
+    "maps_url": "https://www.google.com/maps/place/Nh%C3%A0+V%C4%83n+ho%C3%A1+th%C3%B4n+5+-+Ho%C3%A0+L%E1%BA%A1c/@21.0255094,105.5154171,17z/data=!3m1!4b1!4m6!3m5!1s0x31345bf2096da22d:0x11db8426914330d6!8m2!3d21.0255094!4d105.5154171!16s%2Fg%2F11rnbs82pv?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "service-henna-tattoo",
+    "query": "Henna Tattoo Thạch Hòa Thạch Thất",
+    "name": "Henna Tattoo Thạch Hòa Thạch Thất",
+    "category": "services",
+    "category_vn": "Dịch vụ học tập & Đời sống",
+    "lat": 21.022348,
+    "lng": 105.512037,
+    "maps_url": "https://www.google.com/maps/place/Henna+Tattoo/@21.022348,105.4759881,14z/data=!4m10!1m2!2m1!1zSGVubmEgVGF0dG9vIFRo4bqhY2ggSMOyYSBUaOG6oWNoIFRo4bqldA!3m6!1s0x31345b0011465563:0xe97f1430fe9a24a5!8m2!3d21.022348!4d105.512037!15sCihIZW5uYSBUYXR0b28gVGjhuqFjaCBIw7JhIFRo4bqhY2ggVGjhuqV0kgEScGhvdG9ncmFwaHlfc3R1ZGlv4AEA!16s%2Fg%2F11zb8qzkch?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "ent-san-cau-long-368",
+    "query": "Sân Cầu Lông 368 Badminton Hòa Lạc",
+    "name": "Sân Cầu Lông 368 Badminton",
+    "category": "entertainment",
+    "category_vn": "Giải trí & Thể thao",
+    "lat": 21.0289077,
+    "lng": 105.5298308,
+    "maps_url": "https://www.google.com/maps/place/S%C3%A2n+C%E1%BA%A7u+L%C3%B4ng+368+Badminton/@21.0289077,105.5298308,17z/data=!3m1!4b1!4m6!3m5!1s0x31345b5e8ecdae85:0x7392aabd4509a15!8m2!3d21.0289077!4d105.5298308!16s%2Fg%2F11xc_pzl2n?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "ent-galaxy-billiards",
+    "query": "Galaxy Billiards Club Thạch Hòa Thạch Thất",
+    "name": "Galaxy Billiards Club Thạch Hòa Thạch Thất",
+    "category": "entertainment",
+    "category_vn": "Giải trí & Thể thao",
+    "lat": 20.9959834,
+    "lng": 105.5224688,
+    "maps_url": "https://www.google.com/maps/place/Hola+Sun+Garden+Cafe/@20.995983,105.4864201,14z/data=!4m9!1m2!2m1!1zR2FsYXh5IEJpbGxpYXJkcyBDbHViIFRo4bqhY2ggSMOyYSBUaOG6oWNoIFRo4bqldA!3m5!1s0x31345b81bb475c7d:0x5587afb8c2f1309d!8m2!3d20.9959834!4d105.5224688!16s%2Fg%2F11ynk28tg5?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "ent-nexus-gaming",
+    "query": "Nexus Gaming Thạch Hòa Thạch Thất",
+    "name": "Nexus Gaming Thạch Hòa Thạch Thất",
+    "category": "entertainment",
+    "category_vn": "Giải trí & Thể thao",
+    "lat": 21.0090216,
+    "lng": 105.5179099,
+    "maps_url": "https://www.google.com/maps/place/Cyber+T-+Rex+Gaming-+Ho%C3%A0+L%E1%BA%A1c/@21.0090216,105.4458121,13z/data=!4m10!1m2!2m1!1zTmV4dXMgR2FtaW5nIFRo4bqhY2ggSMOyYSBUaOG6oWNoIFRo4bqldA!3m6!1s0x31345b20d7980d1b:0x89cba3064275b220!8m2!3d21.0090216!4d105.5179099!15sCihOZXh1cyBHYW1pbmcgVGjhuqFjaCBIw7JhIFRo4bqhY2ggVGjhuqV0WioiKG5leHVzIGdhbWluZyB0aOG6oWNoIGjDsmEgdGjhuqFjaCB0aOG6pXSSAQ1pbnRlcm5ldF9jYWZlmgFEQ2k5RFFVbFJRVU52WkVOb2RIbGpSamx2VDJzNE1WSnNUa1JqUXpFd1ZWUkdUMWRYWkZWVFIzaHZVbFZvZEZsdVl4QULgAQD6AQQIABA3!16s%2Fg%2F11nhhgpt4x?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "house-trang-nguyen",
+    "query": "Nhà Trọ Trạng Nguyên Thôn 5 Thạch Hòa",
+    "name": "Nhà Trọ Trạng Nguyên Thôn 5 Thạch Hòa",
+    "category": "boarding_house",
+    "category_vn": "Nhà trọ & Chung cư mini",
+    "lat": 20.9907033,
+    "lng": 105.5088697,
+    "maps_url": "https://www.google.com/maps/place/Nh%C3%A0+tr%E1%BB%8D+tr%E1%BA%A1ng+nguy%C3%AAn/@20.9907033,105.4728208,14z/data=!4m10!1m2!2m1!1zTmjDoCBUcuG7jSBUcuG6oW5nIE5ndXnDqm4gVGjDtG4gNSBUaOG6oWNoIEjDsmE!3m6!1s0x31345b005e02fc9b:0xdfa3913f8c08e0de!8m2!3d20.9907033!4d105.5088697!15sCi9OaMOgIFRy4buNIFRy4bqhbmcgTmd1ecOqbiBUaMO0biA1IFRo4bqhY2ggSMOyYZIBBmhvc3RlbOABAA!16s%2Fg%2F11mt2dyktl?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "house-minh-cuong",
+    "query": "Nhà Trọ Minh Cương Thạch Hòa",
+    "name": "Nhà Trọ Minh Cương Thạch Hòa",
+    "category": "boarding_house",
+    "category_vn": "Nhà trọ & Chung cư mini",
+    "lat": 20.9996684,
+    "lng": 105.5209066,
+    "maps_url": "https://www.google.com/maps/place/Minh+Anh+Hostel/@20.9996684,105.4848577,14z/data=!4m10!1m2!2m1!1zTmjDoCBUcuG7jSBNaW5oIEPGsMahbmcgVGjhuqFjaCBIw7Jh!3m6!1s0x31345b3c8d2b8103:0x622619b2907966ec!8m2!3d20.9996684!4d105.5209066!15sCiROaMOgIFRy4buNIE1pbmggQ8awxqFuZyBUaOG6oWNoIEjDsmFaJiIkbmjDoCB0cuG7jSBtaW5oIGPGsMahbmcgdGjhuqFjaCBow7JhkgEGaG9zdGVsmgEkQ2hkRFNVaE5NRzluUzBWSlEwRm5TVU5TZURsbFNqaFJSUkFC4AEA-gEECAAQMQ!16s%2Fg%2F11rbf1b02s?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "house-hoang-nam-2",
+    "query": "Nhà Trọ Hoàng Nam 2 Thạch Hòa",
+    "name": "Nhà Trọ Hoàng Nam 2 Thạch Hòa",
+    "category": "boarding_house",
+    "category_vn": "Nhà trọ & Chung cư mini",
+    "lat": 21.0076029,
+    "lng": 105.5172239,
+    "maps_url": "https://www.google.com/maps/place/Nh%C3%A0+Tr%E1%BB%8D+Th%C3%A0nh+Nam+2/@21.0076029,105.4991995,15z/data=!4m10!1m2!2m1!1zTmjDoCBUcuG7jSBIb8OgbmcgTmFtIDIgVGjhuqFjaCBIw7Jh!3m6!1s0x31345b4c6051be09:0xb78a62151036ad49!8m2!3d21.0076029!4d105.5172239!15sCiROaMOgIFRy4buNIEhvw6BuZyBOYW0gMiBUaOG6oWNoIEjDsmGSAQZob3N0ZWzgAQA!16s%2Fg%2F11rb51y27w?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "id": "campus-bus-cho-hoa-lac",
+    "query": "Điểm đón xe buýt Chợ Hòa Lạc QL21",
+    "name": "Ngã Ba Hòa Lạc - Quốc Lộ 21",
+    "category": "campus",
+    "category_vn": "Trường & Điểm đón Bus",
+    "lat": 20.993675,
+    "lng": 105.523911,
+    "maps_url": "https://www.google.com/maps/place/Ng%C3%A3+Ba+H%C3%B2a+L%E1%BA%A1c+-+Qu%E1%BB%91c+L%E1%BB%99+21/@20.993675,105.4878621,14z/data=!4m10!1m2!2m1!1zxJBp4buDbSDEkcOzbiB4ZSBidcO9dCBDaOG7oyBIw7JhIEzhuqFjIFFMMjE!3m6!1s0x31345b9f89c0e27d:0xa735d6b4511c86a0!8m2!3d20.993675!4d105.523911!15sCizEkGnhu4NtIMSRw7NuIHhlIGJ1w710IENo4bujIEjDsmEgTOG6oWMgUUwyMZIBCGJ1c19zdG9w4AEA!16s%2Fg%2F11n86s7277?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D"
+  }
+]
