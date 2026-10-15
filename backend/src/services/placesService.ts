@@ -392,6 +392,13 @@ export const placesService = {
    * Get single place by ID with full reviews
    */
   async getPlaceById(id: string | number, includeUnapproved: boolean = false): Promise<Place | null> {
+    if (db.isPostgres) {
+      const isUuid = typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      const isNumeric = !isNaN(Number(id));
+      if (!isUuid && !isNumeric) {
+        return null;
+      }
+    }
     const placeId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
     const sql = `
       SELECT p.*, c.name as category_name, cont.contributor_name
@@ -625,6 +632,13 @@ export const placesService = {
     id: string | number,
     approvalStatus: Extract<PlaceApprovalStatus, 'approved' | 'rejected'>
   ): Promise<Place | null> {
+    if (db.isPostgres) {
+      const isUuid = typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      const isNumeric = !isNaN(Number(id));
+      if (!isUuid && !isNumeric) {
+        return null;
+      }
+    }
     const targetId = db.isPostgres ? String(id) : (isNaN(Number(id)) ? id : Number(id));
     const updated = await db.query(
       `UPDATE places

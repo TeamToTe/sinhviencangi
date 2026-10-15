@@ -195,10 +195,18 @@ placesRouter.post('/', placeProposalRateLimiter, authMiddleware, async (req: Aut
   }
 });
 
-// PATCH /api/places/:id/approval (Admin only)
-placesRouter.patch('/:id/approval', requireAdmin, async (req: Request, res: Response): Promise<void> => {
+// Handle place approval status transition (Admin only)
+const handlePlaceApproval = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (typeof id === 'string' && (id.startsWith('pin-') || id.startsWith('mock-'))) {
+      res.status(404).json({
+        error: 'Not Found',
+        message: 'Địa điểm tạm thời (mock/local) không tồn tại trên máy chủ.',
+      });
+      return;
+    }
+
     const approvalStatus = req.body?.approvalStatus as PlaceApprovalStatus;
     if (approvalStatus !== 'approved' && approvalStatus !== 'rejected') {
       res.status(400).json({
@@ -220,7 +228,13 @@ placesRouter.patch('/:id/approval', requireAdmin, async (req: Request, res: Resp
   } catch (err: any) {
     res.status(500).json({ error: 'Server error', message: err.message });
   }
-});
+};
+
+// PATCH /api/places/:id/approval (Admin only)
+placesRouter.patch('/:id/approval', requireAdmin, handlePlaceApproval);
+
+// POST /api/places/:id/approval (Admin only - Alias for environments that restrict HTTP PATCH)
+placesRouter.post('/:id/approval', requireAdmin, handlePlaceApproval);
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_BASE64_IMAGE_REGEX = /^data:image\/(jpeg|jpg|png|webp|gif|avif|heic|heif);base64,/i;
