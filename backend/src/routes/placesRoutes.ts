@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { placesService, detectAreaFromCoordinates, getPlaceImage } from '../services/placesService.js';
 import { authMiddleware, requireAdmin, type AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { placeProposalRateLimiter, reviewRateLimiter } from '../middleware/rateLimiter.js';
+import { placeProposalRateLimiter, reviewRateLimiter, placesRateLimiter } from '../middleware/rateLimiter.js';
 import type { FilterParams, CreatePlaceDto, CreateReviewDto, PlaceApprovalStatus } from '../types/place.js';
 
 export const placesRouter = Router();
@@ -57,24 +57,53 @@ placesRouter.get('/nearby', async (req: Request, res: Response): Promise<void> =
 });
 
 // GET /api/places
-placesRouter.get('/', async (req: Request, res: Response): Promise<void> => {
+placesRouter.get('/', placesRateLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const filters: FilterParams = {};
 
-    if (req.query.category) filters.category = req.query.category as string;
-    if (req.query.q) filters.searchQuery = req.query.q as string;
-    if (req.query.area) filters.area = req.query.area as string;
-    if (req.query.minPrice) filters.minPrice = parseFloat(req.query.minPrice as string);
-    if (req.query.maxPrice) filters.maxPrice = parseFloat(req.query.maxPrice as string);
-    if (req.query.sortBy) filters.sortBy = req.query.sortBy as any;
+    if (req.query.category && typeof req.query.category === 'string') {
+      filters.category = req.query.category.slice(0, 50).trim();
+    }
+
+    if (req.query.q && typeof req.query.q === 'string') {
+      // Limit search query length to 100 characters to prevent excessive DB CPU usage
+      filters.searchQuery = req.query.q.slice(0, 100).trim();
+    }
+
+    if (req.query.area && typeof req.query.area === 'string') {
+      filters.area = req.query.area.slice(0, 50).trim();
+    }
+
+    if (req.query.minPrice) {
+      const minP = parseFloat(req.query.minPrice as string);
+      if (!isNaN(minP) && minP >= 0 && minP <= 1_000_000_000) {
+        filters.minPrice = minP;
+      }
+    }
+
+    if (req.query.maxPrice) {
+      const maxP = parseFloat(req.query.maxPrice as string);
+      if (!isNaN(maxP) && maxP >= 0 && maxP <= 1_000_000_000) {
+        filters.maxPrice = maxP;
+      }
+    }
+
+    if (req.query.sortBy && typeof req.query.sortBy === 'string') {
+      const allowedSort = ['rating', 'price_asc', 'price_desc', 'distance'];
+      if (allowedSort.includes(req.query.sortBy)) {
+        filters.sortBy = req.query.sortBy as any;
+      }
+    }
 
     if (req.query.minLng && req.query.maxLng && req.query.minLat && req.query.maxLat) {
-      filters.bbox = {
-        minLng: parseFloat(req.query.minLng as string),
-        maxLng: parseFloat(req.query.maxLng as string),
-        minLat: parseFloat(req.query.minLat as string),
-        maxLat: parseFloat(req.query.maxLat as string),
-      };
+      const minLng = parseFloat(req.query.minLng as string);
+      const maxLng = parseFloat(req.query.maxLng as string);
+      const minLat = parseFloat(req.query.minLat as string);
+      const maxLat = parseFloat(req.query.maxLat as string);
+
+      if (![minLng, maxLng, minLat, maxLat].some(isNaN)) {
+        filters.bbox = { minLng, maxLng, minLat, maxLat };
+      }
     }
 
     const places = await placesService.getPlaces(filters);

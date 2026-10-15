@@ -34,27 +34,37 @@ export function createApp(): Express {
   }
 
   // CORS configuration: Explicit allowlist, block wildcard reflection with credentials
-  const allowedOrigins = [
+  const explicitOrigins = [
     'http://localhost:5173',
     'http://localhost:4173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
     'http://127.0.0.1:4173',
     'http://127.0.0.1:3000',
+    'https://sinhviencangi.onrender.com',
     ...(config.corsOrigin && config.corsOrigin !== '*' ? config.corsOrigin.split(',').map((s) => s.trim()) : []),
   ];
+
+  const isOriginAllowed = (origin: string): boolean => {
+    if (explicitOrigins.includes(origin)) return true;
+    // Allow Vercel preview and production deployments
+    if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin)) return true;
+    return false;
+  };
 
   app.use(
     cors({
       origin: (requestOrigin, callback) => {
         // Allow server-to-server or curl/mobile requests without Origin header
         if (!requestOrigin) return callback(null, true);
-        if (allowedOrigins.includes(requestOrigin)) {
+        if (isOriginAllowed(requestOrigin)) {
           return callback(null, true);
         }
         return callback(new Error('CORS not allowed by policy'), false);
       },
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     })
   );
 
