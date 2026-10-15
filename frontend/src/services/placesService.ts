@@ -509,20 +509,24 @@ export const placesService = {
 
   /** Fetch proposals that are hidden from the public map and visible only to admins. */
   async getPlaceSubmissions(): Promise<Place[]> {
+    const localPending = getStoredPlaceSubmissions().filter((place) => place.approvalStatus === 'pending');
     if (!USE_MOCK_DATA) {
       try {
         const submissions = await request<Place[]>('/places/submissions');
         if (Array.isArray(submissions)) {
-          return submissions.map((place) => ({
+          const serverPlaces = submissions.map((place) => ({
             ...place,
             photos: Array.isArray(place.photos) ? place.photos.map(formatPhotoUrl) : [],
           }));
+          const serverIds = new Set(serverPlaces.map((p) => p.id));
+          const uniqueLocal = localPending.filter((p) => !serverIds.has(p.id));
+          return [...uniqueLocal, ...serverPlaces];
         }
       } catch (err) {
         console.warn('[PlacesService] Backend getPlaceSubmissions error:', err);
       }
     }
-    return getStoredPlaceSubmissions().filter((place) => place.approvalStatus === 'pending');
+    return localPending;
   },
 
   /** Approve or reject a pending guest proposal. */
@@ -530,26 +534,110 @@ export const placesService = {
     id: string,
     approvalStatus: Extract<PlaceApprovalStatus, 'approved' | 'rejected'>
   ): Promise<Place> {
-    if (!USE_MOCK_DATA) {
-      const updated = await request<Place>(`/places/${id}/approval`, {
-        method: 'PATCH',
-        body: JSON.stringify({ approvalStatus }),
-      });
-      return {
-        ...updated,
-        photos: Array.isArray(updated.photos) ? updated.photos.map(formatPhotoUrl) : [],
-      };
-    }
+    const isMockOrLocalId =
+      id.startsWith('pin-') ||
+      id.startsWith('mock-') ||
+      (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) && isNaN(Number(id)));
 
     const submissions = getStoredPlaceSubmissions();
-    const index = submissions.findIndex((place) => place.id === id && place.approvalStatus === 'pending');
-    if (index === -1) throw new Error('Không tìm thấy đề xuất đang chờ duyệt.');
+    const localIndex = submissions.findIndex((place) => place.id === id);
 
-    const updated = { ...submissions[index], approvalStatus };
-    submissions[index] = updated;
-    saveStoredPlaceSubmissions(submissions);
-    if (approvalStatus === 'approved') MOCK_PLACES.unshift(updated);
-    return updated;
+    // If it's a local mock pin or stored in localStorage submissions
+    if (isMockOrLocalId || localIndex !== -1) {
+      let targetPlace = localIndex !== -1 ? submissions[localIndex] : null;
+      if (!targetPlace) {
+        targetPlace = MOCK_PLACES.find((p) => p.id === id) || null;
+      }
+      if (!targetPlace) throw new Error('Không tìm thấy đề xuất đang chờ duyệt.');
+
+      const updated: Place = { ...targetPlace, approvalStatus };
+      if (localIndex !== -1) {
+        submissions[localIndex] = updated;
+        saveStoredPlaceSubmissions(submissions);
+      }
+
+      if (approvalStatus === 'approved') {
+        const mockIdx = MOCK_PLACES.findIndex((p) => p.id === id);
+        if (mockIdx !== -1) {
+          MOCK_PLACES[mockIdx] = updated;
+        } else {
+          MOCK_PLACES.unshift(updated);
+        }
+
+        // Sync approved local place to backend if online
+        if (!USE_MOCK_DATA) {
+          try {
+            await request<Place>('/places', {
+              method: 'POST',
+              body: JSON.stringify({
+                name: updated.name,
+                category: updated.category,
+                address: updated.address,
+                areaName: updated.areaName,
+                coordinates: updated.coordinates,
+                latitude: updated.coordinates?.lat,
+                longitude: updated.coordinates?.lng,
+                phone: updated.phone,
+                rentPrice: updated.priceInfo?.amount,
+                minPrice: updated.priceInfo?.amount,
+                amenities: updated.amenities?.map((a: any) => a.label || a) || updated.tags || [],
+                photos: updated.photos || [],
+                reviewContent: updated.fullDescription,
+              }),
+            });
+          } catch (syncErr) {
+            console.warn('[PlacesService] Failed to sync approved local place to backend:', syncErr);
+          }
+        }
+      }
+      return updated;
+    }
+
+    // It's a server place (UUID or numeric ID)
+    if (!USE_MOCK_DATA) {
+      try {
+        const updated = await request<Place>(`/places/${id}/approval`, {
+          method: 'PATCH',
+          body: JSON.stringify({ approvalStatus }),
+        });
+        return {
+          ...updated,
+          photos: Array.isArray(updated.photos) ? updated.photos.map(formatPhotoUrl) : [],
+        };
+      } catch (patchErr) {
+        console.warn('[PlacesService] PATCH /places/:id/approval failed, trying POST alias or fallback:', patchErr);
+        try {
+          const updated = await request<Place>(`/places/${id}/approval`, {
+            method: 'POST',
+            body: JSON.stringify({ approvalStatus }),
+          });
+          return {
+            ...updated,
+            photos: Array.isArray(updated.photos) ? updated.photos.map(formatPhotoUrl) : [],
+          };
+        } catch {
+          // If Supabase direct client is available, update Supabase directly
+          if (supabase) {
+            try {
+              const { data, error } = await supabase
+                .from('places')
+                .update({ approval_status: approvalStatus })
+                .eq('id', id)
+                .select()
+                .single();
+              if (!error && data) {
+                return mapDbRowToPlace(data);
+              }
+            } catch (supaErr) {
+              console.error('[PlacesService] Supabase direct approval update failed:', supaErr);
+            }
+          }
+          throw patchErr;
+        }
+      }
+    }
+
+    throw new Error('Không tìm thấy đề xuất đang chờ duyệt.');
   },
 
   /**
