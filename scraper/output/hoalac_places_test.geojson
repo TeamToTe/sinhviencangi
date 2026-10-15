@@ -1,0 +1,121 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "title": "Hòa Lạc Student Map POI Dataset",
+    "bbox_from_n18_up": [
+      105.495,
+      20.998,
+      105.558,
+      21.032
+    ],
+    "total_places": 3,
+    "created_at": "2026-10-10T11:04:06.093894"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.552,
+          21.0258
+        ]
+      },
+      "properties": {
+        "id": "3ae00909d380",
+        "name": "Cơm Tấm Bảo Uyên",
+        "name_vi": "Cơm Tấm Bảo Uyên",
+        "name_en": "",
+        "category": "food_drink",
+        "category_label": "Ăn uống & Cafe",
+        "subcategory": "restaurant",
+        "address": "Trục ĐT420 gần Nhà Thờ Phú Hữu, Thạch Thất",
+        "area_name": "Bình Yên / Phú Hữu",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:04:06.086342",
+        "distance_to_fpt_m": 3099.7732897631154,
+        "status": "needs_verify",
+        "notes": "Quán cơm tấm, cơm bình dân quen thuộc trục ĐT420",
+        "min_price": 35000,
+        "max_price": 45000,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "cơm tấm,cơm bình dân,ăn trưa,giá sinh viên"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.5195,
+          21.0148
+        ]
+      },
+      "properties": {
+        "id": "b857d15647ef",
+        "name": "Phương Nam Pharmacy",
+        "name_vi": "Nhà thuốc Phương Nam",
+        "name_en": "",
+        "category": "pharmacy",
+        "category_label": "Hiệu thuốc & Y tế",
+        "subcategory": "pharmacy",
+        "address": "Thôn 6, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "web_research",
+        "scraped_at": "2026-10-10T11:04:06.086342",
+        "distance_to_fpt_m": 609.0601716068337,
+        "status": "needs_verify",
+        "notes": "Hiệu thuốc lớn, dược sĩ tư vấn tận tình, đầy đủ thuốc cảm, tiêu hóa, sơ cứu",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà thuốc,dược sĩ tư vấn,sơ cứu"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          105.502,
+          21.021
+        ]
+      },
+      "properties": {
+        "id": "179097eaf3e5",
+        "name": "Nhà Trọ Thanh Phượng",
+        "name_vi": "Nhà Trọ Thanh Phượng",
+        "name_en": "",
+        "category": "boarding_house",
+        "category_label": "Nhà trọ & CCMN",
+        "subcategory": "boarding_house",
+        "address": "Thôn 5, Xã Thạch Hòa, Thạch Thất, Hà Nội",
+        "area_name": "Thôn 5 Thạch Hòa",
+        "phone": "",
+        "website": "",
+        "opening_hours": "",
+        "osm_id": "",
+        "source": "map_inspection",
+        "scraped_at": "2026-10-10T11:04:06.086342",
+        "distance_to_fpt_m": 2548.4185590710777,
+        "status": "needs_verify",
+        "notes": "Khu trọ sinh viên Thôn 5, yên tĩnh, khép kín",
+        "min_price": 0,
+        "max_price": 0,
+        "rating": 0.0,
+        "review_count": 0,
+        "tags": "nhà trọ,thôn 5,sinh viên"
+      }
+    }
+  ]
+}
