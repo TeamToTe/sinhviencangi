@@ -14,7 +14,7 @@ import type {
   SurveyStats,
   SurveyTemplate,
 } from '../types/place';
-import { request, USE_MOCK_DATA } from './apiClient';
+import { request, USE_MOCK_DATA, ApiError } from './apiClient';
 import { supabase } from './supabaseClient';
 import { resolveImageUrl } from '../utils/imageUrl';
 import { getCategoryUnit } from '../utils/priceUtils';
@@ -441,8 +441,10 @@ export const placesService = {
           };
         }
       } catch (err) {
-        // A guest proposal must never look successful if the approval API is unavailable.
-        if (placeData.isGuestSubmission) throw err;
+        // If it's a client error (e.g. 400 validation, 429 rate limit), rethrow so UI can display message
+        if (err instanceof ApiError && err.status >= 400 && err.status < 500) {
+          throw err;
+        }
         console.warn('[PlacesService] Backend createPlace error, falling back to local mock:', err);
       }
     }

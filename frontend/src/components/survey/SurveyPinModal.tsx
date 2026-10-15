@@ -139,7 +139,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Auto-detect area dynamically when map moves in pin mode
+  // Auto-detect area dynamically when map moves in pin mode or when opening form directly
   useEffect(() => {
     if (surveyStep === 'map_pin') {
       const curLat = center[1];
@@ -150,6 +150,23 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
           if (res) setDetectedMapArea(res);
         })
         .catch(() => {});
+    } else if (surveyStep === 'form' && center && center.length >= 2) {
+      // If opening form directly (e.g. from guest 'Đề xuất địa điểm' button)
+      if (lat === 21.0185 && lng === 105.5345) {
+        const curLat = Number(center[1].toFixed(6));
+        const curLng = Number(center[0].toFixed(6));
+        setLat(curLat);
+        setLng(curLng);
+        placesService
+          .detectArea(curLat, curLng)
+          .then((res) => {
+            if (res) {
+              setDetectedMapArea(res);
+              setArea(res);
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, [center, surveyStep]);
 
@@ -369,17 +386,19 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
       }
 
       // Reset form fields for next place
+      setName('');
+      setAddress('');
+      setMinPrice('');
+      setMaxPrice('');
+      setRentPrice('');
+      setPhotos([]);
+      setReviewContent('');
+
+      // Auto close after 3.5s if user doesn't click close button
       setTimeout(() => {
-        setName('');
-        setAddress('');
-        setMinPrice('');
-        setMaxPrice('');
-        setRentPrice('');
-        setPhotos([]);
-        setReviewContent('');
         setSubmitSuccess(false);
         setSurveyStep('closed');
-      }, 1500);
+      }, 3500);
     } catch (err: any) {
       console.error('Lỗi khi chấm địa điểm:', err);
       setErrorMessage(err.message || 'Đã có lỗi xảy ra. Vui lòng thử lại!');
@@ -517,33 +536,43 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
           </button>
         </div>
 
-        {/* 2. Modal Body (Smoothly scrollable) */}
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
-            {/* Success Banner */}
-            {submitSuccess && (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-center gap-3 animate-in fade-in">
-                <Check className="w-6 h-6 text-emerald-600 shrink-0" />
-                <div>
-                  <p className="font-bold text-sm">
-                    {isGuestSubmission ? 'Đã gửi đề xuất thành công!' : 'Đã chấm địa điểm thành công!'}
-                  </p>
-                  <p className="text-xs text-emerald-700">
-                    {isGuestSubmission
-                      ? 'Admin sẽ kiểm tra trước khi địa điểm xuất hiện công khai trên bản đồ.'
-                      : 'Dữ liệu đã được lưu trực tiếp vào bản đồ.'}
-                  </p>
+        {/* 2. Modal Body */}
+        {submitSuccess ? (
+          <div className="p-8 sm:p-12 text-center space-y-5 my-auto flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-inner">
+              <Check className="w-8 h-8 sm:w-10 sm:h-10" />
+            </div>
+            <div className="space-y-2 max-w-md">
+              <h3 className="text-lg sm:text-xl font-black text-slate-900 font-serif">
+                {isGuestSubmission ? 'Đã gửi đề xuất thành công!' : 'Đã chấm địa điểm thành công!'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                {isGuestSubmission
+                  ? 'Cảm ơn đóng góp của bạn! Đề xuất địa điểm đã được chuyển đến Ban Quản Trị và sẽ hiển thị công khai trên bản đồ ngay sau khi duyệt.'
+                  : 'Dữ liệu địa điểm đã được lưu trực tiếp vào bản đồ.'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitSuccess(false);
+                setSurveyStep('closed');
+              }}
+              className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+            >
+              Đã hiểu & Đóng
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
+              {/* Error Banner */}
+              {errorMessage && (
+                <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start gap-2.5 text-xs font-medium">
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                  <span>{errorMessage}</span>
                 </div>
-              </div>
-            )}
-
-            {/* Error Banner */}
-            {errorMessage && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start gap-2.5 text-xs font-medium">
-                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-                <span>{errorMessage}</span>
-              </div>
-            )}
+              )}
 
             {/* 1. Pinned Location Card (Grab / Be Style) */}
             <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50/50 border-2 border-emerald-300 space-y-3 shadow-xs">
@@ -937,7 +966,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
 
               <div>
                 <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                  Nhận xét thực tế / Review ngắn (*)
+                  Nhận xét thực tế / Review ngắn {isGuestSubmission ? '(Tùy chọn)' : '(*)'}
                 </label>
                 <textarea
                   rows={2}
@@ -945,7 +974,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
                   maxLength={1000}
                   value={reviewContent}
                   onChange={(e) => setReviewContent(e.target.value)}
-                  required
+                  required={!isGuestSubmission}
                   className="w-full px-3 py-2.5 sm:py-2 rounded-xl border border-gray-300 bg-white text-sm sm:text-xs font-medium text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -986,6 +1015,7 @@ export const SurveyPinModal: React.FC<SurveyPinModalProps> = ({ onPlaceCreated }
             </div>
           </div>
         </form>
+        )}
       </div>
     </div>
   );
