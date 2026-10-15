@@ -34,7 +34,11 @@ const FacebookIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' 
 
 function getShortName(fullName?: string): string {
   if (!fullName) return 'Admin';
-  const parts = fullName.trim().split(/\s+/);
+  // Drop role annotations such as "(Nhóm trưởng)" / "(Quản trị hệ thống)"
+  // so we show the person's name instead of their role title.
+  const nameOnly = fullName.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  const source = nameOnly || fullName.trim();
+  const parts = source.split(/\s+/);
   return parts[parts.length - 1];
 }
 
@@ -289,7 +293,11 @@ export const Header: React.FC = () => {
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
             <input
+              id="place-search"
+              name="q"
               type="text"
+              autoComplete="off"
+              aria-label="Tìm kiếm địa điểm"
               maxLength={100}
               placeholder="Tìm trọ Tân Xã, quán cơm tấm, hiệu thuốc, cứu hộ xe..."
               value={searchQuery}
@@ -298,6 +306,8 @@ export const Header: React.FC = () => {
             />
             {searchQuery && (
               <button
+                type="button"
+                aria-label="Xóa tìm kiếm"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full cursor-pointer"
               >

@@ -348,10 +348,10 @@ export const App: React.FC = () => {
 
             <MapLibreView places={approvedPlaces} isLoading={isLoading} />
           </div>
-
-          {/* Cột Phải: Bảng chi tiết pop-up khi bấm vào địa điểm */}
-          <PlaceDetailDrawer />
         </div>
+
+        {/* Cột Phải: Bảng chi tiết pop-up — hiển thị ở cả chế độ Bản đồ, Danh sách và Đã lưu */}
+        <PlaceDetailDrawer />
           </>
         )}
       </main>

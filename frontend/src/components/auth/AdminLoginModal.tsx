@@ -102,12 +102,15 @@ export const AdminLoginModal: React.FC = () => {
           {/* Input Fields */}
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
+              <label htmlFor="admin-username" className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
                 <UserIcon className="w-3.5 h-3.5 text-gray-500" />
                 Tên đăng nhập
               </label>
               <input
+                id="admin-username"
+                name="username"
                 type="text"
+                autoComplete="username"
                 placeholder="Nhập tên đăng nhập của bạn..."
                 maxLength={50}
                 value={username}
@@ -119,12 +122,15 @@ export const AdminLoginModal: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
+              <label htmlFor="admin-password" className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-gray-500" />
                 Mật khẩu
               </label>
               <input
+                id="admin-password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="Nhập mật khẩu..."
                 maxLength={100}
                 value={password}
