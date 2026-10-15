@@ -12,20 +12,42 @@ import {
   Check,
   Eye,
   ArrowLeft,
-  Smartphone,
-  Laptop,
-  Phone,
   ExternalLink,
   ShieldCheck,
   Camera,
 } from 'lucide-react';
-import type { Place, ReportItem, PlaceCategory } from '../../types/place';
+import type { Place, ReportItem, PlaceCategory, SurveyStats } from '../../types/place';
 import { placesService } from '../../services/placesService';
 import { useMapStore } from '../../stores/useMapStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { uploadReviewImage, validateImageFile } from '../../services/storageService';
 import { resolveImageUrl } from '../../utils/imageUrl';
 import { formatPriceText, getCategoryUnit } from '../../utils/priceUtils';
+
+// Stable colour palette for the real-data breakdown bars
+const BAR_COLORS = [
+  'bg-emerald-500',
+  'bg-blue-500',
+  'bg-amber-500',
+  'bg-violet-500',
+  'bg-indigo-500',
+  'bg-rose-500',
+  'bg-cyan-500',
+  'bg-purple-500',
+  'bg-teal-500',
+  'bg-orange-500',
+];
+
+// Vietnamese labels for the category slugs stored in the database
+const CATEGORY_LABELS: Record<string, string> = {
+  boarding_house: 'Nhà trọ & CCMN',
+  food_drink: 'Ăn uống & Cafe',
+  grocery: 'Siêu thị & Tạp hóa',
+  pharmacy: 'Hiệu thuốc & Y tế',
+  services: 'Sửa xe & Dịch vụ',
+  entertainment: 'Giải trí & Thể thao',
+  campus: 'Trường & Điểm đón Bus',
+};
 
 interface AdminDashboardProps {
   places: Place[];
@@ -50,6 +72,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [adminResolveNote, setAdminResolveNote] = useState<string>('');
   const [submissions, setSubmissions] = useState<Place[]>([]);
   const [reviewingSubmissionId, setReviewingSubmissionId] = useState<string | null>(null);
+
+  // Real survey statistics (from GET /api/stats)
+  const [stats, setStats] = useState<SurveyStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   // Places search & management
   const [placeSearch, setPlaceSearch] = useState('');
@@ -92,9 +118,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  const loadStats = async () => {
+    setStatsLoading(true);
+    try {
+      const data = await placesService.getSurveyStats();
+      setStats(data);
+    } catch (err) {
+      console.error('Failed to load survey stats:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadReports();
     loadSubmissions();
+    loadStats();
   }, []);
 
   // Filtered reports
@@ -247,6 +286,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  // Derived values for the "Thống kê dữ liệu" tab — all computed from real /api/stats data
+  const areaEntries = stats ? Object.entries(stats.byArea).sort((a, b) => b[1] - a[1]) : [];
+  const areaTotal = areaEntries.reduce((sum, [, count]) => sum + count, 0);
+  const categoryEntries = stats ? Object.entries(stats.byCategory).sort((a, b) => b[1] - a[1]) : [];
+  const categoryTotal = categoryEntries.reduce((sum, [, count]) => sum + count, 0);
+  const surveyorEntries = stats ? [...stats.bySurveyor].sort((a, b) => b.count - a.count) : [];
+  const maxSurveyor = Math.max(1, ...surveyorEntries.map((s) => s.count));
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-y-auto bg-slate-50 custom-scrollbar font-serif">
       {/* Top Admin Header Bar */}
@@ -272,7 +319,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-normal">
-                Xin chào, <strong className="text-slate-800">{user?.fullName || 'Admin'}</strong> • Kiểm soát lưu lượng, thêm địa điểm & xử lý báo cáo
+                Xin chào, <strong className="text-slate-800">{user?.fullName || 'Admin'}</strong> • Thống kê dữ liệu, thêm địa điểm & xử lý báo cáo
               </p>
             </div>
           </div>
@@ -288,7 +335,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <Activity className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Lưu lượng truy cập</span>
+              <span>Thống kê dữ liệu</span>
             </button>
 
             <button
@@ -347,193 +394,182 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* ========================================================================= */}
         {activeAdminSection === 'traffic' && (
           <div className="space-y-6 animate-in fade-in duration-150">
-            {/* 4 Stat Cards */}
+            {/* 4 Stat Cards — real data from GET /api/stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Lưu lượng hôm nay</p>
-                  <p className="text-2xl sm:text-3xl font-black text-slate-900">1,842</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng địa điểm</p>
+                  <p className="text-2xl sm:text-3xl font-black text-slate-900">
+                    {statsLoading ? '…' : (stats?.totalPlaces ?? 0)}
+                  </p>
                   <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>↑ 24.5%</span> <span className="text-slate-400">so với hôm qua</span>
+                    <span>Tiến độ khảo sát {stats?.progressPercentage ?? 0}%</span>
+                    <span className="text-slate-400">/ mục tiêu {stats?.targetPlaces ?? 0}</span>
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <MapPin className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng đánh giá</p>
+                  <p className="text-2xl sm:text-3xl font-black text-slate-900">
+                    {statsLoading ? '…' : (stats?.totalReviews ?? 0)}
+                  </p>
+                  <p className="text-xs font-semibold text-blue-600 flex items-center gap-1">
+                    <span>Đánh giá thực từ người dùng</span>
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
                   <Activity className="w-6 h-6" />
                 </div>
               </div>
 
               <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Lượt tìm kiếm</p>
-                  <p className="text-2xl sm:text-3xl font-black text-slate-900">926</p>
-                  <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>Top:</span> <span className="text-slate-600 truncate max-w-[120px]">trọ Tân Xã, cơm tấm</span>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Người đóng góp</p>
+                  <p className="text-2xl sm:text-3xl font-black text-slate-900">
+                    {statsLoading ? '…' : (stats?.totalContributors ?? 0)}
+                  </p>
+                  <p className="text-xs font-semibold text-violet-600 flex items-center gap-1">
+                    <span>Thành viên đã đóng góp dữ liệu</span>
                   </p>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Search className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
               </div>
 
               <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Lượt gọi điện / Zalo</p>
-                  <p className="text-2xl sm:text-3xl font-black text-slate-900">415</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Chờ xử lý</p>
+                  <p className="text-2xl sm:text-3xl font-black text-slate-900">
+                    {submissions.length + pendingReportsCount}
+                  </p>
                   <p className="text-xs font-semibold text-amber-600 flex items-center gap-1">
-                    <span>↑ 18.2%</span> <span className="text-slate-400">tương tác trực tiếp</span>
+                    <span>{submissions.length} đề xuất</span>
+                    <span className="text-slate-400">{pendingReportsCount} báo cáo</span>
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                  <Phone className="w-6 h-6" />
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Thiết bị truy cập</p>
-                  <div className="flex items-center gap-3 pt-1">
-                    <div className="flex items-center gap-1 text-slate-800 text-sm font-black">
-                      <Smartphone className="w-4 h-4 text-emerald-600" />
-                      <span>84%</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-slate-500 text-sm font-semibold">
-                      <Laptop className="w-4 h-4 text-slate-400" />
-                      <span>16%</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-400">Ưu tiên trải nghiệm Mobile</p>
-                </div>
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                  <Smartphone className="w-6 h-6" />
+                  <Clock className="w-6 h-6" />
                 </div>
               </div>
             </div>
 
-            {/* Hourly Traffic Chart (Biểu đồ lưu lượng trực quan) */}
+            {/* Survey Progress (real) */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Tiến độ khảo sát địa điểm</h3>
+                  <p className="text-xs text-slate-500">
+                    Số địa điểm đã duyệt trên tổng mục tiêu {stats?.targetPlaces ?? 0} điểm
+                  </p>
+                </div>
+                <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
+                  {stats?.totalPlaces ?? 0} / {stats?.targetPlaces ?? 0}
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-lime-400 transition-all duration-500"
+                  style={{ width: `${Math.min(100, stats?.progressPercentage ?? 0)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Contributions per surveyor (real: bySurveyor) */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-black text-slate-900">Biểu đồ lưu lượng theo khung giờ (24h)</h3>
-                  <p className="text-xs text-slate-500">Giờ cao điểm sinh viên tìm quán ăn trưa (11:30) & tìm phòng trọ (19:00 - 21:30)</p>
+                  <h3 className="text-base font-black text-slate-900">Đóng góp theo thành viên khảo sát</h3>
+                  <p className="text-xs text-slate-500">Số địa điểm đã duyệt do từng thành viên đóng góp</p>
                 </div>
-                <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
-                  Thời gian thực (Live)
+                <span className="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                  Dữ liệu thực
                 </span>
               </div>
 
-              {/* Bar visualization */}
-              <div className="grid grid-cols-12 gap-1.5 sm:gap-2 items-end h-40 pt-6 px-2 border-b border-slate-100">
-                {[
-                  { hour: '02h', height: '10%', val: 24 },
-                  { hour: '04h', height: '8%', val: 18 },
-                  { hour: '06h', height: '22%', val: 85 },
-                  { hour: '08h', height: '55%', val: 210 },
-                  { hour: '10h', height: '75%', val: 340 },
-                  { hour: '12h', height: '95%', val: 430, highlight: true },
-                  { hour: '14h', height: '60%', val: 240 },
-                  { hour: '16h', height: '68%', val: 280 },
-                  { hour: '18h', height: '88%', val: 380 },
-                  { hour: '20h', height: '100%', val: 460, highlight: true },
-                  { hour: '22h', height: '70%', val: 310 },
-                  { hour: '24h', height: '35%', val: 140 },
-                ].map((bar, i) => (
-                  <div key={i} className="flex flex-col items-center gap-1.5 h-full justify-end group">
-                    <span className="text-[10px] font-bold text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {bar.val}
-                    </span>
-                    <div
-                      style={{ height: bar.height }}
-                      className={`w-full rounded-t-lg transition-all duration-300 group-hover:scale-y-105 ${
-                        bar.highlight
-                          ? 'bg-gradient-to-t from-emerald-600 to-lime-400 shadow-sm'
-                          : 'bg-slate-200 group-hover:bg-emerald-400'
-                      }`}
-                    />
-                    <span className="text-[10px] text-slate-500 font-semibold">{bar.hour}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Regional & Category Breakdown */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Regional Breakdown */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                <h3 className="text-base font-black text-slate-900">Phân bổ lưu lượng theo khu vực Hòa Lạc</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Khu vực Xã Tân Xã (Quanh hồ Tân Xã, Mục Uyên)', percent: 52, color: 'bg-emerald-500' },
-                    { name: 'Khu vực Xã Thạch Hòa (Trục QL21 & Chợ Hòa Lạc)', percent: 28, color: 'bg-blue-500' },
-                    { name: 'Khu vực Xã Bình Yên (Trục ĐT420 & Phú Cát)', percent: 14, color: 'bg-amber-500' },
-                    { name: 'Khu Công Nghệ Cao Hòa Lạc (FPTU, VNU, Viettel)', percent: 6, color: 'bg-indigo-500' },
-                  ].map((item, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex justify-between text-xs font-bold text-slate-700">
-                        <span>{item.name}</span>
-                        <span>{item.percent}%</span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${item.color}`}
-                          style={{ width: `${item.percent}%` }}
-                        />
-                      </div>
+              {surveyorEntries.length === 0 ? (
+                <p className="text-sm text-slate-400 py-6 text-center">Chưa có dữ liệu đóng góp.</p>
+              ) : (
+                <div className="flex gap-1.5 sm:gap-2 items-end h-40 pt-6 px-2 border-b border-slate-100 overflow-x-auto">
+                  {surveyorEntries.map((s, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1.5 h-full justify-end group min-w-[44px] flex-1">
+                      <span className="text-[10px] font-bold text-slate-500 group-hover:text-emerald-700 transition-colors whitespace-nowrap">
+                        {s.count}
+                      </span>
+                      <div
+                        style={{ height: `${Math.max(4, Math.round((s.count / maxSurveyor) * 100))}%` }}
+                        className="w-full rounded-t-lg transition-all duration-300 group-hover:scale-y-105 bg-gradient-to-t from-emerald-600 to-lime-400 shadow-sm"
+                      />
+                      <span className="text-[10px] text-slate-500 font-semibold truncate max-w-[64px] text-center" title={s.name}>
+                        {s.name}
+                      </span>
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+
+            {/* Regional & Category Breakdown (real: byArea / byCategory) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Regional Breakdown */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                <h3 className="text-base font-black text-slate-900">Phân bổ địa điểm theo khu vực</h3>
+                {areaEntries.length === 0 ? (
+                  <p className="text-sm text-slate-400 py-6 text-center">Chưa có dữ liệu khu vực.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {areaEntries.map(([name, count], idx) => {
+                      const percent = areaTotal > 0 ? Math.round((count / areaTotal) * 1000) / 10 : 0;
+                      return (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-xs font-bold text-slate-700">
+                            <span>{name}</span>
+                            <span>{count} điểm • {percent}%</span>
+                          </div>
+                          <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${BAR_COLORS[idx % BAR_COLORS.length]}`}
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Category Breakdown */}
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                <h3 className="text-base font-black text-slate-900">Nhu cầu sinh viên theo loại hình dịch vụ</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Nhà trọ & Chung cư mini (CCMN)', percent: 44, color: 'bg-orange-500' },
-                    { name: 'Ăn uống, Quán cơm & Cafe sinh viên', percent: 34, color: 'bg-amber-500' },
-                    { name: 'Sửa xe máy, Cứu hộ đường phố', percent: 10, color: 'bg-cyan-500' },
-                    { name: 'Hiệu thuốc & Chăm sóc y tế', percent: 7, color: 'bg-rose-500' },
-                    { name: 'Giải trí, Bida, Cầu lông, Thể thao', percent: 5, color: 'bg-purple-500' },
-                  ].map((item, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex justify-between text-xs font-bold text-slate-700">
-                        <span>{item.name}</span>
-                        <span>{item.percent}%</span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${item.color}`}
-                          style={{ width: `${item.percent}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Realtime Action Logs */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-3">
-              <h3 className="text-base font-black text-slate-900">Nhật ký hoạt động thời gian thực</h3>
-              <div className="divide-y divide-slate-100 text-xs">
-                {[
-                  { time: '1 phút trước', text: 'Sinh viên từ IP 118.70.x.x vừa xem chi tiết "CCMN Sunny House Tân Xã"', tag: 'Xem trọ' },
-                  { time: '3 phút trước', text: 'Bấm gọi điện thoại tới "HEAD Honda Cường Thành - Sửa Xe Máy"', tag: 'Liên hệ' },
-                  { time: '7 phút trước', text: 'Tìm kiếm từ khóa "cơm tấm đêm" tại khu vực Thạch Hòa', tag: 'Tìm kiếm' },
-                  { time: '12 phút trước', text: 'Sinh viên gửi 1 báo cáo phản hồi về "Nhà Trọ Xanh Tân Xã"', tag: 'Báo cáo', alert: true },
-                  { time: '18 phút trước', text: 'Lưu 1 địa điểm vào danh sách yêu thích cá nhân', tag: 'Yêu thích' },
-                ].map((log, idx) => (
-                  <div key={idx} className="py-2.5 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] ${
-                        log.alert ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'
-                      }`}>
-                        {log.tag}
-                      </span>
-                      <span className="text-slate-800 font-medium">{log.text}</span>
-                    </div>
-                    <span className="text-slate-400 text-[11px] shrink-0">{log.time}</span>
+                <h3 className="text-base font-black text-slate-900">Phân bổ địa điểm theo loại hình dịch vụ</h3>
+                {categoryEntries.length === 0 ? (
+                  <p className="text-sm text-slate-400 py-6 text-center">Chưa có dữ liệu danh mục.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {categoryEntries.map(([name, count], idx) => {
+                      const percent = categoryTotal > 0 ? Math.round((count / categoryTotal) * 1000) / 10 : 0;
+                      return (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-xs font-bold text-slate-700">
+                            <span>{CATEGORY_LABELS[name] || name}</span>
+                            <span>{count} điểm • {percent}%</span>
+                          </div>
+                          <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${BAR_COLORS[idx % BAR_COLORS.length]}`}
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
