@@ -25,7 +25,7 @@ export const App: React.FC = () => {
 
   const handlePlaceCreated = (newPlace: Place) => {
     // Only places with approved status are published directly to the public map
-    if (newPlace.approvalStatus && newPlace.approvalStatus !== 'approved') {
+    if (newPlace.approvalStatus !== 'approved') {
       return;
     }
     setPlaces((prev) => [newPlace, ...prev.filter((p) => p.id !== newPlace.id)]);
