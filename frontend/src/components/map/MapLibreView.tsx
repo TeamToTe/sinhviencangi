@@ -366,11 +366,23 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
       attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Tiles by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OSM</a> | Bản đồ Việt Nam 🇻🇳',
     });
 
+    // Only fall back to the backup provider when the primary tiles keep
+    // failing. A single transient/aborted tile (common on a cold first load
+    // while the service worker is still activating) must NOT flip the whole
+    // map — otherwise the user is stuck with a completely different map style
+    // until they hard-refresh.
+    let consecutiveTileErrors = 0;
     let hasFallenBack = false;
+    const TILE_ERROR_THRESHOLD = 8;
+    tileLayer.on('tileload', () => {
+      if (!hasFallenBack) consecutiveTileErrors = 0;
+    });
     tileLayer.on('tileerror', () => {
-      if (!hasFallenBack) {
+      if (hasFallenBack) return;
+      consecutiveTileErrors += 1;
+      if (consecutiveTileErrors >= TILE_ERROR_THRESHOLD) {
         hasFallenBack = true;
-        console.warn('[Map] Switching to backup tile provider...');
+        console.warn('[Map] Primary tiles repeatedly failing, switching to backup provider...');
         tileLayer.setUrl(CLEAN_TILE_LAYERS.esriStreet);
       }
     });
@@ -432,7 +444,31 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
 
     mapRef.current = map;
 
+    // Keep the map canvas in sync with its container. Leaflet natively listens
+    // only to *window* resizes, so a container whose size changes while the
+    // window stays put (e.g. the header growing/shrinking when the web font
+    // swaps in on a cold first load, or the mobile browser bar collapsing)
+    // leaves the map rendered at a stale size until a manual refresh.
+    const invalidate = () => {
+      if (mapRef.current === map) map.invalidateSize({ animate: false });
+    };
+    const container = mapContainerRef.current;
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && container) {
+      resizeObserver = new ResizeObserver(invalidate);
+      resizeObserver.observe(container);
+    }
+    window.addEventListener('resize', invalidate);
+    window.addEventListener('orientationchange', invalidate);
+    // Web fonts can change the header height *after* the map has initialised.
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready.then(invalidate).catch(() => {});
+    }
+
     return () => {
+      window.removeEventListener('resize', invalidate);
+      window.removeEventListener('orientationchange', invalidate);
+      resizeObserver?.disconnect();
       map.remove();
       mapRef.current = null;
     };
