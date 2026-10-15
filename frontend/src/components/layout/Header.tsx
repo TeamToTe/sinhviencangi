@@ -68,6 +68,14 @@ export const Header: React.FC = () => {
     handleTabChange('map');
   };
 
+  const handleOpenSuggestPlace = () => {
+    if (isAdminPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+    setSurveyStep(isAuthenticated && isAdmin ? 'map_pin' : 'form');
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (viewMenuRef.current && !viewMenuRef.current.contains(event.target as Node)) {
@@ -254,7 +262,7 @@ export const Header: React.FC = () => {
 
             {/* Guest submissions are reviewed before they become public. */}
             <button
-              onClick={() => setSurveyStep('map_pin')}
+              onClick={handleOpenSuggestPlace}
               className="p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 active:scale-95 text-white shadow-xs cursor-pointer shrink-0 flex items-center justify-center border border-emerald-500/80"
               title={isAuthenticated && isAdmin ? 'Chấm điểm khảo sát thực địa bằng GPS' : 'Đề xuất địa điểm để Admin duyệt'}
               aria-label="Đề xuất địa điểm"
@@ -302,7 +310,7 @@ export const Header: React.FC = () => {
         {/* Desktop View Mode Switcher, Survey Button & Facebook Link */}
         <div className="hidden lg:flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
-            onClick={() => setSurveyStep('map_pin')}
+            onClick={handleOpenSuggestPlace}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-black shadow-md shadow-emerald-600/20 transition-all cursor-pointer shrink-0"
             title={isAuthenticated && isAdmin ? 'Chấm điểm khảo sát thực địa bằng GPS' : 'Đề xuất địa điểm để Admin duyệt'}
           >
