@@ -93,3 +93,11 @@ export const reportRateLimiter = createRateLimiter({
   max: 10,
   message: 'Bạn gửi báo cáo quá nhanh. Vui lòng thử lại sau ít phút.',
 });
+
+// 5. Places Browsing / Search: Max 120 requests per minute per IP to prevent scraper/DoS floods
+export const placesRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: 'Bạn đang gửi quá nhiều yêu cầu tìm kiếm. Vui lòng thử lại sau ít phút.',
+});
+
