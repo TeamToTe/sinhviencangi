@@ -239,10 +239,19 @@ export const placesService = {
 
         const data = await request<Place[]>(`/places?${params.toString()}`);
         if (Array.isArray(data)) {
-          return data.map((p) => ({
-            ...p,
-            photos: Array.isArray(p.photos) ? p.photos.map(formatPhotoUrl) : [],
-          }));
+          const pendingIds = new Set(
+            getStoredPlaceSubmissions()
+              .filter((p) => p.approvalStatus === 'pending')
+              .map((p) => p.id)
+          );
+
+          return data
+            .map((p) => ({
+              ...p,
+              photos: Array.isArray(p.photos) ? p.photos.map(formatPhotoUrl) : [],
+              approvalStatus: pendingIds.has(p.id) ? ('pending' as PlaceApprovalStatus) : (p.approvalStatus || 'approved'),
+            }))
+            .filter((p) => p.approvalStatus === 'approved');
         }
       } catch (backendErr) {
         console.warn('[PlacesService] Backend API request failed, trying Supabase fallback:', backendErr);
@@ -435,10 +444,24 @@ export const placesService = {
           body: JSON.stringify(placeData),
         });
         if (created) {
-          return {
+          const effectiveStatus: PlaceApprovalStatus =
+            placeData.isGuestSubmission
+              ? 'pending'
+              : (created.approvalStatus || 'approved');
+
+          const formatted: Place = {
             ...created,
             photos: Array.isArray(created.photos) ? created.photos.map(formatPhotoUrl) : [],
+            approvalStatus: effectiveStatus,
           };
+
+          if (effectiveStatus === 'pending') {
+            const existingSubmissions = getStoredPlaceSubmissions();
+            const filtered = existingSubmissions.filter((p) => p.id !== formatted.id);
+            saveStoredPlaceSubmissions([formatted, ...filtered]);
+          }
+
+          return formatted;
         }
       } catch (err) {
         // If it's a client error (e.g. 400 validation, 429 rate limit), rethrow so UI can display message
