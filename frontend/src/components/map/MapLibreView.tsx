@@ -264,7 +264,8 @@ function getVisiblePlacesWithoutOverlap(
   // Zoom >= 16.5: 32px
   // Zoom 14.5 - 16.5: 40px
   // Zoom < 14.5: 50px
-  const collisionThreshold = currentZoom >= 16.5 ? 32 : currentZoom >= 14.5 ? 40 : 50;
+  const collisionThreshold =
+    currentZoom >= 19 ? 0 : currentZoom >= 16.5 ? 32 : currentZoom >= 14.5 ? 40 : 50;
 
   const sorted = [...places].sort((a, b) => {
     if (a.id === selectedId) return -1;
@@ -357,7 +358,8 @@ export const MapLibreView: React.FC<MapLibreViewProps> = ({ places, isLoading })
 
     const tileLayer = L.tileLayer(CLEAN_TILE_LAYERS.osmHot, {
       subdomains: 'abc',
-      maxZoom: 19,
+      maxZoom: 20,
+      maxNativeZoom: 19,
       minZoom: 6,
       crossOrigin: 'anonymous',
       keepBuffer: 8,
