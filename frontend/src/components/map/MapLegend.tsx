@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CATEGORIES } from '../../data/mockPlaces';
 import { useFilterStore } from '../../stores/useFilterStore';
 import { IconRenderer } from '../common/IconRenderer';
-import { ChevronUp, ChevronDown, Layers } from 'lucide-react';
+import { ChevronUp, ChevronDown, Layers, ClipboardList } from 'lucide-react';
 import type { PlaceCategory } from '../../types/place';
 
 export const MapLegend: React.FC = () => {
@@ -10,7 +10,29 @@ export const MapLegend: React.FC = () => {
   const { category, setCategory } = useFilterStore();
 
   return (
-    <div className="absolute bottom-12 left-3 sm:bottom-8 sm:left-4 z-[950] select-none">
+    <div className="absolute bottom-12 left-3 sm:bottom-8 sm:left-4 z-[950] select-none flex flex-col gap-2 items-start">
+      {/* Form survey link - above legend */}
+      <a
+        href="https://docs.google.com/forms/d/e/1FAIpQLSdFVsX1t_0yGQKbOhbYKbx9adKuzP8gp3bQHVT-H1d4oaZvmQ/viewform"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="sm:hidden w-10 h-10 bg-amber-500 text-white rounded-2xl shadow-xl border border-amber-400/80 flex items-center justify-center cursor-pointer active:scale-95 transition-all hover:bg-amber-600"
+        title="Điền khảo sát"
+        aria-label="Điền khảo sát"
+      >
+        <ClipboardList className="w-5 h-5" />
+      </a>
+      <a
+        href="https://docs.google.com/forms/d/e/1FAIpQLSdFVsX1t_0yGQKbOhbYKbx9adKuzP8gp3bQHVT-H1d4oaZvmQ/viewform"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hidden sm:inline-flex items-center gap-2 px-3 py-2 bg-amber-500 text-white rounded-2xl shadow-xl border border-amber-400/80 cursor-pointer hover:bg-amber-600 transition-all active:scale-95 text-xs font-black tracking-wider uppercase"
+        title="Điền khảo sát"
+      >
+        <ClipboardList className="w-4 h-4 shrink-0" />
+        <span>Khảo sát</span>
+      </a>
+
       {/* Khi đóng: Nút icon trên mobile & nút pill ôm vừa chữ (không bị dài) trên desktop */}
       {!isExpanded && (
         <>
